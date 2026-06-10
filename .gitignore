@@ -1,0 +1,12 @@
+node_modules/
+dist/
+
+# env files with real keys — never commit
+.env.local
+.env
+backend/.env
+
+# python
+backend/.venv/
+__pycache__/
+*.pyc

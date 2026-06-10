@@ -1,0 +1,111 @@
+:root {
+  --background: #0a0a0a;
+  --foreground: #e8e8e8;
+  --card: #111111;
+  --card-foreground: #e8e8e8;
+  --primary: #16a34a;
+  --primary-foreground: #ffffff;
+  --secondary: #1a1a1a;
+  --secondary-foreground: #e8e8e8;
+  --muted: #1f2937;
+  --muted-foreground: #9ca3af;
+  --accent: #14532d;
+  --accent-foreground: #e8e8e8;
+  --border: #1f2937;
+  --input: #1f2937;
+  --ring: #16a34a;
+
+  /* theme-aware extras used by the dashboards */
+  --nav-bg: rgba(10, 10, 10, 0.98);
+  --surface: rgba(255, 255, 255, 0.04);
+  --border-soft: rgba(255, 255, 255, 0.08);
+  --input-bg: rgba(0, 0, 0, 0.25);
+  --text-secondary: #d1d5db;
+  --muted-2: #4b5563;
+  --primary-soft: #4ade80;
+  --on-accent: #d1fae5;
+}
+
+[data-theme="light"] {
+  --background: #f4f7f4;
+  --foreground: #111827;
+  --card: #ffffff;
+  --card-foreground: #111827;
+  --secondary: #e8efe8;
+  --secondary-foreground: #111827;
+  --muted: #e5e7eb;
+  --muted-foreground: #6b7280;
+  --accent: #dcfce7;
+  --accent-foreground: #14532d;
+  --border: #d1d5db;
+  --input: #e5e7eb;
+
+  --nav-bg: rgba(255, 255, 255, 0.97);
+  --surface: rgba(0, 0, 0, 0.05);
+  --border-soft: rgba(0, 0, 0, 0.1);
+  --input-bg: rgba(0, 0, 0, 0.04);
+  --text-secondary: #374151;
+  --muted-2: #6b7280;
+  --primary-soft: #15803d;
+  --on-accent: #166534;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  border-color: var(--border);
+}
+
+body {
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu",
+    "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: var(--background);
+  color: var(--foreground);
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  width: 100%;
+}
+
+/* ── animations ─────────────────────────────────────────── */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(26px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes floaty {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-16px); }
+}
+
+@keyframes typingBounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+  30%           { transform: translateY(-5px); opacity: 1; }
+}
+
+@keyframes glowPulse {
+  0%, 100% { filter: drop-shadow(0 0 28px rgba(22, 163, 74, 0.35)); }
+  50%      { filter: drop-shadow(0 0 60px rgba(22, 163, 74, 0.55)); }
+}
+
+.anim-fade-up { animation: fadeInUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.anim-fade-in { animation: fadeIn 0.9s ease both; }
+.anim-float   { animation: floaty 6s ease-in-out infinite; }
+.anim-glow    { animation: glowPulse 5s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .anim-fade-up, .anim-fade-in, .anim-float, .anim-glow { animation: none; }
+}
