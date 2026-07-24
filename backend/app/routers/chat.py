@@ -1,3 +1,5 @@
+from typing import Literal
+
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 from pydantic import BaseModel, Field
 
@@ -24,8 +26,14 @@ MODEL_VARIANTS = {
 REASONING_EFFORTS = {"low", "medium", "high"}
 
 
+class HistoryMessage(BaseModel):
+    role: Literal["user", "assistant"]
+    content: str = Field(min_length=1, max_length=8000)
+
+
 class ChatRequest(BaseModel):
     question: str = Field(min_length=1, max_length=4000)
+    history: list[HistoryMessage] = Field(default_factory=list, max_length=20)
     model_variant: str | None = None      # flash | pro | r1
     reasoning_effort: str | None = None   # low | medium | high
 
@@ -42,7 +50,13 @@ class ChatResponse(BaseModel):
 def chat(body: ChatRequest, user: dict = Depends(rate_limit("chat", 15))) -> ChatResponse:
     model = MODEL_VARIANTS.get(body.model_variant or "")
     effort = body.reasoning_effort if body.reasoning_effort in REASONING_EFFORTS else None
-    result = run_agent(body.question.strip(), student=user, model=model, effort=effort)
+    result = run_agent(
+        body.question.strip(),
+        student=user,
+        model=model,
+        effort=effort,
+        history=[m.model_dump() for m in body.history],
+    )
     return ChatResponse(
         answer=result.get("answer", ""),
         reasoning=result.get("reasoning", ""),

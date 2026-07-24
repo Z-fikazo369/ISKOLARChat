@@ -1,0 +1,25 @@
+# Keep Cline away from secrets & noise.
+# Syntax = .gitignore. The app's real keys live in .env files — never feed
+# them to an AI assistant's context.
+
+# ── Secrets ──────────────────────────────────────────────
+.env
+.env.*
+**/.env
+**/.env.*
+# ...but the committed template has no real keys, so allow it:
+!.env.example
+!**/.env.example
+*.pem
+*.key
+**/secrets/**
+
+# ── Dependencies / build noise (keeps Cline's context clean) ─
+node_modules/
+**/node_modules/
+.venv/
+**/.venv/
+dist/
+build/
+__pycache__/
+**/__pycache__/

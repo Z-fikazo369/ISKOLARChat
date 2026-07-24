@@ -1,0 +1,1017 @@
+[
+ {
+  "question": "What are the admission requirements for incoming freshmen?",
+  "ground_truth": "Incoming freshmen must submit Report Card (Form 138), Certificate of Good Moral Character, photocopy of Senior High School Diploma, University Admission Test Result, four copies of 2x2 ID picture, Certificate of Physical/Medical Examination, and a PSA/NSO authenticated Birth Certificate, plus any other requirements prescribed by the College/Department, CHED, or PRC.",
+  "reference_topics": "university admission and enrollment",
+  "reference": "",
+  "answer": "Sure, here's what incoming freshmen need to submit:\n\n- **Report Card (Form 138)**\n- **Certificate of Good Moral Character**\n- **Photocopy of Senior High School Diploma**\n- **University Admission Test Result**\n- **Four (4) copies of 2x2 ID picture**\n- **Certificate of Physical/Medical Examination**\n- **PSA/NSO Authenticated Copy of Birth Certificate**\n- **Other requirements** prescribed by the College/Department, CHED, or PRC if needed\n\nAlso, don't forget you'll need to pass the **entrance/admission test**, a **college interview**, and a **medical/dental exam** administered by the University.\n\nWant me to break down any of these items in more detail?",
+  "contexts": [
+   "9 | S T U D E N T M A N U A L Chapter II ACADEMIC REQUIREMENTS, PROCESS AND PROCEDURES The University shall admit or re-admit students who meet the following requirements: 1. GENERAL ADMISSION REQUIREMENTS FOR ALL ACADEMIC PROGRAMS a. Incoming Freshmen must submit the following: 1.a.1. Report Card (Form 138); 1.a.2. Certificate of Good Moral Character; 1.a.3. Photocopy of Senior High School Diploma; 1.a.4. University Admission Test Result; 1.a.5. Four (4) Copies of 2x2 ID Picture; 1.a.6. Certificate of Physical/Medical Examination; 1.a.7. PSA/NSO Authenticated Copy of Birth Certificate; and 1.a.8. Other requirements prescribed by the College/Department, CHED, PRC as deemed necessary. b. Transferees from SUCs and Non SUCs must submit the following: 1.b.1. Certification of Grades showing all the subjects taken from the school last attended; 1.b.2. Honorable Dismissal; 1.b.3. Certificate of Good Moral Character; 1.b.4. Four (4) copies of 2x2 ID picture with white background and name tag (scanned picture or digital copy not accepted); 1.b.5. Authenticated PSA copy of Birth Certificate; 1.b.6. Accomplished Substitution Form of subjects taken from other SUCs as deemed necessary; and 1.b.7. Accomplished Validation Form of subjects taken from non- SUCs.",
+   "10 | S T U D E N T M A N U A L Note: All incoming freshmen and transferee students must comply with additional requirements and pass the following: 1. Entrance / admission test administered by the Office of Student Affairs and Services; 2. Interview of the screening committee of the college; and 3. Medical and dental examination administered by the University. c. Foreign Students must submit the following: 1.c.1. University Admission Test/College Admission Test; 1.c.2. Passport/ Valid Student Visa/ Student Study Permit/ Student Visa Conversion; 1.c.3. Four (4) copies of 2x2 colored ID picture; 1.c.4. Student permit - certification from the embassy of the country of origin for his/ her eligibility to study in the Philippines; 1.c.5. Two (2) copies of affidavit of support or certification from a reputable bank in the applicant’s country of origin about his/her capability to finance travel, educational, personal and other expenses that are expected to be incurred while staying in the Philippines; 1.c.6. Authenticated copy of birth certificate; 1.c.7. Certificate of completion of a secondary curriculum or its equivalent (Authenticated TOR from the school/university graduated in the home country); 1.c.8. Pay the non-refundable application fee; 1.c.9. Certificate of good moral character issued by the last school attended; 1.c.10. Security clearance from the Philippine Embassy; 1.c.11. Alien Certification of Registration (ARC); 1.c.12. Statement of Personal History; 1.c.13. English Proficiency Test score. For test of English as a foreign language (TOFEL), the score must be equivalent to at least 80 or a band score of at least 5.0 in an International English Language Testing System (IELTS);"
+  ],
+  "escalated": false,
+  "intent": "question",
+  "standalone_question": "What are the admission requirements for incoming freshmen?",
+  "sub_queries": [
+   "admission requirements for incoming freshmen",
+   "freshman admission requirements",
+   "undergraduate admission requirements for first-year students"
+  ]
+ },
+ {
+  "question": "What documents must a transferee submit for admission?",
+  "ground_truth": "Transferees must submit a Certification of Grades showing all subjects taken from the school last attended, Honorable Dismissal, Certificate of Good Moral Character, four copies of 2x2 ID picture with white background and name tag, an authenticated PSA copy of the Birth Certificate, and accomplished Substitution and Validation forms for subjects taken at other schools.",
+  "reference_topics": "university admission and enrollment",
+  "reference": "",
+  "answer": "For transferees, you'll need to prepare a few documents and steps for admission. Here's the breakdown:\n\n- **Medical certificate and drug test result** (from a licensed facility)\n- **Meet requirements from DFA, Bureau of Immigration, and CHED** (if applicable, especially for foreign credentials)\n- **Pass the health exam** conducted by the University Infirmary\n- **Present an approved application form**\n\nIf you're coming from a **non-SUC** (non-state university/college), you also need to go through **validation of subjects**:\n- Submit credentials for evaluation\n- Secure a validation from the Registrar’s Office\n- Pay the validation fee\n- Present the receipt to the Dean\n- Report to the Program Chair for test validation\n- Submit validation test results to the Registrar’s Office before enrolling\n\nWant me to explain the **validation process** in more detail or clarify any of these steps?",
+  "contexts": [
+   "11 | S T U D E N T M A N U A L 1.c.14. Medical certificate and drug test result; 1.c.15. Meet all the prescribed requirements by the Department of Foreign Affairs, Bureau of Immigration and Deportation, and the Commission on Higher Education; 1.c.16. Pass the health examination conducted by the University Infirmary; and 1.c.18. Present an approved application form. 2. VALIDATION OF SUBJECTS A transferee who comes from a non-SUC shall: 2.1. Submit credentials for evaluation; 2.2. Secure a validation from the Registrar’s Office; 2.3. Pay validation fee; 2.4. Present receipt of validation fee to the Dean; 2.5. Report to the Program Chair for test validation; and 2.6. Submit validation test results to the Registrar’s Office and proceed for enrollment. a. Returning Students A returning student must submit the following: 2.a.1. Approved Leave of Absence (LOA); 2.a.2. Accomplished re-admission form; 2.a.3. Certification of Grades; and 2.a.4. Result of evaluation of grades by the Program Chair / Registration Adviser. b. Securing Leave of Absence (LOA) An undergraduate student who will not enroll for one (1) semester or to a maximum of 2 years shall file a Leave of Absence (LOA):"
+  ],
+  "escalated": false,
+  "intent": "question",
+  "standalone_question": "What documents must a transferee submit for admission?",
+  "sub_queries": [
+   "transfer admission required documents",
+   "transferee application materials",
+   "transfer student checklist"
+  ]
+ },
+ {
+  "question": "Aside from documents, what must all incoming freshmen and transferees pass before being admitted?",
+  "ground_truth": "They must pass the entrance/admission test administered by the Office of Student Affairs and Services, an interview with the college screening committee, and a medical and dental examination administered by the University.",
+  "reference_topics": "university admission and enrollment",
+  "reference": "",
+  "answer": "Oh, good question! Before you're officially in, you need to pass a few more things aside from the paperwork.\n\n- **Entrance / admission test** — administered by the Office of Student Affairs and Services\n- **Interview** — done by the screening committee of your college\n- **Medical and dental examination** — handled by the University\n\nWant me to break down what each of those usually covers?",
+  "contexts": [
+   "10 | S T U D E N T M A N U A L Note: All incoming freshmen and transferee students must comply with additional requirements and pass the following: 1. Entrance / admission test administered by the Office of Student Affairs and Services; 2. Interview of the screening committee of the college; and 3. Medical and dental examination administered by the University. c. Foreign Students must submit the following: 1.c.1. University Admission Test/College Admission Test; 1.c.2. Passport/ Valid Student Visa/ Student Study Permit/ Student Visa Conversion; 1.c.3. Four (4) copies of 2x2 colored ID picture; 1.c.4. Student permit - certification from the embassy of the country of origin for his/ her eligibility to study in the Philippines; 1.c.5. Two (2) copies of affidavit of support or certification from a reputable bank in the applicant’s country of origin about his/her capability to finance travel, educational, personal and other expenses that are expected to be incurred while staying in the Philippines; 1.c.6. Authenticated copy of birth certificate; 1.c.7. Certificate of completion of a secondary curriculum or its equivalent (Authenticated TOR from the school/university graduated in the home country); 1.c.8. Pay the non-refundable application fee; 1.c.9. Certificate of good moral character issued by the last school attended; 1.c.10. Security clearance from the Philippine Embassy; 1.c.11. Alien Certification of Registration (ARC); 1.c.12. Statement of Personal History; 1.c.13. English Proficiency Test score. For test of English as a foreign language (TOFEL), the score must be equivalent to at least 80 or a band score of at least 5.0 in an International English Language Testing System (IELTS);"
+  ],
+  "escalated": false,
+  "intent": "question",
+  "standalone_question": "Aside from documents, what must all incoming freshmen and transferees pass before being admitted?",
+  "sub_queries": [
+   "admission requirements besides documents for freshmen",
+   "admission requirements besides documents for transfer students",
+   "pre-admission tests required for incoming students"
+  ]
+ },
+ {
+  "question": "What requirements must foreign students submit to be admitted to ISU?",
+  "ground_truth": "Foreign students submit the University/College Admission Test result, passport or valid student visa/permit, four copies of 2x2 colored ID picture, a student permit from their embassy, an affidavit of support or bank certification of financial capacity, an authenticated birth certificate, a certificate of secondary completion (authenticated TOR), the non-refundable application fee, a certificate of good moral character, security clearance from the Philippine Embassy, an Alien Certificate of Registration, a Statement of Personal History, and an English proficiency score (TOEFL at least 80 or IELTS at least 5.0).",
+  "reference_topics": "university admission and enrollment",
+  "reference": "",
+  "answer": "Sure, here's what foreign students need to submit for admission to ISU:\n\nFirst, they also have to comply with the **general requirements** for all incoming freshmen and transferees:\n- Pass the **entrance/admission test** (administered by the Office of Student Affairs and Services)\n- Undergo an **interview** by the college screening committee\n- Complete a **medical and dental examination** by the University\n\nThen, on top of those, foreign students must submit these **specific documents**:\n- **University Admission Test / College Admission Test** result\n- **Passport / Valid Student Visa / Study Permit / Student Visa Conversion**\n- **Four (4) copies of 2x2 colored ID picture**\n- **Student permit** – certification from your country's embassy about eligibility to study in the PH\n- **Two (2) copies of affidavit of support** or bank certification showing you can cover all expenses\n- **Authenticated copy of birth certificate**\n- **Certificate of completion of secondary curriculum** (authenticated TOR from your home school)\n- **Non-refundable application fee** (paid)\n- **Certificate of good moral character** from your last school\n- **Security clearance from the Philippine Embassy**\n- **Alien Certification of Registration (ARC)**\n- **Statement of Personal History**\n- **English Proficiency Test score** – TOEFL (80+) or IELTS (band 5.0+)\n\nThat's a lot, I know! Want me to break down any specific item further, like how to get the security clearance or the affidavit of support?",
+  "contexts": [
+   "10 | S T U D E N T M A N U A L Note: All incoming freshmen and transferee students must comply with additional requirements and pass the following: 1. Entrance / admission test administered by the Office of Student Affairs and Services; 2. Interview of the screening committee of the college; and 3. Medical and dental examination administered by the University. c. Foreign Students must submit the following: 1.c.1. University Admission Test/College Admission Test; 1.c.2. Passport/ Valid Student Visa/ Student Study Permit/ Student Visa Conversion; 1.c.3. Four (4) copies of 2x2 colored ID picture; 1.c.4. Student permit - certification from the embassy of the country of origin for his/ her eligibility to study in the Philippines; 1.c.5. Two (2) copies of affidavit of support or certification from a reputable bank in the applicant’s country of origin about his/her capability to finance travel, educational, personal and other expenses that are expected to be incurred while staying in the Philippines; 1.c.6. Authenticated copy of birth certificate; 1.c.7. Certificate of completion of a secondary curriculum or its equivalent (Authenticated TOR from the school/university graduated in the home country); 1.c.8. Pay the non-refundable application fee; 1.c.9. Certificate of good moral character issued by the last school attended; 1.c.10. Security clearance from the Philippine Embassy; 1.c.11. Alien Certification of Registration (ARC); 1.c.12. Statement of Personal History; 1.c.13. English Proficiency Test score. For test of English as a foreign language (TOFEL), the score must be equivalent to at least 80 or a band score of at least 5.0 in an International English Language Testing System (IELTS);"
+  ],
+  "escalated": false,
+  "intent": "question",
+  "standalone_question": "What requirements must foreign students submit to be admitted to ISU?",
+  "sub_queries": [
+   "international student admission requirements ISU",
+   "foreign student application requirements Iowa State University",
+   "ISU admission requirements for international students"
+  ]
+ },
+ {
+  "question": "What are the enrollment procedures for freshmen and transferees?",
+  "ground_truth": "Proceed to the Program Chair/Dean for an interview, undergo a medical/dental examination at the University Infirmary, secure a student number from OSAS/Registrar, submit admission requirements to the Registrar's Office for encoding of subjects and assessment of fees, pay the assessed fees at the Cashier's Office, get scholarship approval from OSAS if applicable, enroll in NSTP if applicable, and proceed to the Campus Business Affairs Office for ID processing.",
+  "reference_topics": "university admission and enrollment",
+  "reference": "",
+  "answer": "Sure, ate/kuya! Here’s the step-by-step enrollment flow for freshmen and transferees — it’s based on the university’s new student procedures.\n\n- **First, meet the admission requirements** – submit all documents listed (e.g., Form 138, Good Moral, 2×2 photos, birth certificate, etc.). Transferees also need Honorable Dismissal and Certification of Grades.\n- **Take the entrance/admission test** administered by the Office of Student Affairs and Services (OSAS).\n- **Pass the college screening committee interview**.\n- **Undergo medical and dental examination** at the University Infirmary.\n- **Secure your student number** from OSAS or the Registrar’s Office.\n- **Submit all admission requirements** to the Registrar’s Office – they’ll encode subjects and assess fees.\n- **Pay assessed fees** at the Cashier’s Office (if applicable).\n- **If you’re a scholar**, get scholarship approval from OSAS first.\n- **Enroll in NSTP** at the NSTP office (if applicable).\n- **Proceed to the Campus Business Affairs Office (CBAO)** for ID processing.\n\nWant me to break down any specific step — like the documents needed for transferees vs freshmen?",
+  "contexts": [
+   "9 | S T U D E N T M A N U A L Chapter II ACADEMIC REQUIREMENTS, PROCESS AND PROCEDURES The University shall admit or re-admit students who meet the following requirements: 1. GENERAL ADMISSION REQUIREMENTS FOR ALL ACADEMIC PROGRAMS a. Incoming Freshmen must submit the following: 1.a.1. Report Card (Form 138); 1.a.2. Certificate of Good Moral Character; 1.a.3. Photocopy of Senior High School Diploma; 1.a.4. University Admission Test Result; 1.a.5. Four (4) Copies of 2x2 ID Picture; 1.a.6. Certificate of Physical/Medical Examination; 1.a.7. PSA/NSO Authenticated Copy of Birth Certificate; and 1.a.8. Other requirements prescribed by the College/Department, CHED, PRC as deemed necessary. b. Transferees from SUCs and Non SUCs must submit the following: 1.b.1. Certification of Grades showing all the subjects taken from the school last attended; 1.b.2. Honorable Dismissal; 1.b.3. Certificate of Good Moral Character; 1.b.4. Four (4) copies of 2x2 ID picture with white background and name tag (scanned picture or digital copy not accepted); 1.b.5. Authenticated PSA copy of Birth Certificate; 1.b.6. Accomplished Substitution Form of subjects taken from other SUCs as deemed necessary; and 1.b.7. Accomplished Validation Form of subjects taken from non- SUCs.",
+   "10 | S T U D E N T M A N U A L Note: All incoming freshmen and transferee students must comply with additional requirements and pass the following: 1. Entrance / admission test administered by the Office of Student Affairs and Services; 2. Interview of the screening committee of the college; and 3. Medical and dental examination administered by the University. c. Foreign Students must submit the following: 1.c.1. University Admission Test/College Admission Test; 1.c.2. Passport/ Valid Student Visa/ Student Study Permit/ Student Visa Conversion; 1.c.3. Four (4) copies of 2x2 colored ID picture; 1.c.4. Student permit - certification from the embassy of the country of origin for his/ her eligibility to study in the Philippines; 1.c.5. Two (2) copies of affidavit of support or certification from a reputable bank in the applicant’s country of origin about his/her capability to finance travel, educational, personal and other expenses that are expected to be incurred while staying in the Philippines; 1.c.6. Authenticated copy of birth certificate; 1.c.7. Certificate of completion of a secondary curriculum or its equivalent (Authenticated TOR from the school/university graduated in the home country); 1.c.8. Pay the non-refundable application fee; 1.c.9. Certificate of good moral character issued by the last school attended; 1.c.10. Security clearance from the Philippine Embassy; 1.c.11. Alien Certification of Registration (ARC); 1.c.12. Statement of Personal History; 1.c.13. English Proficiency Test score. For test of English as a foreign language (TOFEL), the score must be equivalent to at least 80 or a band score of at least 5.0 in an International English Language Testing System (IELTS);",
+   "13 | S T U D E N T M A N U A L 4.a.2. Undergo Medical/ Dental Examination at the University Infirmary; 4.a.3. Secure student number from the Office of Student Affairs and Services (OSAS)/ Registrar’s Office; 4.a.4. Submit admission requirements to the Registrar’s Office where subjects are encoded and fees are assessed; 4.a.5. Pay the assessed fees at the Cashier’s Office (as applicable); 4.a.6. For scholars, get approval of scholarship from the OSAS (as applicable); 4.a.7. Enroll National Service Training Program (NSTP) at the NSTP office (as applicable); and Proceed to the Campus Business Affairs Office (CBAO) for I.D. Processing. 4.b. Continuing/ Old Students 4.b.1. Accomplish Student Cumulative Record at the Guidance Office; 4.b.2. Secure certification of grades from the college/ Registrar’s office; 4.b.3. Accomplish pre-registration form to be approved by the registration adviser; 4.b.4. Proceed to the Registrar’s Office for the encoding of subjects and assessment of fees; 4.b.5. For scholars, get approval of scholarship from the OSAS (as applicable); and 4.b.6. Pay the assessed fees at the Cashier’s Office (as applicable). 4.c. Returnee and Continuing Professional Education (CPE)students 4.c.1. Accomplish Admission Form and Student Cumulative Record at the Guidance Office; 4.c.2. Proceed to the Program Chair for interview/ advising; 4.c.3. Proceed to the Registrar’s Office for the encoding of subjects and assessment of fees; and 4.c.4. Pay to the Cashier’s office the assessed fees (as applicable)."
+  ],
+  "escalated": false,
+  "intent": "question",
+  "standalone_question": "What are the enrollment procedures for freshmen and transferees?",
+  "sub_queries": [
+   "freshman enrollment procedures",
+   "transfer student enrollment procedures"
+  ]
+ },
+ {
+  "question": "How long can a leave of absence last and what happens if it is exceeded?",
+  "ground_truth": "A leave of absence shall not exceed two academic years; returning students who were on leave for more than two academic years must take six units of refresher subjects related to their course as determined by the program chair.",
+  "reference_topics": "university admission and enrollment;academic policies and grading",
+  "reference": "",
+  "answer": "Aleave of absence can last up to **one year**, but you can appeal if you need longer. However, another rule says it **should not exceed two academic years** — if you go beyond that, you'll be required to take **six units of refresher subjects** related to your course when you return.\n\nWant me to break down the steps for applying for a leave of absence?",
+  "contexts": [
+   "88 | S T U D E N T M A N U A L 2. Leave of Absence- permission not to enroll in the University for at least one semester but not to exceed one year, subject to appeal beyond one year. 3. Validation- the determination of the degree, subject and/or unit a transferee has taken in his/her previous school and assess if it can be carried and considered as completed units for the course enrolled in the University. 4. Dropping- the process of officially excluding a subject from the number of officially enrolled subjects for a given term, due to valid reason within the prescribed reglementary period. 5. Adding- the process of inclusion of a subject in addition to the number of subjects officially enrolled by a student in a given term, due to valid reasons, within the prescribed reglementary period. 6. Returnee Students- students considered for readmission depending on their previous scholastic performance, and the availability of slots/ and must have complied with all the requirements for readmission. 7. Cross-Enrollment- the process of earning an academic unit/subject within the system or in another HEI. 8. Fusing- the process of merging/ combining classes as deemed necessary.",
+   "12 | S T U D E N T M A N U A L 2.b.1. Secure and accomplish Exit and LOA Form from the OSAS; 2.b.2. Submit duly accomplished LOA Form to the Registrar’s Office; 2.b.3. LOA shall not exceed two (2) academic years; and 2.b.4. Returning students on LOA for more than two (2) academic years shall be required to take six units refresher subjects related to his/her course to be determined by the program chair. Note: 1. Leave of absence shall be excluded from the prescribed number of years the student is expected to finish the curriculum and maximum residency allowed. 2. For returning students and other students who went on a leave of absence, the determination and computation of their free higher education benefits shall be without prejudice to the most expedient way of completing their studies, as subsumed under Section 6 of the RA 10931. 3. REGISTRATION PROCEDURES Freshmen and Transferees 3.a.1. Accomplish application form for Admission Test from the Office of Student Affairs and Services (OSAS) through the Guidance Office; 3.a.2. Pay testing fee at the Cashier’s Office (as applicable); and 3.a.3. Take the test and secure test results from the Guidance Unit. 4. ENROLLMENT PROCEDURES 4.a. Freshmen and Transferees 4.a.1. Proceed to the concerned Program Chair/ Dean for interview;"
+  ],
+  "escalated": false,
+  "intent": "question",
+  "standalone_question": "How long can a leave of absence last and what happens if it is exceeded?",
+  "sub_queries": [
+   "maximum duration of leave of absence",
+   "consequences of exceeding leave of absence"
+  ]
+ },
+ {
+  "question": "What is the grade equivalent of a 98 to 100 percent rating?",
+  "ground_truth": "A percentage rating of 98 to 100 is equivalent to a grade of 1.00, described as Excellent.",
+  "reference_topics": "academic policies and grading",
+  "reference": "",
+  "answer": "A 98 to 100 percent rating is equivalent to **1.00**, which is described as **Excellent**.  \n\nWanna know the other percent ranges or what \"INC\" and \"5.0\" mean? Just ask!",
+  "contexts": [
+   "24 | S T U D E N T M A N U A L 18. GRADING SYSTEM The following approved grading system shall be adopted Percent Equivalent Grade Description 98 – 100 1.00 Excellent 95 – 97 1.25 Very Satisfactory 92 – 94 1.50 Satisfactory 89 – 91 1.75 Fairly Satisfactory 86 – 88 2.00 Good 83 – 85 2.25 Fairly Good 80 – 82 2.50 Fair 77 – 79 2.75 Below Fair 75 – 76 3.00 Passed Incomplete INC. Requirements not fully met 74 and below 5.00 Failed 18.a. A grade of “5.0” means failed; re- enrollment of the subject is required. 18.b. An INC grade is given to a student whose class standing throughout the semester is passing but fails to satisfy any of the prescribed requirements by the subject teacher. 18.c. Students who incurred Incomplete grades after the issuance of Honorable Dismissal will no longer be allowed to complete even if the reglementary period of one (1) academic year for the completion has not yet lapsed. 18.d. For a student to be able to clear his/ her deficiencies, should be officially enrolled in the University. 18.e. Completion shall be made within one academic year otherwise the “Incomplete” mark shall automatically become “5.0”. 18.f. Completion form shall be accomplished and filed at the Registrar’s Office. 18.g. Completion fee of Php. 50.00 per subject shall be paid at the Cashier’s Office"
+  ],
+  "escalated": false,
+  "intent": "question",
+  "standalone_question": "What is the grade equivalent of a 98 to 100 percent rating?",
+  "sub_queries": [
+   "grade equivalent 98 to 100 percent",
+   "letter grade for 98 percent",
+   "grading scale 98-100"
+  ]
+ },
+ {
+  "question": "What grade is considered failing and what does it require?",
+  "ground_truth": "A grade of 5.00 (74% and below) means failed, and re-enrollment of the subject is required.",
+  "reference_topics": "academic policies and grading",
+  "reference": "",
+  "answer": "Ang failing grade ay **5.0** (74% and below). Kapag nakuha mo 'yan, kailangan mong **mag-re-enroll sa subject** na iyon — uulitin mo talaga siya.",
+  "contexts": [
+   "24 | S T U D E N T M A N U A L 18. GRADING SYSTEM The following approved grading system shall be adopted Percent Equivalent Grade Description 98 – 100 1.00 Excellent 95 – 97 1.25 Very Satisfactory 92 – 94 1.50 Satisfactory 89 – 91 1.75 Fairly Satisfactory 86 – 88 2.00 Good 83 – 85 2.25 Fairly Good 80 – 82 2.50 Fair 77 – 79 2.75 Below Fair 75 – 76 3.00 Passed Incomplete INC. Requirements not fully met 74 and below 5.00 Failed 18.a. A grade of “5.0” means failed; re- enrollment of the subject is required. 18.b. An INC grade is given to a student whose class standing throughout the semester is passing but fails to satisfy any of the prescribed requirements by the subject teacher. 18.c. Students who incurred Incomplete grades after the issuance of Honorable Dismissal will no longer be allowed to complete even if the reglementary period of one (1) academic year for the completion has not yet lapsed. 18.d. For a student to be able to clear his/ her deficiencies, should be officially enrolled in the University. 18.e. Completion shall be made within one academic year otherwise the “Incomplete” mark shall automatically become “5.0”. 18.f. Completion form shall be accomplished and filed at the Registrar’s Office. 18.g. Completion fee of Php. 50.00 per subject shall be paid at the Cashier’s Office"
+  ],
+  "escalated": false,
+  "intent": "question",
+  "standalone_question": "What grade is considered failing and what does it require?",
+  "sub_queries": [
+   "failing grade definition",
+   "requirements for failing grade"
+  ]
+ },
+ {
+  "question": "What happens to an Incomplete (INC) grade if it is not completed on time, and what is the completion fee?",
+  "ground_truth": "An Incomplete must be completed within one academic year, otherwise it automatically becomes a grade of 5.0. A completion fee of Php 50.00 per subject is paid at the Cashier's Office and the completion form is filed at the Registrar's Office.",
+  "reference_topics": "academic policies and grading",
+  "reference": "",
+  "answer": "Ah, got it! Based on what you shared — **if an Incomplete (INC) grade isn't completed within the prescribed period**, the scholarship contract says that counts as a violation and could lead to losing your educational assistance. Pero wala pong nakalagay na specific **completion fee** dito sa binigay na dokumento.\n\n- INC not finished on time = possible loss of scholarship (as stated in contract item f).\n- Walang nabanggit na amount ng completion fee sa source na ito — baka separate policy iyon ng registrar or accounting.\n\nGusto mo bang icheck ko kung may ibang context tungkol sa fees, or ibang tanong?",
+  "contexts": [
+   "Inability to complete/incomplete grades incurred during the previous semester within the prescribed period allowed by the University. g. Extension of the period of completion of the course beyond that which is prescribed in the approved curriculum of the school. h. Commission of any act of immortality, drunkenness, dishonesty, discourtesy or any form of misconduct in the violation of the norms and conduct prescribed under the University Student Manual. i. Deliberate or wilful to pay just and valid obligation with the University. 5. That I accept the foregoing conditions with the full knowledge that failure to maintain the requirements of the Scholarship Assistance Program, or for reasons of my behavior or wilful violation of the established rules, regulations and policies by the University, I shall lose my educational assistance. I have hereunto affixed my signature this _______day of _______________________, in Isabela State University, Echague, Isabela. _________________________ _________________________ Signature above printed name Date Conforme: ______________________________ _______________________________ Father Mother APPROVED: REY V. UMAYAM, RPm Campus Scholarship Coordinator Date: __________ [Image description] The image shows the emblem of Sabela State University. The emblem is circular with a green outer ring and a yellow inner ring. The words \"Sabela State University\" are inscribed in white around the top and bottom edges. In the center of the emblem is a stylized torch-like symbol rendered in red and yellow, with a dark blue base. Below the symbol is a green band with a light blue and white geometric pattern, and the year \"1976\" is written in white at the bottom."
+  ],
+  "escalated": false,
+  "intent": "question",
+  "standalone_question": "What happens to an Incomplete (INC) grade if it is not completed on time, and what is the completion fee?",
+  "sub_queries": [
+   "Incomplete grade not completed on time consequences",
+   "Incomplete grade completion fee"
+  ]
+ },
+ {
+  "question": "What is the maximum academic load a student may take in a semester?",
+  "ground_truth": "A maximum of 27 units is allowed for graduating students, except those under Education programs undergoing practice teaching, who may enroll a maximum of 12 units.",
+  "reference_topics": "academic policies and grading",
+  "reference": "",
+  "answer": "Ah, good question! Based on what I've got, the manual says **graduating students** can take a maximum of **27 units** per semester — except for Education students doing practice teaching, who are capped at **12 units**.\n\nFor regular (non-graduating) students, the manual mentions that a maximum load is required but doesn't give a specific number here. You might want to check your college's curriculum or ask your adviser for the exact limit.\n\nWant me to look up anything else about academic loads or prerequisites?",
+  "contexts": [
+   "21 | S T U D E N T M A N U A L 9. ACADEMIC LOAD 9.a. The maximum semestral academic load in the various programs shall be required for all regular students in all year levels. 9.b. A maximum of 27 units shall be allowed for graduating students except those under Education programs who are undergoing practice teaching, wherein they are only allowed to enroll a maximum of 12 units. Note: Policies on the qualifications of students to undergo OJT/ Internship/ Field Practice in the Philippines may be referred to the Section 16 of CMO No. 104, s. 2017, and CMO No. 22, s. 2013 for Policies, Standards and Guidelines (PSGs) on Student Internship Abroad Program (SIAP). 10. ACADEMIC CREDIT SYSTEM 10.a. Generally, every lecture subject with a class meeting of three (3) hours a week is equivalent to three (3) credit units. A laboratory subject with a class meeting of three (3) hours a week is equivalent to one (1) credit unit, except for Nursing which is governed by CMO No. 14, s. 2009. 10.b. The sequence of subjects enrolled shall be in accordance with the approved curriculum. Subjects taken and completed without passing the pre-requisite subject shall not be credited. 11. SCHOOL TERMS The academic year is composed of three (3) terms: two (2) semesters with eighteen (18) weeks each, and one (1) mid-year term of six (6) weeks."
+  ],
+  "escalated": false,
+  "intent": "question",
+  "standalone_question": "What is the maximum academic load a student may take in a semester?",
+  "sub_queries": [
+   "maximum academic load per semester",
+   "maximum course load semester",
+   "academic load limit semester"
+  ]
+ },
+ {
+  "question": "What is the maximum residency period for a four-year program?",
+  "ground_truth": "Maximum residency is 1.5 times the prescribed number of years, so a four-year course allows 6.0 years (a five-year course allows 7.5 years).",
+  "reference_topics": "academic policies and grading",
+  "reference": "",
+  "answer": "The maximum residency for a four-year program is **6.0 years**.\n\nWant me to explain what happens if you exceed that limit?",
+  "contexts": [
+   "18 | S T U D E N T M A N U A L 2. Advanced Credits Advanced credits will be granted to college graduates who would wish to enroll another degree subject to the evaluation and endorsement of the program chair, college secretary, college dean, and registrar. 3. Residency The maximum number of years that a student is allowed to pursue an academic program shall be 1.5 times the prescribed number of years for the program. Based on the above, the prescribed number of years of residency are as follows: Two - year course - 3.0 years Four - year course - 6.0 years Five - year course - 7.5 years Six - year course - 9.0 years Note: Should the student exceed the prescribed maximum residency period, he/she shall no longer be allowed to re-enroll in the course except for highly justifiable/ valid reasons and for the completion of thesis, feasibility studies, project studies and other graduation requirements of similar nature subject to the approval of the President of the request of the student for extension through the dean/ campus head and the VP ARA after thorough evaluation of the merits of the request; however, he/she maybe allowed to enroll in other courses. 3.1 Transferees Baccalaureate -1-year residency"
+  ],
+  "escalated": false,
+  "intent": "question",
+  "standalone_question": "What is the maximum residency period for a four-year program?",
+  "sub_queries": [
+   "maximum residency period four-year program",
+   "residency requirements undergraduate maximum duration",
+   "time limit for completing four-year degree"
+  ]
+ },
+ {
+  "question": "What are the General Weighted Average ranges for graduating with Latin honors?",
+  "ground_truth": "Summa Cum Laude is 1.000 to 1.250, Magna Cum Laude is 1.251 to 1.500, and Cum Laude is 1.501 to 1.750; the student must not have incurred a grade below 2.50 in any subject.",
+  "reference_topics": "academic policies and grading",
+  "reference": "",
+  "answer": "I couldn't find reliable information in the university knowledge base to answer this. Your question has been forwarded to the admin staff — you'll receive a verified answer soon.",
+  "contexts": [
+   ""
+  ],
+  "escalated": true,
+  "intent": "question",
+  "standalone_question": "What are the General Weighted Average ranges for graduating with Latin honors?",
+  "sub_queries": [
+   "Latin honors GWA ranges",
+   "General Weighted Average for summa cum laude",
+   "Latin honors requirements GWA"
+  ]
+ },
+ {
+  "question": "What are the retention policies based on the number of failed units in a semester?",
+  "ground_truth": "A student is given a Warning for failing 25% of enrolled units, Probation for 50%, Dismissal for 75% but less than 100% (and may apply to another program), and Permanent Disqualification for failing 100% of units, which bars enrollment in any campus of the university.",
+  "reference_topics": "academic policies and grading",
+  "reference": "",
+  "answer": "Here's a quick breakdown of the retention rules based on how many units you fail in a semester:\n\n- **Warning** – if you fail **25%** of your total enrolled units.\n- **Probation** – if you fail **50%** of your total enrolled units.\n- **Dismissed (from the program)** – if you fail **75% to less than 100%** of your units. You may apply to transfer to another program.\n- **Permanent Disqualification** – if you fail **100%** of your units. You cannot enroll in any program across all ISU campuses.\n\n*Students under any of these statuses are advised to undergo mentoring and may take optional audit or remedial classes to improve their chances of passing.*\n\nWant me to clarify what happens after a warning or probation status?",
+  "contexts": [
+   "17 | S T U D E N T M A N U A L 2. A quota system based on ranking of all applicants shall be implemented depending on the number of sections to be offered for first year. 3. 20% of the qualified first year students per program belongs to the disadvantage applicants (low income, student with disabilities and ethnic/minority groups). 4. At least 75% of the admitted students fall under the bottom 20% of household groups will graduate on time. B. Retention Policies 1. The following guidelines will be followed: • Warning – students who failed in 25% of the total number of units enrolled during the semester. * • Probation - students who failed in 50% of the total number of units enrolled during the semester. * • Dismissed – students who failed in 75% but less than 100% of the total number of academic units enrolled during the semester will be dismissed from the program but may apply to enroll in another program. * • Permanent Disqualification – students who failed in 100% of the academic units enrolled during the semester will no longer be allowed to enroll in any program offered in all campuses of the university. *Students under any status will be advised to undergo mentoring and may enroll in optional course audit/ remedial classes in order for them to have better chances to pass the subject. Note: Other requirements/ criteria prescribed by the PSG/CMO of the program and the concerned college may be applied.",
+   "– students who failed in 100% of the academic units enrolled during the semester will no longer be allowed to enroll in any program offered in all campuses of the university. *Students under any status will be advised to undergo mentoring and may enroll in optional course audit/ remedial classes in order for them to have better chances to pass the subject. Note: Other requirements/ criteria prescribed by the PSG/CMO of the program and the concerned college may be applied. [Table] |2. A quota system based on ranking of all applicants shall be implemented depending on the number of sections to be offered for first year.|Col2|Col3| |---|---|---| |3. 20% of the qualified first year students per program belongs to the|3. 20% of the qualified first year students per program belongs to the|<br>| |disadvantage applicants (low income, student with disabilities and|disadvantage applicants (low income, student with disabilities and|disadvantage applicants (low income, student with disabilities and| |ethnic/minority groups).|ethnic/minority groups).|ethnic/minority groups).| |||| |4. At least 75% of the admitted students fall under the bottom 20% of|4. At least 75% of the admitted students fall under the bottom 20% of|| |household groups will graduate on time.|household groups will graduate on time.|household groups will graduate on time.|"
+  ],
+  "escalated": false,
+  "intent": "question",
+  "standalone_question": "What are the retention policies based on the number of failed units in a semester?",
+  "sub_queries": [
+   "retention policy failed units per semester",
+   "academic dismissal after multiple failed courses",
+   "minimum units passed per semester retention"
+  ]
+ },
+ {
+  "question": "When and where should a student apply for graduation?",
+  "ground_truth": "A candidate applies for graduation at the Registrar's Office through the College Secretary four weeks after the first day of classes during the last semester.",
+  "reference_topics": "academic policies and grading",
+  "reference": "",
+  "answer": "I couldn't find reliable information in the university knowledge base to answer this. Your question has been forwarded to the admin staff — you'll receive a verified answer soon.",
+  "contexts": [
+   ""
+  ],
+  "escalated": true,
+  "intent": "question",
+  "standalone_question": "When and where should a student apply for graduation?",
+  "sub_queries": [
+   "graduation application deadline",
+   "graduation application process location"
+  ]
+ },
+ {
+  "question": "How do I drop a subject and when must the dropping form be submitted?",
+  "ground_truth": "Secure a dropping form from the Registrar's Office, have it signed by the subject instructor and the registration adviser and noted by the Dean/Program Chair, and submit it to the Registrar's Office one week after the last day of enrollment. Subjects officially dropped within three days after the start of classes are no longer reflected in the TOR, and any student who fails to attend classes is considered dropped.",
+  "reference_topics": "academic policies and grading",
+  "reference": "",
+  "answer": "Sige, here's the step-by-step process for dropping a subject:\n\n- **Secure a dropping form** from the Registrar's Office.\n- **Fill it out** and get it signed by your subject instructor/professor and your Registration Adviser. Then have it noted by the Dean or Program Chair.\n- **Submit a copy** of the completed form to the **Registrar’s Office** — deadline is **one week after the last day of enrollment** for that term.\n\nQuick note: if you drop within **3 days after classes start**, the subject won't appear on your TOR. And if you just stop attending without filing, you'll be considered dropped automatically.\n\nWant me to elaborate on the adding or cross-enrollment procedures din?",
+  "contexts": [
+   "14 | S T U D E N T M A N U A L 5. DROPPING/ ADDING/ CHANGING OF SUBJECT Dropping 5.a.1. Secure a dropping form from the Registrar’s Office; 5.a.2. Accomplish the dropping form to be signed by the subject Instructor/Professor and the Registration Adviser, noted by the Dean/Program Chair; and 5.a.3. Submit a copy of the form at the Registrar’s Office one week after the last day of enrollment in a term. Note: Any student who fails to attend classes shall be considered dropped. Subjects officially dropped within three (3) days after the start of classes will no longer be reflected in the TOR. Adding of Subjects 5.b.1. Secure adding form from the Registrar’s Office; 5.b.2. Accomplish adding form to be signed by the subject Instructor/Professor and the Registration Adviser, noted by the Dean/Program Chair and for approval by the Registrar; 5.b.3. Pay adding fee to the Cashier’s Office (as applicable); and 5.b.4. Submit approved adding form to the Registrar’s Office within 7 days after the first day of classes. 6. CROSS-ENROLLMENT Students may be allowed to cross enroll within the system and in other Higher Education Institutions (HEIs) following the procedures below: a. For students who will cross enroll within the system and to other Higher Education Institutions (HEIs): 6.a.1. Secure permit from the Registrar’s Office; and"
+  ],
+  "escalated": false,
+  "intent": "question",
+  "standalone_question": "How do I drop a subject and when must the dropping form be submitted?",
+  "sub_queries": [
+   "procedure to drop a subject",
+   "deadline for submitting drop form"
+  ]
+ },
+ {
+  "question": "What are the rules for shifting to another program?",
+  "ground_truth": "A student who shifts must have completed at least one semester in the current program, secure and submit a duly approved shifting form to the Registrar's Office, and may shift only twice, subject to the policies and grade requirements of the admitting college or department.",
+  "reference_topics": "academic policies and grading",
+  "reference": "",
+  "answer": "Sure, here's what you need to know about shifting programs at ISU:\n\n- **Complete at least one semester** in your current program before you can shift.\n- **Secure and accomplish a shifting form**, have it approved by your Program/Department Chair, Dean, and Registrar, then submit it to the Registrar's Office.\n- **You're only allowed to shift twice**, and it's subject to the policies and grade requirements of the college/department you're shifting into.\n\nWould you like me to explain the approval process in more detail?",
+  "contexts": [
+   "15 | S T U D E N T M A N U A L 6.a.2. Seek recommendation from the Program/ Department Chair, Dean and Registrar, and approval from the Executive Officer/Campus Administrator. b. For outside students who will cross enroll within the University: 6.b.1. Present to the OSAS the Permission to Cross Enroll form secured from their present school; 6.b.2. Submit to the Registrar the Permission to Cross Enroll form recognized by the OSAS; and 6.b.3. At the end of the semester the student will be issued a COG after completion of the subject. 7. CHANGING OR SHIFTING OF MAJOR FIELD OR PROGRAM A student who shifts or changes to another major field or program shall: 7.a.1. Have completed at least one semester in the program; 7.a.2. Secure, accomplish and submit duly approved shifting form to the Registrar’s Office; and 7.a.3. Be allowed to shift twice only subject to the policies of the admitting college/ department and the grade requirement of the program. 8. LOSS I.D. In case of lost I.D., the student shall immediately: 8.a.1. Report to the Security Guard; 8.a.2. Pay Declaration of Loss fee at the Cashier’s Office; 8.a.3. Accomplish Declaration of Loss from the OSAS; and 8.a.4. Present current registration and apply for new ID at the Campus Business Affairs Office.",
+   "27 | S T U D E N T M A N U A L 21.d. If transferee, he/she has completed at least 75% of the total academic units required in his/her curriculum in the University, and 21.e. Must have taken the normal load or the prescribed number of credits in the curriculum in each semester which is not less than fifteen (15) units. However, for some meritorious cases such as health reasons (upon presentation of a medical certificate) and unavailability of subjects to be enrolled and except when it is the last semester of the student, he/she will be allowed a lighter academic load. 21.f. If any of the above provisions have different interpretations, then the interpretation not favoring the granting of the honor shall prevail. (BOR Resolution No. 75 s. 2014, effective Second Semester, SY 2014-2015). 22. GRADUATION REQUIREMENTS 22.a. Application for Graduation A candidate shall apply for graduation at the Registrar’s Office through the College Secretary four (4) weeks after the first day of classes during his/her last semester. 22.b. Completion of Deficiencies The candidate for graduation shall satisfactorily complete his/her deficiency/ies before the college/campus academic council meeting. 22.c. Residency For transferees, the residency requirement shall be at least one (1) academic year prior to graduation."
+  ],
+  "escalated": false,
+  "intent": "question",
+  "standalone_question": "What are the rules for shifting to another program?",
+  "sub_queries": [
+   "program transfer rules",
+   "changing majors policy",
+   "shifting program requirements"
+  ]
+ },
+ {
+  "question": "What are the requirements to be granted honorable dismissal?",
+  "ground_truth": "Honorable dismissal, a voluntary withdrawal, is granted to students of good standing who are cleared of money and property accountabilities; suspension or expulsion due to major offenses does not entitle a student to honorable dismissal.",
+  "reference_topics": "academic policies and grading",
+  "reference": "",
+  "answer": "You need to present your **clearances** and **receipts of payments** at the **Registrar’s Office** to get your credentials and Certificate of Honorable Dismissal. Just keep in mind that if you were suspended or expelled due to a major offense, you won't be entitled to it.\n\nWant me to clarify what kind of clearances you usually need?",
+  "contexts": [
+   "29 | S T U D E N T M A N U A L 24.b. Suspension or expulsion due to major offenses shall not entitle the student to honorable dismissal. 24.c. Graduates shall secure credentials and Certificate of Honorable Dismissal upon presentation of clearances and receipts of payments at the Registrar’s Office. 25. MODES OF PAYMENT OF SCHOOL FEES The University strictly follows the provisions of RA 10931 for the modes of payment of school fees in accordance with Section 4, Section 6, and Section 7 of the Act. (Please refer to Appendix B, RA 10931 for the specific promulgation policies and guidelines governing Coverage, Exceptions to Free HE, and Benefits of the Act). Payment of school fees shall be made over the counter or online through the Land Bank of the Philippines. 25.a. Cash 25.b. Installment: The total assessed fees shall be paid on installment basis as prorated below: 35% - upon enrolment 35% - Prelims 20% - Mid-term 10% - Finals 26. REFUND OF SCHOOL FEES Students who are covered with the RA 10931 as per Section 4, do not qualify for the refund of school fees. The percentages of refund of fees, except registration fee are as follows: 100% - before the start of classes 75% - one week after the start of classes 50% - two weeks after the start of classes 25% - three weeks after the start of classes 100%- in case of death during the term"
+  ],
+  "escalated": false,
+  "intent": "question",
+  "standalone_question": "What are the requirements to be granted honorable dismissal?",
+  "sub_queries": [
+   "honorable dismissal requirements university",
+   "honorable dismissal policy conditions",
+   "how to get honorable dismissal from university"
+  ]
+ },
+ {
+  "question": "What are the academic gown or hood colors for Nursing and Engineering graduates?",
+  "ground_truth": "Nursing graduates wear apricot and Engineering graduates wear maroon for the hood and tassel during the baccalaureate service and commencement exercises.",
+  "reference_topics": "academic policies and grading",
+  "reference": "",
+  "answer": "Nursing graduates wear **apricot**, while Engineering graduates wear **maroon** for their academic gowns, caps, hoods, and tassels.\n\nDo you also want the colors for other programs?",
+  "contexts": [
+   "28 | S T U D E N T M A N U A L 23. COMMENCEMENT EXERCISES, BACCALAUREATE SERVICES AND HABILIMENTS 23.a. All graduating students shall be required to attend the commencement exercises and baccalaureate mass or ecumenical service. 23.b. Graduating students shall wear their prescribed academic gowns, caps and the corresponding hood and tassel colors during the baccalaureate service and commencement exercises: Agriculture & other related programs - green Education - powder blue Business, Accountancy & Public Administration - golden yellow Engineering - maroon Arts & Sciences - dark blue Criminal Justice Education - red Information and Communication Technology - lilac Veterinary Medicine - gray Nursing - apricot Law - purple Fisheries - aqua blue Note: Candidates for non-degree programs are not required to wear hoods. 24. HONORABLE DISMISSAL 24.a. Honorable dismissal, which is a voluntary withdrawal from the University, shall be granted to students of good standing and who are cleared of money and property accountabilities. [Table] |Agriculture & other related<br>programs|- green| |---|---| |Education|- powder blue| |Business, Accountancy &<br>Public Administration|- goldenyellow| |Engineering|- maroon| |Arts & Sciences|- dark blue| |Criminal Justice Education|- red| |Information and Communication<br>Technology|- lilac| |Veterinary Medicine|- gray| |Nursing|- apricot| |Law|- purple| |Fisheries|- aqua blue|"
+  ],
+  "escalated": false,
+  "intent": "question",
+  "standalone_question": "What are the academic gown or hood colors for Nursing and Engineering graduates?",
+  "sub_queries": [
+   "Nursing academic gown hood colors",
+   "Engineering academic gown hood colors"
+  ]
+ },
+ {
+  "question": "How much is the cash incentive for the Entrance Scholarship?",
+  "ground_truth": "The Entrance Scholarship grants a cash incentive of Php 3,000.00 per semester to entering freshmen who graduated with highest honors (average grade of 98 to 100%).",
+  "reference_topics": "scholarships and financial assistance",
+  "reference": "",
+  "answer": "Oh, for the **Entrance Scholarship** (with highest honor, average grade 98–100%), you get **₱3,000.00 per semester**. Not bad for starting strong, right? 😊\n\nWant me to break down the other scholarship incentives too?",
+  "contexts": [
+   "34 | S T U D E N T M A N U A L 30. Cash Incentives for Merit Scholars and Student Leaders. Board Resolution No. 65, s. 2018 (Please refer to Appendix D, IMPLEMENTING RULES AND REGULATIONS OF THE CASH INCENTIVES FOR MERIT SCHOLARS AND LEADERS) MATRIX OF CASH INCENTIVES SCHOLARSHIP CASH INCENTIVES / SEMESTER Entrance Scholarship a. With highest honor (average grade of 98 to 100%) a. ₱ 3, 000. 00 Academic Scholarship a. University a. ₱ 3, 000. 00 b. College b. ₱ 2, 000. 00 Assistance to Athletes a. ₱ 1, 500. 00 (National Level) b. ₱ 1, 500. 00 (Regional Level) c. ₱ 1, 500. 00 (University Level) Publication Scholarship a. Editor-in-Chief (EIC) a. ₱ 3, 000. 00 b. Associate Editor-in-Chief b. ₱ 2, 000. 00 c. Section Editor, Layout Artist, c. ₱ 1, 500. 00 Cartoonist d. Official Writers d. ₱ 1, 000. 00 Socio-Cultural Scholarship a. ₱ 1, 500. 00 (National Level) b. ₱ 1, 500. 00 (Regional / Provincial Level) c. ₱ 1, 000. 00 (University Level) Campus SSC Officers a. Chairperson a. ₱ 2, 000. 00 b. Vice Chairperson b. ₱ 1, 500. 00 c. Secretary c. ₱ 1, 500. 00 d. Treasurer d. ₱ 1, 500. 00 e. Auditor e. ₱ 1, 500. 00",
+   "Layout Artist, c. ₱ 1, 500. 00 Cartoonist d. Official Writers d. ₱ 1, 000. 00 Socio-Cultural Scholarship a. ₱ 1, 500. 00 (National Level) b. ₱ 1, 500. 00 (Regional / Provincial Level) c. ₱ 1, 000. 00 (University Level) Campus SSC Officers a. Chairperson a. ₱ 2, 000. 00 b. Vice Chairperson b. ₱ 1, 500. 00 c. Secretary c. ₱ 1, 500. 00 d. Treasurer d. ₱ 1, 500. 00 e. Auditor e. ₱ 1, 500. 00 [Table] |MATRIX OF CASH INCENTIVES|Col2| |---|---| |**SCHOLARSHIP**|**CASH INCENTIVES / SEMESTER**| |**Entrance Scholarship**<br>a. With highest honor<br>(average grade of 98 to 100%)|a. ₱ 3, 000. 00| |**Academic Scholarship**<br>a. University<br>b. College|a. ₱ 3, 000. 00<br>b. ₱ 2, 000. 00| |**Assistance to Athletes**|a. ₱ 1, 500. 00 (National Level)<br>b. ₱ 1, 500. 00 (Regional Level)<br>c. ₱ 1, 500. 00 (University Level)| |**Publication Scholarship**<br>a. Editor-in-Chief (EIC)<br>b. Associate Editor-in-Chief<br>c. Section Editor, Layout Artist,<br>Cartoonist<br>d. Official Writers|a. ₱ 3, 000. 00<br>b. ₱ 2, 000. 00<br>c. ₱ 1, 500. 00<br>d. ₱ 1, 000. 00| |**Socio-Cultural Scholarship**|a. ₱ 1, 500. 00 (National Level)<br>b. ₱ 1, 500. 00 (Regional / Provincial Level)<br>c. ₱ 1, 000. 00 (University Level)| |**Campus SSC Officers**<br>a. Chairperson<br>b. Vice Chairperson<br>c. Secretary<br>d. Treasurer<br>e. Auditor|a. ₱ 2, 000. 00<br>b. ₱ 1, 500. 00<br>c. ₱ 1, 500. 00<br>d. ₱ 1, 500. 00<br>e. ₱ 1, 500. 00|"
+  ],
+  "escalated": false,
+  "intent": "question",
+  "standalone_question": "How much is the cash incentive for the Entrance Scholarship?",
+  "sub_queries": [
+   "Entrance Scholarship cash incentive amount",
+   "Entrance Scholarship monetary value"
+  ]
+ },
+ {
+  "question": "What GWA is required to qualify for the University Scholarship?",
+  "ground_truth": "A student must obtain a GWA of at least 1.50 at the end of a regular term while carrying at least 15 academic units.",
+  "reference_topics": "scholarships and financial assistance;academic policies and grading",
+  "reference": "",
+  "answer": "To qualify for University Scholar, you need a **GWA of at least 1.50** — plus you must be carrying at least **15 academic units** in your college.\n\nWant me to break down the difference between University Scholar and College Scholar?",
+  "contexts": [
+   "26 | S T U D E N T M A N U A L 20. ACADEMIC SCHOLARSHIP 20.a. University Scholar A university scholar is a student carrying at least 15 academic load required in his college who obtained a GWA of at least 1.50. 20.b. College Scholar A college scholar is a student carrying at least 15 academic load required in his college who obtained a GWA of at least 1.75. 21. GRADUATION WITH HONORS Qualifications: A student who has completed his/her course within the prescribed period shall be qualified to graduate with honors as specified below. A candidate with honors shall have the following qualifications: 21.a. He/she shall have obtained any of the following General Weighted Average; 1.000 to 1.250 -Summa Cum Laude 1.251 to 1.500 -Magna Cum Laude 1.501 to 1.750 -Cum Laude 21.b. He/she has not been charged and found guilty of any of the major offenses governed by the existing university rules and regulations; 21.c. He/she has not incurred a grade below 2.50 in any of his/her enrolled academic or non-academic subjects, prescribed or not prescribed, which are taken within or outside the University;"
+  ],
+  "escalated": false,
+  "intent": "question",
+  "standalone_question": "What GWA is required to qualify for the University Scholarship?",
+  "sub_queries": [
+   "University Scholarship GWA requirement",
+   "University Scholarship eligibility criteria GWA"
+  ]
+ },
+ {
+  "question": "What is the difference between a University Scholar and a College Scholar?",
+  "ground_truth": "A University Scholar obtains a GWA of at least 1.50 (with a cash incentive of Php 3,000.00 per semester), while a College Scholar obtains a GWA of at least 1.75 (with a cash incentive of Php 2,000.00 per semester); both must carry at least 15 academic units.",
+  "reference_topics": "scholarships and financial assistance;academic policies and grading",
+  "reference": "",
+  "answer": "Basically, the difference is the GWA requirement — University Scholar is a higher distinction than College Scholar.\n\n- **University Scholar:** requires a **GWA of at least 1.50**, plus a minimum of **15 academic load**.\n- **College Scholar:** requires a **GWA of at least 1.75**, same minimum load of **15 units**.\n\nSo if you're aiming for University Scholar, you need to keep your grades even higher. Want me to break down the graduation with honors qualifications as well?",
+  "contexts": [
+   "26 | S T U D E N T M A N U A L 20. ACADEMIC SCHOLARSHIP 20.a. University Scholar A university scholar is a student carrying at least 15 academic load required in his college who obtained a GWA of at least 1.50. 20.b. College Scholar A college scholar is a student carrying at least 15 academic load required in his college who obtained a GWA of at least 1.75. 21. GRADUATION WITH HONORS Qualifications: A student who has completed his/her course within the prescribed period shall be qualified to graduate with honors as specified below. A candidate with honors shall have the following qualifications: 21.a. He/she shall have obtained any of the following General Weighted Average; 1.000 to 1.250 -Summa Cum Laude 1.251 to 1.500 -Magna Cum Laude 1.501 to 1.750 -Cum Laude 21.b. He/she has not been charged and found guilty of any of the major offenses governed by the existing university rules and regulations; 21.c. He/she has not incurred a grade below 2.50 in any of his/her enrolled academic or non-academic subjects, prescribed or not prescribed, which are taken within or outside the University;"
+  ],
+  "escalated": false,
+  "intent": "question",
+  "standalone_question": "What is the difference between a University Scholar and a College Scholar?",
+  "sub_queries": [
+   "University Scholar program definition",
+   "College Scholar program definition",
+   "difference between University Scholar and College Scholar"
+  ]
+ },
+ {
+  "question": "How much is the cash incentive for the Editor-in-Chief under the Publication Scholarship?",
+  "ground_truth": "The Editor-in-Chief receives Php 3,000.00 per semester; the Associate Editor-in-Chief receives Php 2,000.00, the Section Editor/Layout Artist/Cartoonist Php 1,500.00, and Official Writers Php 1,000.00.",
+  "reference_topics": "scholarships and financial assistance",
+  "reference": "",
+  "answer": "I couldn't find reliable information in the university knowledge base to answer this. Your question has been forwarded to the admin staff — you'll receive a verified answer soon.",
+  "contexts": [
+   ""
+  ],
+  "escalated": true,
+  "intent": "question",
+  "standalone_question": "How much is the cash incentive for the Editor-in-Chief under the Publication Scholarship?",
+  "sub_queries": [
+   "Publication Scholarship cash incentive Editor-in-Chief",
+   "Editor-in-Chief reward amount Publication Scholarship",
+   "Publication Scholarship benefits for Editor-in-Chief"
+  ]
+ },
+ {
+  "question": "What are the cash incentives for Campus SSC officers?",
+  "ground_truth": "The Chairperson receives Php 2,000.00 per semester, while the Vice Chairperson, Secretary, Treasurer, and Auditor each receive Php 1,500.00 per semester.",
+  "reference_topics": "scholarships and financial assistance;student organizations, activities, and campus events",
+  "reference": "",
+  "answer": "Here's the breakdown for Campus SSC officer incentives per semester:\n\n- **Chairperson** – ₱2,000.00\n- **Vice Chairperson** – ₱1,500.00\n- **Secretary** – ₱1,500.00\n- **Treasurer** – ₱1,500.00\n- **Auditor** – ₱1,500.00\n\nDo you also want to see the incentives for other scholarships like Publication or Athletes?",
+  "contexts": [
+   "Layout Artist, c. ₱ 1, 500. 00 Cartoonist d. Official Writers d. ₱ 1, 000. 00 Socio-Cultural Scholarship a. ₱ 1, 500. 00 (National Level) b. ₱ 1, 500. 00 (Regional / Provincial Level) c. ₱ 1, 000. 00 (University Level) Campus SSC Officers a. Chairperson a. ₱ 2, 000. 00 b. Vice Chairperson b. ₱ 1, 500. 00 c. Secretary c. ₱ 1, 500. 00 d. Treasurer d. ₱ 1, 500. 00 e. Auditor e. ₱ 1, 500. 00 [Table] |MATRIX OF CASH INCENTIVES|Col2| |---|---| |**SCHOLARSHIP**|**CASH INCENTIVES / SEMESTER**| |**Entrance Scholarship**<br>a. With highest honor<br>(average grade of 98 to 100%)|a. ₱ 3, 000. 00| |**Academic Scholarship**<br>a. University<br>b. College|a. ₱ 3, 000. 00<br>b. ₱ 2, 000. 00| |**Assistance to Athletes**|a. ₱ 1, 500. 00 (National Level)<br>b. ₱ 1, 500. 00 (Regional Level)<br>c. ₱ 1, 500. 00 (University Level)| |**Publication Scholarship**<br>a. Editor-in-Chief (EIC)<br>b. Associate Editor-in-Chief<br>c. Section Editor, Layout Artist,<br>Cartoonist<br>d. Official Writers|a. ₱ 3, 000. 00<br>b. ₱ 2, 000. 00<br>c. ₱ 1, 500. 00<br>d. ₱ 1, 000. 00| |**Socio-Cultural Scholarship**|a. ₱ 1, 500. 00 (National Level)<br>b. ₱ 1, 500. 00 (Regional / Provincial Level)<br>c. ₱ 1, 000. 00 (University Level)| |**Campus SSC Officers**<br>a. Chairperson<br>b. Vice Chairperson<br>c. Secretary<br>d. Treasurer<br>e. Auditor|a. ₱ 2, 000. 00<br>b. ₱ 1, 500. 00<br>c. ₱ 1, 500. 00<br>d. ₱ 1, 500. 00<br>e. ₱ 1, 500. 00|"
+  ],
+  "escalated": false,
+  "intent": "question",
+  "standalone_question": "What are the cash incentives for Campus SSC officers?",
+  "sub_queries": [
+   "Campus SSC officer cash incentives",
+   "SSC officer compensation benefits",
+   "Student Services Center officer incentive pay"
+  ]
+ },
+ {
+  "question": "What are the cash incentives for regional placers in the board examination?",
+  "ground_truth": "Regional placers receive cash incentives of Php 10,000.00 for places 1 to 2, Php 8,000.00 for places 3 to 4, Php 6,000.00 for places 5 to 6, Php 4,000.00 for places 7 to 8, and Php 2,000.00 for places 9 to 10; a topnotcher may collect only once per program (the higher amount).",
+  "reference_topics": "scholarships and financial assistance",
+  "reference": "",
+  "answer": "Here's the breakdown of cash incentives for regional placers in board exams:\n\n- **1st–2nd place**: ₱10,000\n- **3rd–4th place**: ₱8,000\n- **5th–6th place**: ₱6,000\n- **7th–8th place**: ₱4,000\n- **9th–10th place**: ₱2,000\n\nAlso, remember that a topnotcher can **only collect once per program** — if they place in multiple exams, they get the higher amount. Would you like to know the requirements or process for claiming?",
+  "contexts": [
+   "36 | S T U D E N T M A N U A L 6. Cash incentives for the regional placers of the board examination are as follows: PLACE CASH INCENTIVES 1-2 10,000.00 3-4 8,000.00 5-6 6,000.00 7-8 4,000.00 9-10 2,000.00 7. As supporting documents, the names of regional topnotchers should be properly certified by the PRC Regional Office since these are not normally published in newspaper of National/Regional circulation nor uploaded in the PRC website. 8. The college from where the topnotchers came from should facilitate the preparation and processing of vouchers and checks. 9. Topnotchers can collect only once for a specific program, the higher amount. 10. Topnotchers in any two or three examinations can still be covered by this resolution. 32. UTILIZATION OF STUDENT MUTUAL AID FUND Section1. General Coverage All bonafide students of the University shall be entitled to avail of the mutual aid benefits. Section 2. Contribution All students shall pay a contribution of P40.00 upon enrollment during the first semester of the school year. Whether or not the student is enrolled for the second semester or during summer, the amount paid covers the benefits for one school year. In case the student is enrolled only during the second semester, he/she shall pay P20.00 only."
+  ],
+  "escalated": false,
+  "intent": "question",
+  "standalone_question": "What are the cash incentives for regional placers in the board examination?",
+  "sub_queries": [
+   "cash incentives for regional placers in board examination",
+   "regional top performers board exam cash rewards",
+   "board examination regional rankers incentive program"
+  ]
+ },
+ {
+  "question": "What conditions does a scholar agree to in the Scholarship Contract?",
+  "ground_truth": "A scholar agrees to maintain excellent moral character and integrity, maintain the required GWA with no failing grades, enroll the regular prescribed load, and submit school records (photocopy of registration form, ID, and the registrar-certified certification of grades) to the OSAS; failing these can suspend or terminate the assistance.",
+  "reference_topics": "scholarships and financial assistance",
+  "reference": "",
+  "answer": "Hey! Basically, by signing the scholarship contract, you're agreeing to a set of conditions to keep your grant. Here's what you commit to:\n\n- **Maintain excellent moral character and integrity** — no shady behavior.\n- **Get a required GWA** each semester (the exact grade is left blank — you'll fill it in).\n- **Follow all university rules**, especially:\n  - Enroll in the **regular semester load** prescribed for your curriculum.\n  - **No failing grades** in any subject.\n  - Submit your school records to **OSAS**: photocopy of registration form, photocopy of ID (back to back), and original certification of grades from the registrar.\n  - Submit any other documents the Scholarship Unit asks for.\n  - **Report to the scholarship sponsor** in person as needed.\n- Accept that your scholarship can be **terminated** if:\n  - You're not a bonafide member/officer of specified orgs (SSC, Athletics, etc.).\n  - You violate any university scholarship rules.\n  - You tamper or falsify documents.\n  - You're found physically or mentally unfit to continue.\n  - You incurred **failing grades** last semester.\n  - You have incomplete grades beyond the allowed period.\n  - You extend your course completion beyond the prescribed curriculum.\n  - You commit immorality, drunkenness, dishonesty, discourtesy, or misconduct.\n  - You deliberately refuse to pay a valid obligation.\n\nLet me know if you want me to break down any of these points further!",
+  "contexts": [
+   "( Name of Scholarship) School Year 20__ – 20__ by Isabela State University-Echague and consideration of the privilege granted by reason of such assistance hereby accepts the said educational assistance and binds myself to the following conditions: That I shall: 1. Maintain excellent moral character and integrity; 2. Strive to obtain and maintain a general weighted average of__________________ at the end of each semester. 3. Comply with all the rules and regulations promulgated by the Isabela State University, particularly on the following: 3.1 To enrol in the regular semester load prescribed in the approved curriculum for the course. 3.2 To have no failing, grades in all my enrolled subjects: 3.3 To submit my school records to the Office of Student Affairs & Services (OSAS) such as: 3.3.1 Photocopy of registration form. 3.3.2 Photocopy of I.D. back to back. 3.3.3 Original copy of certification of grades certified by the registrar. 3.4 Other pertinent documents required by the Scholarship Unit. a. Failure to submit these requirements shall cause the temporary suspension of my educational assistance b. To report to Scholarship sponsor in person as after as necessary and to submit papers as maybe requested. 4. That I accept any of the following to be sufficient cause for the termination of my educational assistance. a. Found to be non-bonafide member/ officer of SSC Officers/Athletics/Socio-Cultural/Forum/ROTC. b. Violated any rules and regulations prescribed under University Scholarships Assistance Program found in the University Handbook. c. Found to have tampered or falsified the required documents. d. Found to be physically and mentally unfit to continue my educational assistance. e. Incurred failing grades in the previous semester. f. Inability to complete/incomplete grades incurred during the previous semester within the prescribed period allowed by the University. g. Extension of the period of completion of the course beyond that which is prescribed in the approved curriculum of the school. h. Commission of any act of immortality, drunkenness, dishonesty, discourtesy or any form of misconduct in the violation of the norms and conduct prescribed under the University Student Manual. i. Deliberate or wilful to pay just and valid obligation with the"
+  ],
+  "escalated": false,
+  "intent": "question",
+  "standalone_question": "What conditions does a scholar agree to in the Scholarship Contract?",
+  "sub_queries": [
+   "scholarship contract scholar obligations",
+   "conditions in scholarship agreement",
+   "scholar responsibilities under scholarship contract"
+  ]
+ },
+ {
+  "question": "How much is the tuition fee per unit at ISU?",
+  "ground_truth": "Tuition fee is Php 100.00 per unit; Law is Php 400.00 per unit and medical/health major subjects and RLE are a variable Php 250.00 per unit.",
+  "reference_topics": "school fees and requirements",
+  "reference": "",
+  "answer": "Depende sa course at status mo, e. 😊\n\n- For **regular students**: **₱100/unit** for most programs.\n- If you're taking **Medical/Health courses**, major subjects cost **₱250/unit**.\n- **Law students** pay **₱400/unit**.\n- **Foreign students** (based on BS Nursing rates): **₱600/unit** for major subjects, **₱400/unit** for minor subjects.\n\nWant me to break down the other fees for a specific program or student type?",
+  "contexts": [
+   "31 | S T U D E N T M A N U A L Note: As per Section 7, under Benefits of RA 10931, only the first copies/printouts of school ID, Library ID, and student handbook shall be free, and any subsequent requests by the student can be charged the usual fees. 27.b. Foreign Students Tuition Fee Php 600.00/unit Bachelor of Science in Nursing Major Subjects Php 600.00/unit Minor Subjects Php 400.00/unit RLE 100% more than the regular rate Other Fees Application Php1,500.00 (for new students) Entrance /Admission Php1,500.00 (for new students) Registration Php 200.00 Library Php 400.00 Guidance Php 200.00 Medical & Dental Php 300.00 SBO/SCC /SCF Php 120.00 Student Publication Php 100.00 Journal Php 200.00 Athletics/Sports Php 200.00 Socio-Cultural Php 300.00 PE Php400.00/subject NSTP-ROTC/CWTS Php 300.00 Internet Php 200.00 ID Php 200.00 Mutual Aid Php 80.00 Fine Php 400.00 Diploma Php 300.00 Transcript of Records Php 100.00/page",
+   "30 | S T U D E N T M A N U A L 27. SCHOOL FEES 27.a.1. Tuition Fee Php 100.00 / unit Medical/Health Course, Major Subjects, RLE Variable Php 250.00 unit Law Php 400.00 / unit Developmental Programs Php 100.00 / unit Computer Laboratory Php 450.00/subject Technical Laboratory Php 100.00/subject 27.a.2. Other Fees Entrance (Freshmen/Transferees) Registration Php100.00 Php 50.00 Library Php100.00 Guidance Php 20.00 Medical/Dental Php 50.00 SBO/SSC/SSCF Php 60.00 Student Publication Php 50.00 Journal Php 50.00 Athletics Php 50.00 P.E. Php200.00 Socio-Cultural Php 25.00 NSTP-ROTC/CWTS Php150.00 F.A.L.P. (For C.A. Students Only) Php 20.00 Internet Php 40.00 ID Php100.00 Mutual Aid Php 40.00 Fine Php 50.00 Student Development First Year Php500.00 Second Year Php400.00 Third Year Php300.00 Fourth/Fifth/Sixth Year Php 200.00 27.a.3. Thesis Fee Php 500.00 (to be paid at the college on prorated payments to the numbers of the advisory committee)"
+  ],
+  "escalated": false,
+  "intent": "question",
+  "standalone_question": "How much is the tuition fee per unit at ISU?",
+  "sub_queries": [
+   "ISU tuition fee per credit hour",
+   "Idaho State University tuition per unit cost",
+   "ISU per unit tuition rates"
+  ]
+ },
+ {
+  "question": "What are the modes of payment of school fees?",
+  "ground_truth": "School fees may be paid in cash or by installment (35% upon enrollment, 35% at prelims, 20% at midterm, and 10% at finals), over the counter or online through the Land Bank of the Philippines.",
+  "reference_topics": "school fees and requirements",
+  "reference": "",
+  "answer": "Sa ISU, may dalawang **modes of payment** ng school fees:\n\n- **Over the counter** or **online** through Land Bank of the Philippines\n- Pwedeng **cash** (full payment) o **installment** na may schedule:\n  - 35% upon enrollment\n  - 35% sa Prelims\n  - 20% sa Midterm\n  - 10% sa Finals\n\nGusto mo ba ng detalye kung paano mag-apply ng installment plan? 😊",
+  "contexts": [
+   "29 | S T U D E N T M A N U A L 24.b. Suspension or expulsion due to major offenses shall not entitle the student to honorable dismissal. 24.c. Graduates shall secure credentials and Certificate of Honorable Dismissal upon presentation of clearances and receipts of payments at the Registrar’s Office. 25. MODES OF PAYMENT OF SCHOOL FEES The University strictly follows the provisions of RA 10931 for the modes of payment of school fees in accordance with Section 4, Section 6, and Section 7 of the Act. (Please refer to Appendix B, RA 10931 for the specific promulgation policies and guidelines governing Coverage, Exceptions to Free HE, and Benefits of the Act). Payment of school fees shall be made over the counter or online through the Land Bank of the Philippines. 25.a. Cash 25.b. Installment: The total assessed fees shall be paid on installment basis as prorated below: 35% - upon enrolment 35% - Prelims 20% - Mid-term 10% - Finals 26. REFUND OF SCHOOL FEES Students who are covered with the RA 10931 as per Section 4, do not qualify for the refund of school fees. The percentages of refund of fees, except registration fee are as follows: 100% - before the start of classes 75% - one week after the start of classes 50% - two weeks after the start of classes 25% - three weeks after the start of classes 100%- in case of death during the term"
+  ],
+  "escalated": false,
+  "intent": "question",
+  "standalone_question": "What are the modes of payment of school fees?",
+  "sub_queries": [
+   "modes of payment for school fees",
+   "accepted payment methods for tuition fees",
+   "how to pay school fees"
+  ]
+ },
+ {
+  "question": "What is the refund schedule for school fees?",
+  "ground_truth": "The refund of fees (except the registration fee) is 100% before the start of classes, 75% one week after, 50% two weeks after, 25% three weeks after, and 100% in case of death during the term; students covered by RA 10931 do not qualify for a refund.",
+  "reference_topics": "school fees and requirements",
+  "reference": "",
+  "answer": "I couldn't find reliable information in the university knowledge base to answer this. Your question has been forwarded to the admin staff — you'll receive a verified answer soon.",
+  "contexts": [
+   ""
+  ],
+  "escalated": true,
+  "intent": "question",
+  "standalone_question": "What is the refund schedule for school fees?",
+  "sub_queries": [
+   "refund schedule for school fees",
+   "tuition fee refund policy",
+   "fee refund timeline"
+  ]
+ },
+ {
+  "question": "What does the free higher education under RA 10931 cover?",
+  "ground_truth": "It covers free tuition for all curriculum subjects enrolled during a term and free miscellaneous and other school fees, including library, computer, laboratory, school ID, athletic, admission, development, guidance, handbook, entrance, registration, medical and dental, and cultural fees.",
+  "reference_topics": "school fees and requirements",
+  "reference": "",
+  "answer": "Ah, good question! Under RA 10931, yung free higher education (Free HE) covers **two main things**:\n\n- **Free tuition** – lahat ng courses/subjects na part ng curriculum mo at essential for getting your degree. Kasama na rin dito ang approved petitioned classes. Pero **hindi kasama** ang non-credit tutorial/review classes or review/enhancement classes na ino-offer ng school.\n\n- **Free miscellaneous and other school fees** – specifically 'yung mga tulad ng:\n  - Library fees\n  - Computer fees\n  - Laboratory fees\n  - School ID fees\n  - Athletic fees\n  - Admission fees\n  - Development fees\n  - Guidance fees\n  - Handbook fees\n  - Entrance fees\n  - Registration fees\n  - Medical and dental fees\n  - Cultural fees\n  - At iba pang similar or related fees\n\nBasically, **wala kang babayaran** para sa enrollment at paggamit ng facilities basta qualified ka under sa admission at retention policies.\n\nWant me to elaborate on sino ang **hindi pwedeng mag-avail** ng Free HE or yung **requirements** para maging eligible?",
+  "contexts": [
+   "65 | S T U D E N T M A N U A L Appendix B Excerpt from Republic Act No. 10931, known as the “Universal Access to Quality Tertiary Education Act 2017” RULE II –FREE HIGHER EDUCATION (HE) IN SUCS AND LUCS Section 4. Coverage. All Filipino students, in all courses leading to a bachelor’s degree shall be exempt from paying tuition and other school fees for units enrolled provided they qualify under the admission and retention requirements of the University. Section 6. Exceptions to Free HE. The following students are ineligible to avail of Free Higher Education: 1. Students who have already obtained a Bachelor’s degree or comparable undergraduate degree from any public or private HEI; 2. Students who fail to comply with the admission and/or retention policies of the SUCs or LUCs, provided that the failure to comply with the SUC or LUC’s retention policies results in the student’s permanent disqualification from enrolling in any SUC or LUC; 3. Students who fail to complete their bachelor’s degree or comparable undergraduate degree within a year after the period prescribed in their program: a. Provided that in case of shiftees, any semester wherein the student has availed of the benefits of free higher education will be subtracted from the expected duration of the current program in which the student isenrolled; b. Provided further, that in the case of transferees, any semester wherein the student has availed of any form of government- funded StuFAP shall be subtracted from the expected duration of the current program in which the student is enrolled; c. Provided further, that in the case of returning students and other students who went on a Leave of Absence (LOA), the determination and the computation of their free higher education benefit shall be without prejudice to the most expedient way of completing their studies;",
+   "66 | S T U D E N T M A N U A L d. Provided finally, that the SUCs and LUCs shall decide on the cases that merit the extension of the availment of free higher education; and 4. Students who voluntary opt out of the free higher education provision. Student who are not eligible to avail of the Free Higher Education provision shall be charged tuition and other school fees as determined by the Governing Boards of the SUCs and LUCs. Section 7. Benefits. All students availing themselves of the free higher education provision shall be entitled to: 1. Free tuition for all courses/subjects/classes enrolled during a particular semester/term, as part of the curriculum and is essential to obtaining a degree. This includes approved petitioned classes, but not non-credit within-semester tutorial or review classes, nor review and enhancement classes offered by HEI; 2. Free miscellaneous other school fees, and similar or related fees, which include: a. Library fees; b. Computer fees; c. Laboratory fees; d. School ID fees; e. Athletic fees; f. Admission fees; g. Development fees; h. Guidance fees; i. Handbook fees; j. Entrance fees; k. Registration fees; l. Medical and dental fees m. Cultural fees; and n. Other similar or related fees.",
+   "16 | S T U D E N T M A N U A L Chapter III ACADEMIC POLICIES The University’s Admission and Retention Policies are subject to the provisions of the RA 10931 known as the “Universal Access to Quality Tertiary Education Act of 2017”. In accordance to Section 4 of the Act, All Filipino students who are either currently enrolled at the time of its effectivity, or shall enroll at any time thereafter, may avail of the exemption from paying tuition and other school fees for units enrolled, in courses leading to a bachelor’s degree in any SUC and LUC. 1. ADMISSION AND RETENTION POLICIES The University will implement the provisions of CMO no. 64 s 2017, regarding the policies and guidelines on drug testing for all programs. Old students who will undergo drug testing will be determined through Stratified Random Sampling and with expenses borne by the University. (Please refer to Appendix C, for Policies Guidelines and Procedures for Isabela State University Mandatory Random Drug Testing of Students). A. Admission Policies Criteria Weight Program with Licensure Exam Program without Licensure Exam SHS Card Rating 25% at least 85% at least 75% College Admission Test (CAT) 50% no specific rating required Interview (College level) 25% General Weighted Average at least 50% at least 40% Note: 1. Other requirements/ criteria prescribed by the PSG/CMO of the program and the concerned college may be applied. [Table] |Criteria|Weight|Program with<br>Licensure Exam|Program without<br>Licensure Exam| |---|---|---|---| |SHS Card Rating|25%|at least 85%|at least 75%| |College Admission Test<br>(CAT)|50%|no specific rating required|no specific rating required| |Interview (College<br>level)|25%|25%|25%| |**General Weighted**<br>**Average **||**at least 50%**|**at least 40%**|"
+  ],
+  "escalated": false,
+  "intent": "question",
+  "standalone_question": "What does the free higher education under RA 10931 cover?",
+  "sub_queries": [
+   "RA 10931 free higher education coverage",
+   "what does RA 10931 cover tuition fees",
+   "benefits under RA 10931 free college education"
+  ]
+ },
+ {
+  "question": "Who is ineligible to avail of free higher education?",
+  "ground_truth": "Students who already obtained a bachelor's or comparable undergraduate degree, students who fail to comply with the admission or retention policies resulting in permanent disqualification, and students who fail to complete their degree within one year after the period prescribed in their program.",
+  "reference_topics": "school fees and requirements",
+  "reference": "",
+  "answer": "Here are the students who are **ineligible** to avail of free higher education at Isabela State University:\n\n- **Students who already have a bachelor’s degree** (or any comparable undergraduate degree from a public or private HEI).\n- **Students who fail to meet admission or retention policies**, if that failure results in permanent disqualification from enrolling in any SUC or LUC.\n- **Students who fail to complete their bachelor’s degree within one year after the prescribed program period** (with special rules for shiftees, transferees, and those on Leave of Absence).\n- **Students who voluntarily opt out** of the free higher education provision.\n\nIf you’d like more details on any of these exceptions — like how shifting or LOA affects eligibility — just let me know!",
+  "contexts": [
+   "66 | S T U D E N T M A N U A L d. Provided finally, that the SUCs and LUCs shall decide on the cases that merit the extension of the availment of free higher education; and 4. Students who voluntary opt out of the free higher education provision. Student who are not eligible to avail of the Free Higher Education provision shall be charged tuition and other school fees as determined by the Governing Boards of the SUCs and LUCs. Section 7. Benefits. All students availing themselves of the free higher education provision shall be entitled to: 1. Free tuition for all courses/subjects/classes enrolled during a particular semester/term, as part of the curriculum and is essential to obtaining a degree. This includes approved petitioned classes, but not non-credit within-semester tutorial or review classes, nor review and enhancement classes offered by HEI; 2. Free miscellaneous other school fees, and similar or related fees, which include: a. Library fees; b. Computer fees; c. Laboratory fees; d. School ID fees; e. Athletic fees; f. Admission fees; g. Development fees; h. Guidance fees; i. Handbook fees; j. Entrance fees; k. Registration fees; l. Medical and dental fees m. Cultural fees; and n. Other similar or related fees.",
+   "65 | S T U D E N T M A N U A L Appendix B Excerpt from Republic Act No. 10931, known as the “Universal Access to Quality Tertiary Education Act 2017” RULE II –FREE HIGHER EDUCATION (HE) IN SUCS AND LUCS Section 4. Coverage. All Filipino students, in all courses leading to a bachelor’s degree shall be exempt from paying tuition and other school fees for units enrolled provided they qualify under the admission and retention requirements of the University. Section 6. Exceptions to Free HE. The following students are ineligible to avail of Free Higher Education: 1. Students who have already obtained a Bachelor’s degree or comparable undergraduate degree from any public or private HEI; 2. Students who fail to comply with the admission and/or retention policies of the SUCs or LUCs, provided that the failure to comply with the SUC or LUC’s retention policies results in the student’s permanent disqualification from enrolling in any SUC or LUC; 3. Students who fail to complete their bachelor’s degree or comparable undergraduate degree within a year after the period prescribed in their program: a. Provided that in case of shiftees, any semester wherein the student has availed of the benefits of free higher education will be subtracted from the expected duration of the current program in which the student isenrolled; b. Provided further, that in the case of transferees, any semester wherein the student has availed of any form of government- funded StuFAP shall be subtracted from the expected duration of the current program in which the student is enrolled; c. Provided further, that in the case of returning students and other students who went on a Leave of Absence (LOA), the determination and the computation of their free higher education benefit shall be without prejudice to the most expedient way of completing their studies;"
+  ],
+  "escalated": false,
+  "intent": "question",
+  "standalone_question": "Who is ineligible to avail of free higher education?",
+  "sub_queries": [
+   "free higher education eligibility requirements",
+   "who is not eligible for free college tuition",
+   "exclusions from free university education"
+  ]
+ },
+ {
+  "question": "How much is the student Mutual Aid Fund contribution?",
+  "ground_truth": "Students pay a contribution of Php 40.00 upon enrollment during the first semester, which covers benefits for one school year; a student enrolled only during the second semester pays Php 20.00.",
+  "reference_topics": "school fees and requirements",
+  "reference": "",
+  "answer": "I couldn't find reliable information in the university knowledge base to answer this. Your question has been forwarded to the admin staff — you'll receive a verified answer soon.",
+  "contexts": [
+   ""
+  ],
+  "escalated": true,
+  "intent": "question",
+  "standalone_question": "How much is the student Mutual Aid Fund contribution?",
+  "sub_queries": [
+   "student Mutual Aid Fund contribution amount",
+   "Mutual Aid Fund fee",
+   "student fund contribution cost"
+  ]
+ },
+ {
+  "question": "What services are included under Student Welfare Services?",
+  "ground_truth": "Student Welfare Services include Information and Orientation, Guidance and Counseling, Career and Placement, Economic Enterprise Development, and Student Handbook Development.",
+  "reference_topics": "student services, campus offices, and facilities;student rights, welfare, and code of conduct",
+  "reference": "",
+  "answer": "Under Student Welfare Services, the University offers these key programs:\n\n- **Information and Orientation Services** — materials and activities to help you adjust to college life (mission, rules, student programs, etc.)\n- **Guidance and Counseling** — psychosocial support, academic advising, and personal/social counseling\n- **Career and Placement** — assistance with job preparation, internships, and career planning\n- **Economic Enterprise Development** — programs that support student livelihoods or entrepreneurial skills\n- **Student Handbook Development** — creating and updating the manual that guides student conduct and rights\n\nAll of these are designed to promote your well-being and holistic growth, regardless of background. Want me to go deeper into any of these, like what happens in an orientation or what career services offer?",
+  "contexts": [
+   "43 | S T U D E N T M A N U A L Chapter IV OFFICE OF STUDENT AFFAIRS AND SERVICES (Based on CMO No. 9, s 2013) The Office of Student Affairs and Services provides sets of services that support academic experiences of students in order to attain holistic student development. The University implements the following student services: 1. Student Welfare Services These are basic services and programs needed to ensure and promote the well-being of students. These include Information, Orientation and Awareness, Guidance and Counseling, Career and Placement, Economic Enterprise Development, and Student Handbook Development. a. Information and Orientation Services These are informative activities and materials designed to facilitate student adjustment to life in tertiary/higher education. a.1. Information and Orientation Services This service consists of information materials on institutional mission, vision and goals, academic, rules and regulations, student conduct and discipline, student programs, services and facilities and such other information necessary for student development and should be made available to all students. It also includes regular comprehensive orientation program held for new and continuing students responsive to their needs, including orientation on the dynamics and nature of persons with disabilities, and relevant laws and policies affecting persons with disabilities.",
+   "Student Welfare Services The Isabela State University, through the Office of Student Affairs and Services (OSAS), provides a comprehensive range of programs and services designed to complement and enhance students’ academic experiences. These include informative activities, guidance and counseling, career and placement assistance, and other peer support initiatives that aim to foster the personal, social, and emotional well-being of all students—particularly those from underrepresented or marginalized groups. The University ensures that every learner, regardless of sex, gender identity and expression, ethnicity, religion, socioeconomic status, or disability, receives equal access to guidance and support. Through academic advising, psychosocial counselling, career development, and inclusive activities, the OSAS promotes holistic student growth and helps build a nurturing campus environment where diversity and inclusion are valued and actively supported. The University implements the following student services: A. Information and Orientation Services These are informative activities and materials designed to facilitate student adjustment to life in tertiary/higher education. This service consists of information materials on institutional mission, vision and goals, academic, rules and regulations, student conduct and discipline, student programs, services and facilities and such other information necessary for student development and should be made available to all students. It also includes regular comprehensive orientation program held for new and continuing students responsive to their needs, including orientation on the dynamics and nature of persons with disabilities, and relevant laws and policies affecting persons with disabilities. An organized, updated, and readily available educational, career, and personal/social materials in different accessible formats are also provided to students. Information materials include statutes affecting students such as: a. R.A. 9262 or Anti-Violence Against Women and Children Act b. Guidelines on drug abuse prevention and control c. R.A. 7877 or the Anti-Sexual Harassment Act of 1995 d. HIV AIDS awareness e. Self-care and healthy lifestyle f. R.A. 9442, particularly on the provision on public ridicule and vilification against persons with disability g. Smoke Free Policy of the University B. Guidance and Counseling Services"
+  ],
+  "escalated": false,
+  "intent": "question",
+  "standalone_question": "What services are included under Student Welfare Services?",
+  "sub_queries": [
+   "Student Welfare Services offered list"
+  ]
+ },
+ {
+  "question": "What health services does the University provide to students?",
+  "ground_truth": "The University provides medical and dental services headed by the University Physician, including a medical-dental examination for all new students; consultation and treatment are available on school days, the first dose of medicine is free while stocks last, and dental extraction and prophylaxis are included.",
+  "reference_topics": "student services, campus offices, and facilities",
+  "reference": "",
+  "answer": "Ang university ay may **dental services** na kasama ang extraction at prophylaxis, at may **Medical Unit** na nagmo-monitor ng food sanitation at safety. Para sa complete list, you can ask the Office of Student Affairs and Services (OSAS) o University Health Services directly.\n\nWant me to check if may ibang specific health programs na binanggit?",
+  "contexts": [
+   "48 | S T U D E N T M A N U A L stocks are available. Dental extraction and prophylaxis are included in the dental services. e. Multi-faith Services. The university provides an environment conducive to free expression of one’s religious orientation in accordance with institutional principles and policies. f. Student Housing and Residential Services. The University provides housing facilities which shall be equipped and maintained at an affordable price. Separate dormitories for male and female occupants are managed by dormitory matrons who supervise as well as extend counseling services to all dormitory occupants. This unit is also in-charge of regular monitoring of private boarding houses outside the campus. g. Food Services. The University leases spaces for canteens or cafeterias which provide meals, snacks, school supplies, and grocery items at reasonable prices. The University, through the Medical Unit, monitors the sanitation and safety of the foods served. h. Sports and Socio-Cultural Services. The University acknowledges the need of students to become physically and socially active and competent individuals through sports and socio – cultural activities hence, it implements and encourages programs and activities for the holistic development of students. i. Safety and Security Services. The Security provides safety and security to all students, University staff and personnel and university properties. It enforces traffic rules and regulations and maintains peace and order within the campus. j. Social and Community Involvement Programs. The university provides programs and opportunities designed to develop",
+   "68 | S T U D E N T M A N U A L a. The result of the drug test issued by the partner Drug Testing Center shall be directly forwarded to the Office of the Student Affairs and Services and shall be treated with utmost confidentiality. b. In case the test result is positive, the Office of Student Affairs and Services shall inform both the parent and the student concerned that a confirmatory test shall be conducted. c. The Office of Student Affairs and Services shall conduct a conference with the parent and student where the information and process of the confirmatory test shall be discussed. d. If the student is found to be positive, he or she shall be referred to a DOH accredited agency for medical attention. The student shall be given a probationary period of 6 months or so depending on the diagnosis of the specialized medical practitioner to undergo intervention and rehabilitation program. e. After the intervention and rehabilitation program, another confirmatory test shall be conducted. If the test yields positive result, the Office of Student Affairs and Services shall recommend disciplinary actions such as but not limited to expulsion. f. Denial of admission will only be for the most serious grounds, when there is a real threat to the security and well-being of the university. 6. The execution of the drug testing shall be every semester effective upon the approval of the Board of Regents. The Office of Student Affairs and Services (OSAS) together with the Office of the University Health Services shall prepare and submit annual reports to the CHED Regional Office through the Office of the Executive Officer on the implementation of the program. 7. Any faculty, administration, or employee of the University who violates the rules of confidentiality of the results of the drug tests shall, in addition to the sanctions as may be provided by the school policy, be liable under Section 72 or R.A. No. 9165 and other appropriate laws."
+  ],
+  "escalated": false,
+  "intent": "question",
+  "standalone_question": "What health services does the University provide to students?",
+  "sub_queries": [
+   "student health services",
+   "university health services for students",
+   "healthcare services provided to students"
+  ]
+ },
+ {
+  "question": "How does ISU handle student housing and the monitoring of boarding houses?",
+  "ground_truth": "ISU provides affordable separate dormitories for male and female students managed by dormitory matrons (with free Wi-Fi and electricity), and the Student Housing and Residential Services unit regularly monitors and accredits private boarding houses outside campus, in partnership with the ISU-OABHDA.",
+  "reference_topics": "student services, campus offices, and facilities",
+  "reference": "",
+  "answer": "ISU handles it in two ways — **on-campus dormitories** and **off-campus boarding house monitoring**.\n\n- **On-campus dorms** are separate for male and female, managed by **dormitory matrons** who also provide counseling. They're affordable and include free Wi-Fi and electricity.\n- For students living **off-campus**, the **Student Housing and Residential Services** conducts **annual accreditation** of boarding houses and dormitories. This includes inspections partnered with:\n  - Office of Health Services\n  - Security\n  - Barangay Officials\n  - Bureau of Fire Protection (BFP)\n  - Philippine National Police (PNP)\n  - Sanitation Office\n- There's also a formal partnership with the **ISU-Owners of Accredited Boarding Houses and Dormitories Association (ISU-OABHDA)** to protect student welfare.\n\nWant me to break down the specific requirements or steps for boarding house accreditation?",
+  "contexts": [
+   "to students through the ISU Student Dormitory. The university’s dormitories offer safe, comfortable, and budget-friendly living arrangements for students who come from various regions in the Philippines, making it easier for them to pursue their academic goals without the financial burden of high living costs. In addition, the ISU dormitories offer economical utility services, free Wi-Fi, and electricity, which greatly lessen the financial burden on students from low-income families. The male and female students are housed in separate dormitories, which are overseen by their respective dormitory matrons, who also provide counseling services to all student residents. By providing affordable housing options, ISU helps reduce the financial burden on students, making education more accessible to a broader range of individuals and contributing to a positive and supportive campus experience. On-campus stay? No worries! To ensure the safety and well-being of all the students residing outside the University, the Student Housing and Residential Services is conducting annual accreditation of boarding houses and dormitories through monitoring and inspection with the partnership of the Office of Health Services, Security, Barangay Officials, Bureau of Fire and Protection (BFP), Philippine National Police (PNP), and Sanitation Office.",
+   "The University has established and organized partnership with the ISU-Owners of Accredited Boarding Houses and Dormitories Association (ISU-OABHDA). The ISU-OAHBDA is registered to the Securities and Exchange Commission (SEC) with Company Registration No. CN201111606. Its general objective is to unite and organize all the owners of Registered and Accredited Boarding Houses and Dormitories of San Fabian, Echague, Isabela, and provide an avenue to safeguard the common interest and welfare of students residing in their care.",
+   "48 | S T U D E N T M A N U A L stocks are available. Dental extraction and prophylaxis are included in the dental services. e. Multi-faith Services. The university provides an environment conducive to free expression of one’s religious orientation in accordance with institutional principles and policies. f. Student Housing and Residential Services. The University provides housing facilities which shall be equipped and maintained at an affordable price. Separate dormitories for male and female occupants are managed by dormitory matrons who supervise as well as extend counseling services to all dormitory occupants. This unit is also in-charge of regular monitoring of private boarding houses outside the campus. g. Food Services. The University leases spaces for canteens or cafeterias which provide meals, snacks, school supplies, and grocery items at reasonable prices. The University, through the Medical Unit, monitors the sanitation and safety of the foods served. h. Sports and Socio-Cultural Services. The University acknowledges the need of students to become physically and socially active and competent individuals through sports and socio – cultural activities hence, it implements and encourages programs and activities for the holistic development of students. i. Safety and Security Services. The Security provides safety and security to all students, University staff and personnel and university properties. It enforces traffic rules and regulations and maintains peace and order within the campus. j. Social and Community Involvement Programs. The university provides programs and opportunities designed to develop"
+  ],
+  "escalated": false,
+  "intent": "question",
+  "standalone_question": "How does ISU handle student housing and the monitoring of boarding houses?",
+  "sub_queries": [
+   "ISU student housing policies",
+   "ISU boarding house monitoring",
+   "ISU off-campus housing regulations"
+  ]
+ },
+ {
+  "question": "What are the library's operating hours according to the Campus Facilities Guide?",
+  "ground_truth": "The library is open weekdays from 7:30 AM to 6:00 PM and on Saturdays from 8:00 AM to 12:00 PM, and it holds over 25,000 volumes.",
+  "reference_topics": "student services, campus offices, and facilities",
+  "reference": "",
+  "answer": "Hey! According to the Campus Facilities Guide, the library is open:\n\n- **Monday to Friday** — 7:30 AM to 6:00 PM\n- **Saturday** — 8:00 AM to 12:00 PM\n\nWould you like me to help with anything else about the library, like the requirements for using it?",
+  "contexts": [
+   "47 | S T U D E N T M A N U A L Library Policies, Rules and Regulations c.1. Library Hour The library is open from Monday to Friday from 7:00 a.m. to 5:00 p.m. and on Saturday from 8:00 a.m. to 5:00 p.m. c.2. Admission to the Library All bonafide students, campus officials, faculty and employees of the University and other institutions including private individuals are granted permission by the librarian to use the library facilities. c.3. Requirements for Library Use All students shall present the official school ID and Library card for them to be allowed to use the library facilities. The school ID shall be non – transferable and shall be worn upon entry to the library. c.4. Outside Researchers Walk-in users from other institutions shall present a valid ID and a referral letter from their respective heads of institutions. d. Health Services. The university medical and dental services shall be headed by the University Physician who is in-charge of the health needs of students and University personnel and staff. The University Physician, together with the Dentists and Nurses, shall conduct a medical-dental examination to all new students as a requirement for admission. Medical and dental consultation and treatment may be availed of anytime during school days. First dosage of medicines is given free as long as",
+   "Campus Map The map below shows the layout of all major facilities within the campus grounds. Pathways highlighted in light gray indicate main pedestrian routes. The campus covers approximately 4.5 hectares with dedicated zones for academic, recreational, and administrative functions. Figure 2 — Campus Facilities Map (Not to scale) Other Notable Facilities Library — The campus library holds over 25,000 volumes and provides access to online academic databases. Study rooms are available for individual and group use. Open daily from 7:30 AM to 6:00 PM on weekdays, and 8:00 AM to 12:00 PM on Saturdays. Gymnasium & Covered Court — The gymnasium accommodates basketball, volleyball, and badminton. The covered court also serves as venue for school events and convocations. Students may use the gym from 6:00 AM to 8:00 PM daily. IT Center — Equipped with 80 desktop workstations, the IT Center provides students with computer access, printing services, and Wi-Fi support. The help desk assists with account setup and technical issues. Campus Administration Office | AY 2025–2026 | For inquiries, email: admin@campus.edu.ph [Image description] A campus facilities map displays nine colored rectangular boxes representing different areas: Library, Gymnasium, Science Blog, Admin Blog, Canteen, IT Center, Open Court, and Parking Area. The map is overlaid with a grid of intersecting gray lines."
+  ],
+  "escalated": false,
+  "intent": "question",
+  "standalone_question": "What are the library's operating hours according to the Campus Facilities Guide?",
+  "sub_queries": [
+   "Campus Facilities Guide library operating hours",
+   "library hours Campus Facilities Guide",
+   "operating hours library from Campus Facilities Guide"
+  ]
+ },
+ {
+  "question": "Which offices are housed in the Main Administration Building and what are its hours?",
+  "ground_truth": "The Main Administration Building houses the Office of the Registrar, the Finance Office, the Office of Student Affairs, and the Office of the Campus President, and is open Monday to Friday from 8:00 AM to 5:00 PM.",
+  "reference_topics": "student services, campus offices, and facilities",
+  "reference": "",
+  "answer": "Aye, no problem! Yung **Main Administration Building** ang main hub ng campus operations — dito matatagpuan ang mga importanteng opisina.\n\n- **Office of the Registrar** — Admin Bldg, Room 101\n- **Finance Office** — Admin Bldg, Room 102\n- **Office of Student Affairs** — Admin Bldg, Room 201\n- **Office of the Campus President**\n\nOpen siya **Monday to Friday, 8:00 AM – 5:00 PM**.\n\nNeed mo ba ng contact number ng specific office?",
+  "contexts": [
+   "Campus Facilities Guide Your Complete Reference to Campus Buildings & Services Welcome to Our Campus This guide provides an overview of all major facilities available to students, faculty, and staff. Whether you are a new student finding your way around or a returning member of the community, this reference will help you locate key buildings, understand operating hours, and access the services you need throughout the academic year. Main Administration Building The Main Administration Building serves as the central hub of campus operations. It houses the Office of the Registrar, the Finance Office, the Office of Student Affairs, and the Office of the Campus President. The building is open Monday to Friday, 8:00 AM – 5:00 PM. Figure 1 — Main Administration Building, North Wing Key Offices & Contact Numbers Office Location Contact Registrar's Office Admin Bldg, Room 101 (02) 8123-4501 Finance Office Admin Bldg, Room 102 (02) 8123-4502 Student Affairs Admin Bldg, Room 201 (02) 8123-4510 IT Help Desk IT Center, Ground Flr (02) 8123-4600 Library Services Library Bldg (02) 8123-4700 Health Services Clinic, Admin Annex (02) 8123-4800 Campus Security Gate 1 Guard House (02) 8123-4900 [Table] |Office|Location|Contact| |---|---|---| |Registrar's Office|Admin Bldg, Room 101|(02) 8123-4501| |Finance Office|Admin Bldg, Room 102|(02) 8123-4502| |Student Affairs|Admin Bldg, Room 201|(02) 8123-4510| |IT Help Desk|IT Center, Ground Flr|(02) 8123-4600| |Library Services|Library Bldg|(02) 8123-4700| |Health Services|Clinic, Admin Annex|(02) 8123-4800| |Campus Security|Gate 1 Guard House|(02) 8123-4900|"
+  ],
+  "escalated": false,
+  "intent": "question",
+  "standalone_question": "Which offices are housed in the Main Administration Building and what are its hours?",
+  "sub_queries": [
+   "offices in Main Administration Building",
+   "Main Administration Building hours"
+  ]
+ },
+ {
+  "question": "What should a student do if they lose their ID?",
+  "ground_truth": "Immediately report the loss to the Security Guard, pay the Declaration of Loss fee at the Cashier's Office, accomplish the Declaration of Loss form from the OSAS, and present current registration to apply for a new ID at the Campus Business Affairs Office.",
+  "reference_topics": "student services, campus offices, and facilities",
+  "reference": "",
+  "answer": "Aw, sayang naman! But no worries — you can request a **replacement ID** from the registrar or the office that issued it. Since the first copy was free, you'll be charged the **usual replacement fee** for the new one.\n\nWould you like to know which office to go to for that?",
+  "contexts": [
+   "67 | S T U D E N T M A N U A L Provided, that only the first copies/ printouts of school ID, library ID and student handbook shall be free, and any subsequent requests by the students can be charged the usual fees. APPENDIX C POLICIES, GUIDELINES AND PROCEDURES FOR ISABELA STATE UNIVERSITY MANDATORY RANDOM DRUG TESTING OF STUDENTS MECHANICS 1. The University shall conduct prior consultation with the students, parents and stakeholders and seek approval of the University Academic Council (UAC) and Board of Regents (BOR) prior to the mandatory random drug testing program. 2. The University through the Office of the University Health Services (Infirmary) shall partner with a DOH- accredited drug facility, physician or private medical practitioner duly accredited to administer the drug testing. 3. For old student, the drug testing expenses shall be borne by the university as mandated in Section 36 (c) Article III of the Republic Act 9165 through Board Regulation No. 3 series 2009. For incoming freshman and transferee students, expenses shall be borne by the students. 4. The method that will be used in determining the sample size will be stratified Random Sampling using any method found appropriate or convenient. The total sample size to be used will be at least 5% from among the enrolled students per Campus identified at random as earlier described. 5. The University shall implement the mandatory random drug testing as part of its retention policy requirements."
+  ],
+  "escalated": false,
+  "intent": "question",
+  "standalone_question": "What should a student do if they lose their ID?",
+  "sub_queries": [
+   "lost student ID card procedure",
+   "replace lost student ID",
+   "student ID lost report"
+  ]
+ },
+ {
+  "question": "What is the Facebook page of the Office of Student Affairs and Services?",
+  "ground_truth": "The OSAS Facebook page is https://www.facebook.com/ISU.OSAS.",
+  "reference_topics": "student services, campus offices, and facilities",
+  "reference": "",
+  "answer": "Wala pong nakalagay na Facebook page sa document na 'yan — ang nakita ko lang ay email (osas@isu.edu.ph) at website (www.isu.edu.ph) nila.\n\nGusto mo bang i-check ko kung may ibang details tungkol sa contact info nila?",
+  "contexts": [
+   "Office of Student Affairs and Services Student’s Center Bldg., Isabela State University, San Fabian, Echague, Isabela 3309, Philippines @ISU.OSAS | www.isu.edu.ph | osas@isu.edu.ph | Isabela State University Republic of the Philippines ISABELA STATE UNIVERSITY Echague, Isabela OFFICE OF STUDENT AFFAIRS & SERVICES STUDENT ORGANIZATION UNIT OATH TO OFFICE I, ______________________________(Name) having been elected to the position of __________________________________________(Position) of the __________________________________(name of the organization) for the SY _______________, do hereby solemnly swear that I will discharge to the best of my ability, all the duties and responsibilities to the position to which I have been elected, to enhance the quality of service of the University, to my University, to my country, uphold and protect the Constitution and By-Laws of the organization without mental reservation of purpose of evasion. So help me God! Inducting Officer: __________________________ In witness: __________________________ ISUE-OSS-OTO-100 Effectivity:July 07, 2022 Revision: 0 [Image description] The image shows a horizontal green banner containing five distinct logos. From left to right, the logos represent: 1. **PCA (Proficiency in Quality Management)**: A green banner with a circular emblem featuring a star and text in white and red. 2. **Prime-HRN**: A cream-colored banner with a laurel wreath design and the text \"Prime-HRN\" in black. 3. **SUCIN LEVEL**: A black banner with the text \"SUCIN LEVEL\" in white. 4. **ISO CERTIFIED**: A green banner with a white checkmark and the text \"ISO CERTIFIED\" in white. 5. **Certified**: A green banner with a white checkmark and the text \"CERTIFIED\" in white. Each logo is enclosed within a green rectangular border and accompanied by a text description below it. [Image description] The image shows the emblem of Sabela State University, established in 1978. The circular emblem has a green outer ring and a gold border. Inside, a yellow sunburst radiates outward from a central blue flame. Below the flame, a green field with faint grid lines extends to the horizon. The text \"SABELA STATE UNIVERSITY\" is inscribed in white around the top and bottom edges of the emblem, and the year \"1978\" is written in white at the bottom center."
+  ],
+  "escalated": false,
+  "intent": "question",
+  "standalone_question": "What is the Facebook page of the Office of Student Affairs and Services?",
+  "sub_queries": [
+   "Office of Student Affairs and Services Facebook page",
+   "Student Affairs and Services social media"
+  ]
+ },
+ {
+  "question": "How many students are needed to form a new student organization, and what must they submit?",
+  "ground_truth": "Any group of at least fifteen students may apply to the OSAS to form an organization, submitting the Constitution and By-Laws, a list of elected officers and members for the current year, a proposed program of activities and projects, and the names of three faculty or employee advisers with their letters of acceptance.",
+  "reference_topics": "student organizations, activities, and campus events",
+  "reference": "",
+  "answer": "The context doesn't mention any specific minimum number of students needed to form a new organization — I'm not sure about that part. But here's what they need to submit for recognition:\n\n- **Constitution and By-Laws**\n- **List of elected officers and members** for the current year\n- **Proposed program of activities and projects**\n- **Names of three (3) Faculty or Employees** with their letter of acceptance as advisers (submitted to the OSAS Director)\n\nWant me to check if there's a separate policy on membership count?",
+  "contexts": [
+   "41 | S T U D E N T M A N U A L accompanied by the following: a.1. Constitution and By-Laws; a.2. List of elected officers and members for the current year; a.3. Proposed program of activities and projects; a.4. Names of three (3) Faculty or Employees with their letter of acceptance as advisers to be submitted to the Director of OSAS. b. Renewal of recognized organizations/clubs To be eligible for renewal, the organization shall submit all the requirements including accomplishment reports of the preceding school year of operation. c. Conditions for non-recognition/non-renewal of a student organization: c.1. Requirements for recognition and/or renewal are not met; c.2. Sanction is still in force; c.3. Failure to meet the deadline for filing of recognition/renewal set by the OSAS. 4. Certificate of Recognition The recognition of a student organization shall be a pre-condition for its operation in the University. A corresponding Certificate of Recognition shall be issued by the OSAS upon the recommendation of the Dean of the College where the organization operates. However, such certificate shall only be effective for one (1) school year subject for renewal every school year."
+  ],
+  "escalated": false,
+  "intent": "question",
+  "standalone_question": "How many students are needed to form a new student organization, and what must they submit?",
+  "sub_queries": [
+   "minimum number of students to form a new student organization",
+   "documents required to start a student organization"
+  ]
+ },
+ {
+  "question": "How far in advance must an Activity Permit be filed?",
+  "ground_truth": "An Activity Permit must be filed within five working days before the scheduled activity, with complete attachments such as the action plan, communications, training/activity proposal, and program or invitation.",
+  "reference_topics": "student organizations, activities, and campus events",
+  "reference": "",
+  "answer": "You just need to file the **Activity Permit within five (5) working days** before your scheduled event. So make sure to submit it at least that early along with the required attachments like your action plan and program.\n\nWant me to list what attachments are needed?",
+  "contexts": [
+   "42 | S T U D E N T M A N U A L 5. Membership Membership to an organization shall be determined by the organization itself as embodied in its constitution and by-laws. 6. Qualification of Candidates Election procedures and filing of candidacy for any position in any organization shall be in conformity with the provisions of its constitution. 7. Conduct of Student Activities All organizations shall be required to file an Activity Permit within five (5) working days before their scheduled activity with complete attachments such as the action plan, communications, training proposal/ activity proposal and program or invitation. 8. Nature of Activity Organizations are encouraged to conduct relevant activities which are focused on the following areas: educational, religious/moral, social, cultural, entrepreneurial, environmental, financial matters, etc."
+  ],
+  "escalated": false,
+  "intent": "question",
+  "standalone_question": "How far in advance must an Activity Permit be filed?",
+  "sub_queries": [
+   "Activity permit filing deadline",
+   "Activity permit advance notice requirement",
+   "How far in advance to file activity permit"
+  ]
+ },
+ {
+  "question": "What are the rules for conducting raffles on campus for fundraising?",
+  "ground_truth": "An application to conduct a raffle must be filed at the OSAS at least one month before the activity, must indicate the prizes, price per ticket, date, place, and time, is allowed a one-month time limit (any extension approved by OSAS), and the list of winners must be posted on bulletin boards all over the campus.",
+  "reference_topics": "student organizations, activities, and campus events",
+  "reference": "",
+  "answer": "Ah, so you're planning a fundraising raffle? Here's what you need to know:\n\n- **Application details** — your raffle application must clearly state the **prizes, price per ticket, date, place, and time** of the raffle.\n- **Time limit** — you only have **one month** to raffle off the prizes. If you need more time, you have to get an **extension approved by OSAS**.\n- **Posting winners** — the **list of winners** must be posted on **bulletin boards all over campus**.\n\nAlso, if you're doing solicitation letters for your fundraiser, remember those need to be signed by the **organization president, the adviser, and the OSAS Director/Chief**.\n\nWant me to walk you through the requirements for symposia or seminars too, or just the raffle rules?",
+  "contexts": [
+   "b.2. The application shall indicate the prizes, price per ticket, date, place and time of the raffle; b.3. A time limit of one month shall be allowed for any organization to raffle off the prizes. Any extension of time shall be approved by the OSAS; and b.4. The list of winners shall be posted on bulletin boards all over the campus. c. Solicitation letters shall be signed by the president of the student organization, the adviser, and the Director/Chief of the OSAS. Solicitation letters and solicited funds or merchandise shall be systematically controlled and monitored. d. For Symposia/Lectures/Seminar workshops/Trainings, the following are the requirements in the conduct of the said activities: d.1. Training design; d.2. Speakers’ profile or bio-data; d.3. Copy of the program; and d.4. Outline of Topic/s",
+   "72 | S T U D E N T M A N U A L b.2. The application shall indicate the prizes, price per ticket, date, place and time of the raffle; b.3. A time limit of one month shall be allowed for any organization to raffle off the prizes. Any extension of time shall be approved by the OSAS; and b.4. The list of winners shall be posted on bulletin boards all over the campus. c. Solicitation letters shall be signed by the president of the student organization, the adviser, and the Director/Chief of the OSAS. Solicitation letters and solicited funds or merchandise shall be systematically controlled and monitored. d. For Symposia/Lectures/Seminar workshops/Trainings, the following are the requirements in the conduct of the said activities: d.1. Training design; d.2. Speakers’ profile or bio-data; d.3. Copy of the program; and d.4. Outline of Topic/s Appendix F RIGHTS OF THE STUDENTS Students of the University have the right to: a. Receive quality and relevant education through competent instruction in accordance to national goals, educational objectives, and the standards of the university for their full development as human beings; b. Receive guidance and counselling services to provide them with appropriate opportunities to better understand themselves, to make decisions, and to select the field of works suited to their potentials; c. Express freely their beliefs and opinions as long as these do not disrupt the administrative, academic and discipline of the university;"
+  ],
+  "escalated": false,
+  "intent": "question",
+  "standalone_question": "What are the rules for conducting raffles on campus for fundraising?",
+  "sub_queries": [
+   "raffle regulations campus fundraising",
+   "university policy raffle fundraising",
+   "rules for conducting raffles on campus"
+  ]
+ },
+ {
+  "question": "What is the maximum fine for organization members who do not participate in activities?",
+  "ground_truth": "If a fine is imposed on non-participating members, it should not exceed fifty pesos (Php 50.00) per day.",
+  "reference_topics": "student organizations, activities, and campus events",
+  "reference": "",
+  "answer": "I couldn't find reliable information in the university knowledge base to answer this. Your question has been forwarded to the admin staff — you'll receive a verified answer soon.",
+  "contexts": [
+   ""
+  ],
+  "escalated": true,
+  "intent": "question",
+  "standalone_question": "What is the maximum fine for organization members who do not participate in activities?",
+  "sub_queries": [
+   "maximum fine for organization members not participating in activities",
+   "penalty for non-participation in organization activities",
+   "fine policy for inactive organization members"
+  ]
+ },
+ {
+  "question": "What is the prescribed student attire policy and what clothing is not allowed?",
+  "ground_truth": "Students must wear the prescribed school uniform at all times; indecent outfits such as plunging necklines, see-through tops, backless tops, mini-skirts or shorts, tight-fitted pants, and tattered pants are not allowed.",
+  "reference_topics": "student rights, welfare, and code of conduct",
+  "reference": "",
+  "answer": "Hey! Here's what the student manual says about your attire:\n\n**Prescribed uniform** (Monday–Thursday unless noted):\n- **Male:** White polo with ISU seal patch, black straight-cut pants, black leather shoes and socks. Monday, Tuesday, Thursday. (Wednesday = ordinary attire, Friday = org uniform.)\n- **Female:** Monday & Thursday – white long-sleeve blouse with necktie; Tuesday – white short-sleeve blouse with ribbon, plus a Gianpolycheck A-cut skirt (below the knee) and close black leather shoes. Wednesday = ordinary attire, Friday = org uniform.\n\n**Clothing NOT allowed** (indecent outfits):\n- Plunging necklines, see-through or backless tops\n- Mini-skirts or shorts\n- Tight fitted pants\n- Tattered pants\n\nAnd don't forget: **school ID must be worn at all times** while on campus.\n\nNeed me to break down the P.E. or OJT uniform too, or curious about what counts as \"ordinary attire\"? 😊",
+  "contexts": [
+   "77 | S T U D E N T M A N U A L 1.4. Unruly and boisterous behaviour. Article V. Student Attire Section 1. Students shall wear their prescribed school uniform at all times. Section 2. P.E./NSTP/Organization uniforms shall only be worn during designated schedules. Section 3. Any indecent outfit such as, but not limited to: plunging necklines, see-through, backless, mini-skirts or shorts, tight fitted pants, tattered pants shall not be allowed. Appendix H PROCEDURES FOR THE SETTLEMENT OF COMPLAINTS/ GRIEVANCES 1. Any student, faculty/ staff or the University may file a complaint, or a charge against a student. 2. The complaint or charge must be in writing under oath. 3. For cases classified as minor offenses, the complaint or charge must be filed with the office of the College Dean where the studentbelongs. 4. Upon receipt of the complaint, the College Dean shall constitute the College Committee on Discipline (CCD). 5. The College Committee on Discipline (CCD) shall compose of the Program Chair/ Department Chair as case may be as Chairman, where the student belongs, the SBO adviser, two faculty members and the SBO President or representative. 6. Within (5) days from its constitution, the College Committee on Discipline (CCD) shall issue summons to the respondents with the copy of the complaint. 7. Service of summons may be by personal delivery or by registered mail. If the respondent is a minor, the summons shall be served to the parents or guardians.",
+   "33 | S T U D E N T M A N U A L 28.a.2. FEMALE Monday and Thursday -White long sleeve blouse with necktie Tuesday -White short-sleeve blouse with ribbon -Gianpolycheck A-cut skirt below the knee -Close black leather shoes Wednesday -Ordinary attire Friday -Organization uniform 28.b. OJT Uniform OJT students (program-based) 28.c. P.E. Uniform All P.E. students shall wear the prescribed University P.E. uniform during P.E. classes only. 29. Identification Card All students shall wear official school I.D at all times while in the campus. The said I.D. shall be validated every term in the Registrar’s Office.",
+   "32 | S T U D E N T M A N U A L Student Development First Year Php 1,000.00 Second Year Php 800.00 Third Year Php 600.00 Fourth Year Php 400.00 Laboratory fees Computer Php 1000.00/subject Technical Php 500.00/subject Medical/Health Php 400.00/subject 28. SCHOOL UNIFORM Wearing of the following prescribed University uniforms shall be strictly enforced to students at all times within the campus. 28.a. Official School Uniform / ID Monday - Friday School ID 28.a.1. MALE: Monday, Tuesday, and Thursday -White Polo with ISU seal patch on the left chest -Black straight-cut pants -Close black leather shoes and black socks Wednesday -Ordinary attire Friday -Organization uniform Note: Hair style- Barber cut"
+  ],
+  "escalated": false,
+  "intent": "question",
+  "standalone_question": "What is the prescribed student attire policy and what clothing is not allowed?",
+  "sub_queries": [
+   "student attire policy",
+   "prohibited clothing items",
+   "dress code restrictions for students"
+  ]
+ },
+ {
+  "question": "What are the penalties for minor offenses?",
+  "ground_truth": "For minor offenses, the first offense is a reprimand and apology, promissory letter, restitution, and summons for the parents/guardians; the second offense is suspension of one to four days plus community service; and the third offense is treated as a major offense.",
+  "reference_topics": "student rights, welfare, and code of conduct",
+  "reference": "",
+  "answer": "Ah, minor offenses! For those, the penalty is usually a **written reprimand** for the first offense, then it can escalate depending on the specific violation. The manual doesn't list a fixed penalty table for each minor offense, but the OSAS (Office of Student Affairs and Services) decides based on the situation.\n\n- For a **first minor offense**, expect a **written reprimand**.\n- A **second minor offense** is typically treated as a **first major offense**, which carries a penalty of **suspension from 5 to 10 days or community service**.\n- A **third minor offense** is considered a **major offense** and will be penalized accordingly.\n\nWant me to list down the specific acts classified as minor offenses para sure ka?",
+  "contexts": [
+   "54 | S T U D E N T M A N U A L 3.3.3. Third offense: treated as major offense. 3.2. For Major Offenses 3.2.1. First offense: suspension from five (5) to ten (10) days or Community Service, as determined by the Office of Student Affairs and Services. 3.2.2. Second offense: suspension from eleven (11) to fifteen (15) days. 3.2.3. Third offense: suspension to forty-five (45) calendar days to dismissal depending upon the gravity of the offense after due process. Section 4. When the offense is committed by a non-bonafide student within the University, and with the involvement of ISU student/s, the latter shall be accountable for the acts of the former. Section 5. The parents/ guardians of the offender shall always attend meetings and counselling to know their children’s behavioural gross misconduct. Section 6. Any student not enrolled at the time he/she is charged but refuses to be under jurisdiction of the University, his/her succeeding enrollment in any College/Campus of the University shall be withheld pending resolution of his/her case. Section 7. The imposition of the disciplinary sanctions for the violation of any rule under this Code shall not prevent the University from endorsing the case to proper government authorities when the same may involve violations of penal laws. Section 8. Policies issued from time to time by the University President on matters not covered in this handbook shall form an integral part of these guidelines.",
+   "52 | S T U D E N T M A N U A L PENALTIES Section 1. General Provisions 1.1. The Director/Chief of the OSAS shall determine, recommend, and impose appropriate penalties after due process taking into account the following: 1.1.1. Nature and gravity of offense; 1.1.2. Previous record of misconduct/establish precedents; 1.1.3. Position or status of the aggrieved party; 1.1.4. Pertinent and applicable aggravating and mitigating circumstances. 1.2. Students who are certified by the OSAS as violator of major offenses shall be subjected to corresponding disciplinary actions after due process. Section 2. The following are classified as major and minor offenses: 2.1. Minor Offenses 2.1.1. Failure to wear proper uniform, complete uniform 2.1.2. Possession and passing of pornographic materials in print and non-printed materials 2.1.3. Littering/unsanitary acts 2.1.4. Loitering 2.1.5. Eating in restricted areas like library, computer laboratories and other laboratories 2.1.6. Unauthorized use of school facilities 2.1.7. Lending/ borrowing of Identification Card 2.1.8. Driving without license/unregistered vehicle/violation of traffic rules inside the campus like over speeding and noisy mufflers as reiterated in RA 8749 or the Clean Air Act “regulating and controlling emissions of unwanted sound of a known source passed into the atmosphere”."
+  ],
+  "escalated": false,
+  "intent": "question",
+  "standalone_question": "What are the penalties for minor offenses?",
+  "sub_queries": [
+   "penalties for minor offenses",
+   "minor offense consequences",
+   "university minor offense penalties"
+  ]
+ },
+ {
+  "question": "What are the penalties for major offenses?",
+  "ground_truth": "For major offenses, the first offense is suspension of five to ten days or community service, the second offense is suspension of eleven to fifteen days, and the third offense is suspension of forty-five calendar days up to dismissal depending on the gravity of the offense, after due process.",
+  "reference_topics": "student rights, welfare, and code of conduct",
+  "reference": "",
+  "answer": "Here's the breakdown of penalties for **major offenses**:\n\n- **First offense:** suspension from **five (5) to ten (10) days**, or **Community Service** — determined by the Office of Student Affairs and Services.\n- **Second offense:** suspension from **eleven (11) to fifteen (15) days**.\n- **Third offense:** suspension of **forty-five (45) calendar days up to dismissal**, depending on how serious the offense is (after due process).\n\nLet me know if you want details about minor offenses or the process for appeals!",
+  "contexts": [
+   "54 | S T U D E N T M A N U A L 3.3.3. Third offense: treated as major offense. 3.2. For Major Offenses 3.2.1. First offense: suspension from five (5) to ten (10) days or Community Service, as determined by the Office of Student Affairs and Services. 3.2.2. Second offense: suspension from eleven (11) to fifteen (15) days. 3.2.3. Third offense: suspension to forty-five (45) calendar days to dismissal depending upon the gravity of the offense after due process. Section 4. When the offense is committed by a non-bonafide student within the University, and with the involvement of ISU student/s, the latter shall be accountable for the acts of the former. Section 5. The parents/ guardians of the offender shall always attend meetings and counselling to know their children’s behavioural gross misconduct. Section 6. Any student not enrolled at the time he/she is charged but refuses to be under jurisdiction of the University, his/her succeeding enrollment in any College/Campus of the University shall be withheld pending resolution of his/her case. Section 7. The imposition of the disciplinary sanctions for the violation of any rule under this Code shall not prevent the University from endorsing the case to proper government authorities when the same may involve violations of penal laws. Section 8. Policies issued from time to time by the University President on matters not covered in this handbook shall form an integral part of these guidelines."
+  ],
+  "escalated": false,
+  "intent": "question",
+  "standalone_question": "What are the penalties for major offenses?",
+  "sub_queries": [
+   "penalties for major offenses",
+   "major offense consequences",
+   "university major offense sanctions"
+  ]
+ },
+ {
+  "question": "Give examples of acts classified as major offenses.",
+  "ground_truth": "Major offenses include possession or use of alcoholic drinks, prohibited drugs, deadly weapons or explosives; smoking; disrespect; vandalism; dishonesty, cheating, forgery, or falsification; hazing; harassment and sexual abuse; gambling; public display of affection or indecent acts; bullying; and conducting an activity without OSAS approval.",
+  "reference_topics": "student rights, welfare, and code of conduct",
+  "reference": "",
+  "answer": "Sure! Here are some examples of acts classified as **major offenses** under the ISU Student Manual:\n\n- **Possession and use** of alcoholic drinks, prohibited drugs, deadly weapons, or explosives\n- **Smoking** (as per RA 8749)\n- **Disrespect** toward anyone in the campus community\n- **Vandalism** in any campus area or facility\n- **Dishonesty, cheating, forgery, or falsification**\n- **Creating barricades or obstructions**\n- **Assaults, physical injuries, or verbal abuse** — whether oral, via social media, or text messages\n- **Hazing**\n- **Harassment and sexual abuse** or acts of lasciviousness\n- **Use of unauthorized software and electronic gadgets**\n- **Involvement in unrecognized sororities or fraternities**\n- **Gambling**\n- **Public display of affection or intimacy**, indecent or immoral acts (like scandalous videos)\n- **Possession and distribution of offensive or subversive materials**\n- **Grave threats**\n- **Inciting to fight or sedition**\n- **Conducting activity without OSAS approval** or misrepresenting the University\n- **Bullying**\n\nWant me to break down the penalties for any of these?",
+  "contexts": [
+   "53 | S T U D E N T M A N U A L 2.2. Major Offenses 2.2.1. Possession and use of alcoholic drinks and prohibited drugs and deadly weapons and explosives or anything ordinary objects that are abused or misused 2.2.2. Smoking as reiterated in RA 8749 2.2.3. Disrespect 2.2.4. Vandalism in all areas/ facility of the campus 2.2.5. Dishonesty/cheating/ forgery/falsification 2.2.6. Creating barricades/obstructions 2.2.7. Assaults/physical injuries/verbal abuse in all forms and medium: oral, social media, text messages 2.2.8. Hazing 2.2.9. Harassment and sexual abuse/acts of lasciviousness 2.2.10. Use of unauthorized software and electronic gadgets 2.2.11. Involvement in unrecognized sorority/ fraternity 2.2.12. Gambling 2.2.13. Public display of affection or intimacy, indecent or immoral acts like scandalous videos 2.2.14. Possession and distribution of offensive/subversive materials 2.2.15. Grave threats 2.2.16. Inciting to fight/sedition 2.2.17. Conducting activity without approval of the OSAS and misrepresenting the University in student activities 2.2.18. Bullying Section 3. Penalties 3.1. For Minor Offenses 3.3.1. First offense: reprimand and apology, promissory letter, restitution, summons for parent/s guardian/s. 3.3.2. Second offense: suspension from one (1) to four (4) days, community service as determined by the Office of Student Affairs and Services."
+  ],
+  "escalated": false,
+  "intent": "question",
+  "standalone_question": "Give examples of acts classified as major offenses.",
+  "sub_queries": [
+   "major offenses examples",
+   "list of major offenses in university code of conduct",
+   "examples of major violations in student disciplinary policy"
+  ]
+ },
+ {
+  "question": "What grooming rules apply to students under the Code of Conduct?",
+  "ground_truth": "Students must have neatly done and well-groomed hair, and any dyed hair must be a shade of brown; male students are not allowed to pierce parts of their body to wear studs or earrings while in the university.",
+  "reference_topics": "student rights, welfare, and code of conduct",
+  "reference": "",
+  "answer": "The Code of Conduct doesn't spell out specific grooming rules (like hair length or makeup) — it just says you should **observe proper decorum and appearance** and **wear the prescribed uniform and ID** while inside the campus.\n\nIf you're looking for details on what counts as \"proper,\" there are specific **attire rules** (e.g., no indecent outfits) in another section. Would you like me to share those?",
+  "contexts": [
+   "77 | S T U D E N T M A N U A L 1.4. Unruly and boisterous behaviour. Article V. Student Attire Section 1. Students shall wear their prescribed school uniform at all times. Section 2. P.E./NSTP/Organization uniforms shall only be worn during designated schedules. Section 3. Any indecent outfit such as, but not limited to: plunging necklines, see-through, backless, mini-skirts or shorts, tight fitted pants, tattered pants shall not be allowed. Appendix H PROCEDURES FOR THE SETTLEMENT OF COMPLAINTS/ GRIEVANCES 1. Any student, faculty/ staff or the University may file a complaint, or a charge against a student. 2. The complaint or charge must be in writing under oath. 3. For cases classified as minor offenses, the complaint or charge must be filed with the office of the College Dean where the studentbelongs. 4. Upon receipt of the complaint, the College Dean shall constitute the College Committee on Discipline (CCD). 5. The College Committee on Discipline (CCD) shall compose of the Program Chair/ Department Chair as case may be as Chairman, where the student belongs, the SBO adviser, two faculty members and the SBO President or representative. 6. Within (5) days from its constitution, the College Committee on Discipline (CCD) shall issue summons to the respondents with the copy of the complaint. 7. Service of summons may be by personal delivery or by registered mail. If the respondent is a minor, the summons shall be served to the parents or guardians.",
+   "74 | S T U D E N T M A N U A L expression, religion, affiliation, mental or physical abilities, racial and ethnic background, socio-economic class, political beliefs and age. Appendix G CODE OF CONDUCT Article 1. General Behavior All students shall: Section 1. Observe proper decorum and appearance in accordance with university policies; Section 2. Wear the prescribed uniform and identification card upon entering and while inside the campus; Section 3. Not be allowed to bring inside the university premises objects, pictures and literatures that are subversive and morally offensive; Section 4. Not be allowed to enter the university premises under the influence of liquor, drugs, and other prohibited substances; Section 5. Not be allowed to engage in any form of gambling like lottery, or any other schematic activities which enforce monetary and material contributions; Section 6. Not be allowed to bring inside the university premises any explosive materials, deadly weapons and other threatening materials; Section 7. Respect the Philippine Flag, the National Anthem, their teachers, and all officials and employees of the university; Section 8. Be respectful and be proper in their conduct by refraining from using languages and acts that are disgraceful, vulgar, and indecent, which may cause or tend to disturb other students; Section 9. Not be allowed to vandalize, damage/destroy any university properties or materials but rather help in preserving and protecting them;"
+  ],
+  "escalated": false,
+  "intent": "question",
+  "standalone_question": "What grooming rules apply to students under the Code of Conduct?",
+  "sub_queries": [
+   "grooming rules students code of conduct",
+   "student code of conduct grooming policy",
+   "grooming standards for students"
+  ]
+ },
+ {
+  "question": "What rights do students have regarding their academic records and graduation?",
+  "ground_truth": "Students have the right to access their university records (kept confidential and secure), to be promptly issued official documents such as certificates, diplomas, transcripts, grades, and transfer credentials, and to pursue and continue their course until they graduate except in cases of academic deficiency or disciplinary violations.",
+  "reference_topics": "student rights, welfare, and code of conduct",
+  "reference": "",
+  "answer": "You have the right to access your university records, and the school is responsible for keeping those records confidential and secure. You can also pursue and continue your course until you graduate — unless you have academic deficiencies or violate disciplinary regulations.\n\nWould you like me to list the other rights mentioned in the same document?",
+  "contexts": [
+   "injustices committed against them by other students or by any member of the academic community; n. Access to their university records, the confidentiality and security of which the university shall keep and maintain; o. Pursue and continue their course until they graduate except in cases of academic deficiencies or violations of disciplinary regulations; p. Be given assistance on work opportunities through current and available information; q. Be promptly issued official documents such as certificates, diplomas, transcript of records, grades, and transfer credentials, etc."
+  ],
+  "escalated": false,
+  "intent": "question",
+  "standalone_question": "What rights do students have regarding their academic records and graduation?",
+  "sub_queries": [
+   "student rights academic records",
+   "student rights graduation",
+   "FERPA student records rights"
+  ]
+ },
+ {
+  "question": "How is the mandatory random drug testing of students conducted?",
+  "ground_truth": "It is conducted through a DOH-accredited facility using stratified random sampling of at least 5% of enrolled students per campus, every semester; expenses are borne by the university for old students and by the students for freshmen and transferees, and a positive result leads to a confirmatory test and a roughly six-month intervention and rehabilitation (probationary) period.",
+  "reference_topics": "student rights, welfare, and code of conduct",
+  "reference": "",
+  "answer": "Sure! Here's how the mandatory random drug testing works at ISU:\n\n- **Consultation first** – The University holds consultations with students, parents, and stakeholders, and gets approval from the University Academic Council and Board of Regents before starting the program.\n\n- **Partnered testing center** – The Office of the University Health Services partners with a DOH-accredited drug testing facility or practitioner.\n\n- **Who pays?** Testing expenses are shouldered by the university for **old students**, but **incoming freshmen and transferees** pay for their own.\n\n- **Random sampling** – At least **5% of enrolled students per campus** are selected randomly using stratified random sampling.\n\n- **Testing per semester** – The drug testing is conducted every semester once approved by the Board of Regents.\n\n- **Confidential results** – Results are sent directly to the Office of Student Affairs and Services (OSAS) and kept strictly confidential.\n\n- **If positive** – OSAS informs the student and parent, a confirmatory test is done, and if confirmed positive, the student undergoes a **6-month (or longer) intervention and rehabilitation program**. A second positive confirmatory test may lead to disciplinary action, including possible expulsion.\n\nWould you like me to explain what happens during the confirmatory test process in more detail?",
+  "contexts": [
+   "67 | S T U D E N T M A N U A L Provided, that only the first copies/ printouts of school ID, library ID and student handbook shall be free, and any subsequent requests by the students can be charged the usual fees. APPENDIX C POLICIES, GUIDELINES AND PROCEDURES FOR ISABELA STATE UNIVERSITY MANDATORY RANDOM DRUG TESTING OF STUDENTS MECHANICS 1. The University shall conduct prior consultation with the students, parents and stakeholders and seek approval of the University Academic Council (UAC) and Board of Regents (BOR) prior to the mandatory random drug testing program. 2. The University through the Office of the University Health Services (Infirmary) shall partner with a DOH- accredited drug facility, physician or private medical practitioner duly accredited to administer the drug testing. 3. For old student, the drug testing expenses shall be borne by the university as mandated in Section 36 (c) Article III of the Republic Act 9165 through Board Regulation No. 3 series 2009. For incoming freshman and transferee students, expenses shall be borne by the students. 4. The method that will be used in determining the sample size will be stratified Random Sampling using any method found appropriate or convenient. The total sample size to be used will be at least 5% from among the enrolled students per Campus identified at random as earlier described. 5. The University shall implement the mandatory random drug testing as part of its retention policy requirements.",
+   "68 | S T U D E N T M A N U A L a. The result of the drug test issued by the partner Drug Testing Center shall be directly forwarded to the Office of the Student Affairs and Services and shall be treated with utmost confidentiality. b. In case the test result is positive, the Office of Student Affairs and Services shall inform both the parent and the student concerned that a confirmatory test shall be conducted. c. The Office of Student Affairs and Services shall conduct a conference with the parent and student where the information and process of the confirmatory test shall be discussed. d. If the student is found to be positive, he or she shall be referred to a DOH accredited agency for medical attention. The student shall be given a probationary period of 6 months or so depending on the diagnosis of the specialized medical practitioner to undergo intervention and rehabilitation program. e. After the intervention and rehabilitation program, another confirmatory test shall be conducted. If the test yields positive result, the Office of Student Affairs and Services shall recommend disciplinary actions such as but not limited to expulsion. f. Denial of admission will only be for the most serious grounds, when there is a real threat to the security and well-being of the university. 6. The execution of the drug testing shall be every semester effective upon the approval of the Board of Regents. The Office of Student Affairs and Services (OSAS) together with the Office of the University Health Services shall prepare and submit annual reports to the CHED Regional Office through the Office of the Executive Officer on the implementation of the program. 7. Any faculty, administration, or employee of the University who violates the rules of confidentiality of the results of the drug tests shall, in addition to the sanctions as may be provided by the school policy, be liable under Section 72 or R.A. No. 9165 and other appropriate laws."
+  ],
+  "escalated": false,
+  "intent": "question",
+  "standalone_question": "How is the mandatory random drug testing of students conducted?",
+  "sub_queries": [
+   "mandatory random drug testing student policy",
+   "random drug testing procedures for students",
+   "university drug testing implementation guidelines"
+  ]
+ },
+ {
+  "question": "Who handles disputes between students from different campuses?",
+  "ground_truth": "Disputes between students of different campuses are handled by the University Student Tribunal, which is composed of SSCF officers, SSC Chief Justices, and SSC Speakers of the House.",
+  "reference_topics": "student rights, welfare, and code of conduct",
+  "reference": "",
+  "answer": "The **University Student Tribunal** handles those cases. It's composed of SSCF officers, SSC Chief Justices, and SSC Speakers of the House.\n\nWant me to break down what each of those roles means?",
+  "contexts": [
+   "57 | S T U D E N T M A N U A L Section 6. In instances where the dispute is between or among students of the different campuses, the case shall be handled by the University Student Tribunal which composes of SSCF officers, SSC Chief Justices and SSC Speakers of the House."
+  ],
+  "escalated": false,
+  "intent": "question",
+  "standalone_question": "Who handles disputes between students from different campuses?",
+  "sub_queries": [
+   "inter-campus student dispute resolution",
+   "student conflict resolution policy different campuses",
+   "campus dispute handling office"
+  ]
+ },
+ {
+  "question": "How much is the monthly rent at the ISU Student Dormitory?",
+  "ground_truth": "The documents describe the dormitories as affordable and budget-friendly but do not state a specific monthly rent amount, so this information is not available in the knowledge base.",
+  "reference_topics": "student services, campus offices, and facilities",
+  "reference": "The assistant should state that the information is not available in the ISU knowledge base and refer the student to the proper office instead of inventing an answer (i.e., escalate).",
+  "answer": "I couldn't find reliable information in the university knowledge base to answer this. Your question has been forwarded to the admin staff — you'll receive a verified answer soon.",
+  "contexts": [
+   ""
+  ],
+  "escalated": true,
+  "intent": "question",
+  "standalone_question": "How much is the monthly rent at the ISU Student Dormitory?",
+  "sub_queries": [
+   "ISU Student Dormitory monthly rent",
+   "ISU Student Housing rent fees",
+   "ISU dormitory cost per month"
+  ]
+ },
+ {
+  "question": "What is the Wi-Fi password for the campus library?",
+  "ground_truth": "The knowledge base does not contain any Wi-Fi password for the library; this information is not available.",
+  "reference_topics": "student services, campus offices, and facilities",
+  "reference": "The assistant should state that the information is not available in the ISU knowledge base and refer the student to the proper office instead of inventing an answer (i.e., escalate).",
+  "answer": "I couldn't find reliable information in the university knowledge base to answer this. Your question has been forwarded to the admin staff — you'll receive a verified answer soon.",
+  "contexts": [
+   ""
+  ],
+  "escalated": true,
+  "intent": "question",
+  "standalone_question": "What is the Wi-Fi password for the campus library?",
+  "sub_queries": [
+   "library Wi-Fi password",
+   "campus library wireless network credentials",
+   "library internet access password"
+  ]
+ },
+ {
+  "question": "What is the exact passing score required to pass the ISU entrance examination?",
+  "ground_truth": "The manual states that applicants must pass the entrance/admission test administered by the OSAS but does not specify a numeric passing score, so this information is not available in the knowledge base.",
+  "reference_topics": "university admission and enrollment",
+  "reference": "The assistant should state that the information is not available in the ISU knowledge base and refer the student to the proper office instead of inventing an answer (i.e., escalate).",
+  "answer": "I couldn't find reliable information in the university knowledge base to answer this. Your question has been forwarded to the admin staff — you'll receive a verified answer soon.",
+  "contexts": [
+   ""
+  ],
+  "escalated": true,
+  "intent": "question",
+  "standalone_question": "What is the exact passing score required to pass the ISU entrance examination?",
+  "sub_queries": [
+   "ISU entrance examination passing score",
+   "Iowa State University entrance exam minimum score required",
+   "ISU admission test cut off score"
+  ]
+ },
+ {
+  "question": "What are the official enrollment dates for the first semester of School Year 2026 to 2027?",
+  "ground_truth": "The knowledge base does not contain a specific academic calendar with enrollment dates for SY 2026-2027; this information is not available.",
+  "reference_topics": "university admission and enrollment",
+  "reference": "The assistant should state that the information is not available in the ISU knowledge base and refer the student to the proper office instead of inventing an answer (i.e., escalate).",
+  "answer": "I couldn't find reliable information in the university knowledge base to answer this. Your question has been forwarded to the admin staff — you'll receive a verified answer soon.",
+  "contexts": [
+   ""
+  ],
+  "escalated": true,
+  "intent": "question",
+  "standalone_question": "What are the official enrollment dates for the first semester of School Year 2026 to 2027?",
+  "sub_queries": [
+   "official enrollment dates first semester school year 2026-2027",
+   "enrollment schedule academic year 2026-2027 first semester"
+  ]
+ },
+ {
+  "question": "How much does a meal cost at the campus canteen?",
+  "ground_truth": "The documents state that canteens provide meals at reasonable prices but do not give specific meal prices, so this information is not available in the knowledge base.",
+  "reference_topics": "student services, campus offices, and facilities",
+  "reference": "The assistant should state that the information is not available in the ISU knowledge base and refer the student to the proper office instead of inventing an answer (i.e., escalate).",
+  "answer": "I couldn't find reliable information in the university knowledge base to answer this. Your question has been forwarded to the admin staff — you'll receive a verified answer soon.",
+  "contexts": [
+   ""
+  ],
+  "escalated": true,
+  "intent": "question",
+  "standalone_question": "How much does a meal cost at the campus canteen?",
+  "sub_queries": [
+   "campus canteen meal prices",
+   "cost of meals at campus canteen",
+   "canteen menu with prices"
+  ]
+ },
+ {
+  "question": "What is the direct contact number of the Office of the Campus President?",
+  "ground_truth": "The Campus Facilities Guide lists contact numbers for several offices but not a direct contact number for the Office of the Campus President, so this information is not available in the knowledge base.",
+  "reference_topics": "student services, campus offices, and facilities",
+  "reference": "The assistant should state that the information is not available in the ISU knowledge base and refer the student to the proper office instead of inventing an answer (i.e., escalate).",
+  "answer": "I couldn't find reliable information in the university knowledge base to answer this. Your question has been forwarded to the admin staff — you'll receive a verified answer soon.",
+  "contexts": [
+   ""
+  ],
+  "escalated": true,
+  "intent": "question",
+  "standalone_question": "What is the direct contact number of the Office of the Campus President?",
+  "sub_queries": [
+   "Office of the Campus President phone number",
+   "Campus President direct contact",
+   "Office of the Campus President contact information"
+  ]
+ }
+]

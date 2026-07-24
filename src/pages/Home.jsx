@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  GraduationCap, Shield, Settings, Send, BookOpen,
+  GraduationCap, Send, BookOpen, ArrowLeft, ArrowRight,
+  Paperclip, Brain, UserCheck, Mail, MapPin,
 } from "lucide-react";
 import { useTitle } from "../hooks/useTitle";
 import ThemeToggle from "../components/ThemeToggle";
@@ -198,9 +199,47 @@ function ChatDemo() {
   );
 }
 
+/* ── Rotating one-liners for the bottom strip pager ───────────── */
+const FEATURES = [
+  "Answers grounded on official ISU documents — with references",
+  "Hybrid semantic + keyword search under the hood",
+  "An AI agent that grades every source before it answers",
+  "Real admins step in when the AI can't answer",
+];
+
+/* ── Feature highlight cards ──────────────────────────────────── */
+const HIGHLIGHTS = [
+  {
+    icon: BookOpen,
+    title: "Grounded Answers",
+    desc: "Every reply is backed by official ISU documents, with page references shown below each answer.",
+  },
+  {
+    icon: Paperclip,
+    title: "Document Q&A",
+    desc: "Upload a PDF, DOCX, or even a photo of a memo and ask questions about it directly.",
+  },
+  {
+    icon: Brain,
+    title: "Choose Your AI",
+    desc: "Flash for speed, Pro for smarter answers, or R1 for deep step-by-step reasoning.",
+  },
+  {
+    icon: UserCheck,
+    title: "Human-Verified",
+    desc: "Admin staff personally answer what the AI can't, and verified answers are added to the knowledge base.",
+  },
+];
+
 export default function Home() {
   const navigate = useNavigate();
   useTitle(null);
+
+  const [slide, setSlide] = useState(0);
+  const featuresRef = useRef(null);
+
+  const scrollToFeatures = () =>
+    featuresRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
 
   const styles = {
     container: {
@@ -210,265 +249,492 @@ export default function Home() {
       display: "flex",
       flexDirection: "column",
       alignItems: "center",
-      padding: "9vh 20px 40px",
+      padding: "7vh 20px 0",
       color: "var(--foreground)",
       position: "relative",
       overflowX: "hidden",
     },
-    header: { textAlign: "center", marginBottom: "56px" },
-    title: {
-      fontSize: "clamp(40px, 6vw, 54px)",
-      fontWeight: "800",
-      color: "var(--primary)",
-      margin: "16px 0 14px",
-      letterSpacing: "2px",
-      textShadow: "0 0 30px rgba(22, 163, 74, 0.25)",
+
+    /* ── Floating hero card ── */
+    heroCard: {
+      width: "100%",
+      maxWidth: "1100px",
+      background: "var(--card)",
+      border: "1px solid rgba(22,163,74,0.18)",
+      borderRadius: "26px",
+      boxShadow: "0 34px 90px rgba(0,0,0,0.22)",
+      overflow: "hidden",
+      marginBottom: "80px",
     },
-    badge: {
+    cardNav: {
+      display: "flex",
+      alignItems: "center",
+      gap: "20px",
+      padding: "20px 32px",
+      borderBottom: "1px solid var(--border-soft)",
+    },
+    logo: {
+      display: "flex",
+      alignItems: "center",
+      gap: "8px",
+      fontSize: "15px",
+      fontWeight: "800",
+      letterSpacing: "0.5px",
+      color: "var(--foreground)",
+      whiteSpace: "nowrap",
+    },
+    navLinks: {
+      flex: 1,
+      display: "flex",
+      justifyContent: "center",
+      gap: "30px",
+      flexWrap: "wrap",
+    },
+    navLink: {
+      background: "none",
+      border: "none",
+      cursor: "pointer",
+      fontFamily: "inherit",
+      fontSize: "13px",
+      fontWeight: "600",
+      color: "var(--muted-foreground)",
+      padding: "4px 2px",
+      transition: "color 0.2s",
+    },
+    heroBody: {
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      gap: "40px",
+      flexWrap: "wrap",
+      padding: "48px 56px 40px",
+    },
+    heroLeft: { flex: "1 1 360px", minWidth: "280px" },
+    eyebrow: {
       display: "inline-flex",
       alignItems: "center",
       gap: "8px",
-      background: "rgba(22,163,74,0.1)",
-      border: "1px solid rgba(22,163,74,0.3)",
+      fontSize: "11px",
+      fontWeight: "800",
+      letterSpacing: "1.8px",
       color: "var(--primary)",
-      borderRadius: "999px",
-      padding: "7px 16px",
+      marginBottom: "18px",
+    },
+    eyebrowDot: {
+      width: "8px",
+      height: "8px",
+      borderRadius: "2px",
+      background: "var(--primary)",
+      flexShrink: 0,
+    },
+    heroTitle: {
+      fontSize: "clamp(32px, 4.6vw, 46px)",
+      fontWeight: "800",
+      lineHeight: 1.12,
+      letterSpacing: "-1px",
+      margin: "0 0 18px",
+      color: "var(--foreground)",
+    },
+    heroDesc: {
+      fontSize: "14px",
+      color: "var(--muted-foreground)",
+      lineHeight: 1.8,
+      maxWidth: "360px",
+      marginBottom: "26px",
+    },
+    ctaBtn: {
+      background: "var(--primary)",
+      color: "#fff",
+      border: "none",
+      borderRadius: "10px",
+      padding: "14px 28px",
+      fontSize: "14px",
+      fontWeight: "700",
+      cursor: "pointer",
+      fontFamily: "inherit",
+      letterSpacing: "0.3px",
+      transition: "all 0.25s ease",
+    },
+    heroFooter: {
+      display: "flex",
+      alignItems: "center",
+      gap: "18px",
+      flexWrap: "wrap",
+      padding: "16px 32px",
+      borderTop: "1px solid var(--border-soft)",
+    },
+    exploreBtn: {
+      display: "inline-flex",
+      alignItems: "center",
+      gap: "10px",
+      background: "none",
+      border: "none",
+      cursor: "pointer",
+      fontFamily: "inherit",
+      fontSize: "11px",
+      fontWeight: "800",
+      letterSpacing: "2px",
+      color: "var(--foreground)",
+      whiteSpace: "nowrap",
+    },
+    exploreIcon: {
+      width: "28px",
+      height: "28px",
+      borderRadius: "50%",
+      border: "1.5px solid var(--foreground)",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      flexShrink: 0,
+    },
+    featureLabel: {
+      flex: "1 1 220px",
+      textAlign: "center",
+      fontSize: "13px",
+      fontWeight: "600",
+      color: "var(--muted-foreground)",
+      minWidth: "180px",
+    },
+    pager: {
+      display: "flex",
+      alignItems: "center",
+      gap: "10px",
+      marginLeft: "auto",
+    },
+    pagerBtn: {
+      background: "none",
+      border: "none",
+      cursor: "pointer",
+      color: "var(--muted-foreground)",
+      padding: "4px",
+      display: "flex",
+      alignItems: "center",
+      transition: "color 0.2s",
+    },
+    pageNum: {
       fontSize: "12px",
       fontWeight: "700",
-      letterSpacing: "1px",
+      color: "var(--foreground)",
+      whiteSpace: "nowrap",
+      marginLeft: "4px",
     },
-    subtitle: { fontSize: "18px", color: "var(--muted-foreground)" },
-    cardsContainer: {
+
+    /* ── Feature highlights ── */
+    sectionLabel: {
+      fontSize: "13px",
+      fontWeight: "700",
+      letterSpacing: "2px",
+      color: "var(--primary)",
+      textTransform: "uppercase",
+      marginBottom: "28px",
+      scrollMarginTop: "30px",
+    },
+    highlightsGrid: {
       display: "grid",
-      gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
-      gap: "28px",
-      maxWidth: "920px",
+      gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))",
+      gap: "22px",
+      maxWidth: "1100px",
       width: "100%",
-      marginBottom: "80px",
+      marginBottom: "90px",
     },
-    card: {
+    highlightCard: {
       background: "var(--card)",
       border: "1px solid rgba(22, 163, 74, 0.22)",
-      borderRadius: "18px",
-      padding: "34px",
+      borderRadius: "16px",
+      padding: "28px 24px",
       textAlign: "center",
       transition: "all 0.3s cubic-bezier(0.22, 1, 0.36, 1)",
     },
-    cardHover: {
-      boxShadow: "0 18px 48px rgba(22, 163, 74, 0.22)",
+    highlightCardHover: {
+      boxShadow: "0 16px 40px rgba(22, 163, 74, 0.2)",
       borderColor: "rgba(22, 163, 74, 0.55)",
-      transform: "translateY(-6px)",
+      transform: "translateY(-5px)",
     },
-    iconCircle: {
-      width: "64px",
-      height: "64px",
+    highlightIcon: {
+      width: "54px",
+      height: "54px",
       borderRadius: "50%",
       background: "rgba(22, 163, 74, 0.12)",
       border: "1px solid rgba(22, 163, 74, 0.35)",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
-      margin: "0 auto 18px",
+      margin: "0 auto 16px",
     },
-    cardTitle: { fontSize: "23px", fontWeight: "800", color: "var(--primary)", marginBottom: "10px" },
-    cardDesc: {
-      fontSize: "14px",
-      color: "var(--muted-foreground)",
-      marginBottom: "22px",
-      lineHeight: "1.65",
-    },
-    buttonGroup: { display: "flex", gap: "10px", flexDirection: "column" },
-    button: {
-      padding: "14px 24px",
-      border: "none",
-      borderRadius: "11px",
-      fontSize: "15px",
-      fontWeight: "700",
-      cursor: "pointer",
-      transition: "all 0.25s ease",
-      letterSpacing: "0.3px",
-      fontFamily: "inherit",
-    },
-    loginBtn: { background: "var(--primary)", color: "#fff" },
-    signupBtn: {
-      background: "transparent",
-      border: "1.5px solid rgba(22,163,74,0.5)",
-      color: "var(--primary)",
-    },
-    showcase: {
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      gap: "56px",
-      flexWrap: "wrap",
-      maxWidth: "1000px",
-      width: "100%",
-      marginBottom: "70px",
-    },
-    showcaseLeft: { flex: "1 1 380px", minWidth: "300px" },
-    showcaseTitle: {
-      fontSize: "clamp(26px, 3.4vw, 36px)",
+    highlightTitle: {
+      fontSize: "16px",
       fontWeight: "800",
-      lineHeight: 1.2,
-      margin: "0 0 18px",
-      letterSpacing: "-0.5px",
+      color: "var(--foreground)",
+      marginBottom: "8px",
     },
-    showcaseDesc: {
-      fontSize: "15px",
+    highlightDesc: {
+      fontSize: "13px",
       color: "var(--muted-foreground)",
-      lineHeight: 1.8,
-      marginBottom: "20px",
+      lineHeight: 1.7,
     },
-    point: {
+
+    /* ── Site footer ── */
+    siteFooter: {
+      width: "100%",
+      maxWidth: "1100px",
+      borderTop: "1px solid var(--border-soft)",
+      padding: "44px 0 0",
+    },
+    footerCols: {
       display: "flex",
-      alignItems: "center",
-      gap: "10px",
-      fontSize: "14px",
-      color: "var(--text-secondary)",
-      marginBottom: "10px",
+      flexWrap: "wrap",
+      gap: "40px",
+      marginBottom: "36px",
     },
-    footer: { textAlign: "center" },
-    superAdminBtn: {
-      display: "inline-flex",
-      alignItems: "center",
-      gap: "7px",
-      background: "rgba(22, 163, 74, 0.08)",
-      border: "1px solid rgba(22,163,74,0.35)",
-      color: "var(--primary)",
-      padding: "10px 20px",
-      borderRadius: "8px",
+    footerBrandCol: { flex: "1.5 1 240px", minWidth: "220px" },
+    footerCol: { flex: "1 1 160px", minWidth: "150px" },
+    footerHead: {
+      fontSize: "13px",
+      fontWeight: "800",
+      color: "var(--foreground)",
+      marginBottom: "14px",
+    },
+    footerLink: {
+      display: "block",
+      background: "none",
+      border: "none",
       cursor: "pointer",
-      fontSize: "13.5px",
       fontFamily: "inherit",
-      transition: "all 0.3s ease",
+      fontSize: "13px",
+      color: "var(--muted-foreground)",
+      padding: "0",
+      marginBottom: "11px",
+      textAlign: "left",
+      transition: "color 0.2s",
+    },
+    footerContactRow: {
+      display: "flex",
+      alignItems: "flex-start",
+      gap: "9px",
+      fontSize: "13px",
+      color: "var(--muted-foreground)",
+      marginBottom: "12px",
+      lineHeight: 1.5,
+    },
+    footerBottom: {
+      borderTop: "1px solid var(--border-soft)",
+      padding: "18px 0 22px",
+      textAlign: "center",
+      fontSize: "12px",
+      color: "var(--muted-2)",
     },
   };
 
-  const Portal = ({ icon: Icon, title, desc, onLogin, onSignup, signupLabel, delay }) => {
+  const NavLink = ({ label, onClick, active }) => (
+    <button
+      style={{
+        ...styles.navLink,
+        ...(active ? { color: "var(--primary)", fontWeight: "700" } : {}),
+      }}
+      onClick={onClick}
+      onMouseEnter={(e) => (e.currentTarget.style.color = "var(--primary)")}
+      onMouseLeave={(e) =>
+        (e.currentTarget.style.color = active ? "var(--primary)" : "var(--muted-foreground)")
+      }
+    >
+      {label}
+    </button>
+  );
+
+  const FooterLink = ({ label, onClick }) => (
+    <button
+      style={styles.footerLink}
+      onClick={onClick}
+      onMouseEnter={(e) => (e.currentTarget.style.color = "var(--primary)")}
+      onMouseLeave={(e) => (e.currentTarget.style.color = "var(--muted-foreground)")}
+    >
+      {label}
+    </button>
+  );
+
+  const Highlight = ({ icon: Icon, title, desc, delay }) => {
     const [isHovered, setIsHovered] = useState(false);
     return (
       <div
         className="anim-fade-up"
         style={{
-          ...styles.card,
-          ...(isHovered && styles.cardHover),
+          ...styles.highlightCard,
+          ...(isHovered && styles.highlightCardHover),
           animationDelay: delay,
         }}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        <div style={styles.iconCircle}>
-          <Icon size={30} color="#16a34a" />
+        <div style={styles.highlightIcon}>
+          <Icon size={24} color="#16a34a" />
         </div>
-        <h2 style={styles.cardTitle}>{title}</h2>
-        <p style={styles.cardDesc}>{desc}</p>
-        <div style={styles.buttonGroup}>
-          <button
-            style={{ ...styles.button, ...styles.loginBtn }}
-            onClick={onLogin}
-            onMouseEnter={(e) => (e.currentTarget.style.boxShadow = "0 8px 24px rgba(22, 163, 74, 0.45)")}
-            onMouseLeave={(e) => (e.currentTarget.style.boxShadow = "none")}
-          >
-            Login
-          </button>
-          <button
-            style={{ ...styles.button, ...styles.signupBtn }}
-            onClick={onSignup}
-            onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(22,163,74,0.1)")}
-            onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
-          >
-            {signupLabel}
-          </button>
-        </div>
+        <h3 style={styles.highlightTitle}>{title}</h3>
+        <p style={styles.highlightDesc}>{desc}</p>
       </div>
     );
   };
 
   return (
     <div style={styles.container}>
-      <ThemeToggle style={{ position: "absolute", top: "20px", right: "20px" }} />
+      {/* ── Floating hero card (nav + hero + feature strip) ── */}
+      <div style={styles.heroCard} className="anim-fade-up">
+        {/* nav */}
+        <div style={styles.cardNav}>
+          <div style={styles.logo}>
+            <GraduationCap size={19} color="#16a34a" />
+            ISKOLARChat<span style={{ color: "var(--primary)" }}>.</span>
+          </div>
+          <nav style={styles.navLinks}>
+            <NavLink label="Home" active onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} />
+            <NavLink label="Student Portal" onClick={() => navigate("/student/login")} />
+            <NavLink label="Admin Portal" onClick={() => navigate("/admin/login")} />
+          </nav>
+          <ThemeToggle style={{ background: "none", border: "none" }} />
+        </div>
 
-      <div style={styles.header} className="anim-fade-up">
-        <div style={styles.badge}>AI-POWERED ACADEMIC ASSISTANT</div>
-        <h1 style={styles.title}>ISKOLARCHAT</h1>
-        <p style={styles.subtitle}>Your Intelligent Academic Assistant</p>
-      </div>
-
-      {/* ── Showcase: what the bot can do ── */}
-      <div style={styles.showcase}>
-        <div style={styles.showcaseLeft} className="anim-fade-up">
-          <h2 style={styles.showcaseTitle}>
-            Answer common student queries with our{" "}
-            <span style={{ color: "var(--primary)" }}>AI chatbot</span>
-          </h2>
-          <p style={styles.showcaseDesc}>
-            ISKOLARChat understands questions in English, Filipino, or Taglish
-            and answers them using the university's official knowledge base —
-            complete with references. When the AI can't answer, a real admin
-            steps in and the verified answer is added back to the knowledge base.
-          </p>
-          {[
-            "Grounded on official ISU documents",
-            "References shown with every answer",
-            "Human-verified answers for hard questions",
-          ].map((p) => (
-            <div key={p} style={styles.point}>
-              <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "var(--primary)", flexShrink: 0 }} />
-              {p}
+        {/* hero body */}
+        <div style={styles.heroBody}>
+          <div style={styles.heroLeft}>
+            <div style={styles.eyebrow}>
+              <span style={styles.eyebrowDot} />
+              ISU STUDENT SERVICES ASSISTANT
             </div>
-          ))}
+            <h1 style={styles.heroTitle}>
+              Your Campus Questions,{" "}
+              <span style={{ color: "var(--primary)" }}>Answered.</span>
+            </h1>
+            <p style={styles.heroDesc}>
+              The AI chatbot built for Isabela State University — ask about
+              admission, enrollment, scholarships, and school policies, and get
+              answers straight from official university records.
+            </p>
+            <button
+              style={styles.ctaBtn}
+              onClick={() => navigate("/student/signup")}
+              onMouseEnter={(e) => (e.currentTarget.style.boxShadow = "0 10px 28px rgba(22,163,74,0.45)")}
+              onMouseLeave={(e) => (e.currentTarget.style.boxShadow = "none")}
+            >
+              Get Started
+            </button>
+          </div>
+          <div className="anim-fade-up" style={{ animationDelay: "0.1s" }}>
+            <ChatDemo />
+          </div>
         </div>
-        <div className="anim-fade-up" style={{ animationDelay: "0.1s" }}>
-          <ChatDemo />
+
+        {/* bottom strip — explore + feature pager */}
+        <div style={styles.heroFooter}>
+          <button
+            style={styles.exploreBtn}
+            onClick={scrollToFeatures}
+            onMouseEnter={(e) => (e.currentTarget.style.color = "var(--primary)")}
+            onMouseLeave={(e) => (e.currentTarget.style.color = "var(--foreground)")}
+          >
+            <span style={styles.exploreIcon}>
+              <GraduationCap size={13} />
+            </span>
+            EXPLORE NOW
+          </button>
+          <div style={styles.featureLabel} className="anim-fade-in" key={slide}>
+            {FEATURES[slide]}
+          </div>
+          <div style={styles.pager}>
+            <button
+              style={styles.pagerBtn}
+              onClick={() => setSlide((s) => (s + FEATURES.length - 1) % FEATURES.length)}
+              onMouseEnter={(e) => (e.currentTarget.style.color = "var(--primary)")}
+              onMouseLeave={(e) => (e.currentTarget.style.color = "var(--muted-foreground)")}
+            >
+              <ArrowLeft size={16} />
+            </button>
+            <button
+              style={styles.pagerBtn}
+              onClick={() => setSlide((s) => (s + 1) % FEATURES.length)}
+              onMouseEnter={(e) => (e.currentTarget.style.color = "var(--primary)")}
+              onMouseLeave={(e) => (e.currentTarget.style.color = "var(--muted-foreground)")}
+            >
+              <ArrowRight size={16} />
+            </button>
+            <span style={styles.pageNum}>
+              0{slide + 1}{" "}
+              <span style={{ color: "var(--muted-2)", fontWeight: "600" }}>. 04</span>
+            </span>
+          </div>
         </div>
       </div>
 
-      {/* ── Portals ── */}
-      <p
-        style={{
-          fontSize: "13px",
-          fontWeight: "700",
-          letterSpacing: "2px",
-          color: "var(--primary)",
-          textTransform: "uppercase",
-          marginBottom: "28px",
-        }}
-        className="anim-fade-up"
-      >
-        Choose your portal
+      {/* ── Feature highlights ── */}
+      <p ref={featuresRef} style={styles.sectionLabel} className="anim-fade-up">
+        Feature Highlights
       </p>
-      <div style={styles.cardsContainer}>
-        <Portal
-          icon={GraduationCap}
-          title="Student Portal"
-          desc="Access AI-powered chat assistance for your academic needs"
-          onLogin={() => navigate("/student/login")}
-          onSignup={() => navigate("/student/signup")}
-          signupLabel="Sign Up"
-          delay="0.08s"
-        />
-        <Portal
-          icon={Shield}
-          title="Admin Portal"
-          desc="Manage documents and oversee human-in-the-loop interventions"
-          onLogin={() => navigate("/admin/login")}
-          onSignup={() => navigate("/admin/apply")}
-          signupLabel="Apply"
-          delay="0.16s"
-        />
+      <div style={styles.highlightsGrid}>
+        {HIGHLIGHTS.map((h, i) => (
+          <Highlight key={h.title} {...h} delay={`${0.06 + i * 0.07}s`} />
+        ))}
       </div>
 
-      <div style={styles.footer} className="anim-fade-in">
-        <button
-          style={styles.superAdminBtn}
-          onClick={() => navigate("/superadmin/login")}
-          onMouseEnter={(e) => (e.currentTarget.style.boxShadow = "0 0 18px rgba(22, 163, 74, 0.3)")}
-          onMouseLeave={(e) => (e.currentTarget.style.boxShadow = "none")}
-        >
-          <Settings size={15} />
-          Super Admin Portal
-        </button>
-      </div>
+      {/* ── Site footer ── */}
+      <footer style={styles.siteFooter}>
+        <div style={styles.footerCols}>
+          <div style={styles.footerBrandCol}>
+            <div style={{ ...styles.logo, marginBottom: "14px" }}>
+              <GraduationCap size={19} color="#16a34a" />
+              ISKOLARChat<span style={{ color: "var(--primary)" }}>.</span>
+            </div>
+            <p
+              style={{
+                fontSize: "13px",
+                color: "var(--muted-foreground)",
+                lineHeight: 1.7,
+                maxWidth: "280px",
+                margin: 0,
+              }}
+            >
+              The AI assistant for Isabela State University student services —
+              grounded on official university documents, verified by real people.
+            </p>
+          </div>
+
+          <div style={styles.footerCol}>
+            <div style={styles.footerHead}>Portals</div>
+            <FooterLink label="Student Login" onClick={() => navigate("/student/login")} />
+            <FooterLink label="Student Sign Up" onClick={() => navigate("/student/signup")} />
+            <FooterLink label="Admin Login" onClick={() => navigate("/admin/login")} />
+            <FooterLink label="Apply as Admin" onClick={() => navigate("/admin/apply")} />
+            <FooterLink label="Super Admin" onClick={() => navigate("/superadmin/login")} />
+          </div>
+
+          <div style={styles.footerCol}>
+            <div style={styles.footerHead}>Explore</div>
+            <FooterLink label="Home" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} />
+            <FooterLink label="Feature Highlights" onClick={scrollToFeatures} />
+          </div>
+
+          <div style={styles.footerCol}>
+            <div style={styles.footerHead}>Contact</div>
+            <div style={styles.footerContactRow}>
+              <Mail size={14} style={{ flexShrink: 0, marginTop: "2px" }} />
+              <a
+                href="mailto:zyrilvillanueva23@gmail.com"
+                style={{ color: "inherit", textDecoration: "none" }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = "var(--primary)")}
+                onMouseLeave={(e) => (e.currentTarget.style.color = "inherit")}
+              >
+                zyrilvillanueva23@gmail.com
+              </a>
+            </div>
+            <div style={styles.footerContactRow}>
+              <MapPin size={14} style={{ flexShrink: 0, marginTop: "2px" }} />
+              <span>Isabela State University, Echague, Isabela</span>
+            </div>
+          </div>
+        </div>
+
+        <div style={styles.footerBottom}>
+          © {new Date().getFullYear()} ISKOLARChat · Designed &amp; developed by
+          Zyril Anne C. Villanueva
+        </div>
+      </footer>
     </div>
   );
 }

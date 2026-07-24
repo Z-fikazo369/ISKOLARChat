@@ -1,0 +1,9 @@
+# Evaluation-only dependencies (Objectives 2 & 4).
+# Install on top of the main requirements:  pip install -r eval/requirements-eval.txt
+# These are NOT needed to run the live application.
+# Tested with ragas 0.4.3 + langchain-community 0.4.2 (see the VertexAI
+# shim in _common.py, needed for that combination).
+ragas>=0.4,<1.0
+datasets>=2.19
+pandas>=2.0
+langchain-openai>=0.2

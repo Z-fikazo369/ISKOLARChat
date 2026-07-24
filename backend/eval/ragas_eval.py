@@ -1,74 +1,132 @@
-"""RAGAS evaluation harness (comparison baseline: faithfulness + answer relevancy).
+"""Objective 2 — Agentic RAG vs. standard RAG baseline (RAGAS).
 
-Usage:
-  1. pip install ragas datasets langchain-openai pandas
-  2. Prepare eval/testset.csv with columns: question,ground_truth
-  3. Start the backend, then:  python eval/ragas_eval.py <student_jwt>
+Computes the four objective metrics for BOTH systems over the same
+testset and writes per-question + side-by-side summary CSVs:
 
-The script calls /api/chat for every test question, collects answers and
-retrieved contexts, and computes RAGAS metrics.
+  2.1 Faithfulness        2.2 Answer Relevancy
+  2.3 Context Recall      2.4 Context Precision
+
+Usage (from the backend/ folder, venv active, .env filled in):
+  pip install -r eval/requirements-eval.txt
+  python eval/ragas_eval.py                     # run both systems
+  python eval/ragas_eval.py --system agentic    # one system only
+  python eval/ragas_eval.py --recollect         # ignore cached answers
+
+Runs fully in-process: no JWT, no HTTP server needed, full (untruncated)
+chunk texts are scored, and no rows are written to Supabase (the HITL
+escalation insert is patched out — see eval/_common.py).
+
+Outputs:
+  eval/results_agentic.csv    per-question scores (agentic)
+  eval/results_baseline.csv   per-question scores (baseline)
+  eval/summary.csv            mean metrics side by side + answer rates
 """
 
-import csv
+import argparse
 import sys
 from pathlib import Path
 
-import requests
+sys.path.insert(0, str(Path(__file__).parent))
 
-API_URL = "http://localhost:8000"
-TESTSET = Path(__file__).parent / "testset.csv"
+from _common import EVAL_DIR, build_judge, collect, load_collected  # noqa: E402
 
-
-def collect(jwt: str) -> list[dict]:
-    rows = []
-    with open(TESTSET, newline="", encoding="utf-8") as f:
-        for row in csv.DictReader(f):
-            resp = requests.post(
-                f"{API_URL}/api/chat",
-                json={"question": row["question"]},
-                headers={"Authorization": f"Bearer {jwt}"},
-                timeout=120,
-            )
-            resp.raise_for_status()
-            data = resp.json()
-            rows.append(
-                {
-                    "question": row["question"],
-                    "ground_truth": row["ground_truth"],
-                    "answer": data["answer"],
-                    "contexts": [s["snippet"] for s in data["sources"]] or [""],
-                    "escalated": data["escalated"],
-                }
-            )
-            print(f"✓ {row['question'][:60]}  (escalated={data['escalated']})")
-    return rows
+SYSTEMS = ("agentic", "baseline")
 
 
-def evaluate(rows: list[dict]) -> None:
-    from datasets import Dataset
+def score(system: str, rows: list[dict], judge_llm, judge_emb) -> dict:
+    import warnings
+
+    from ragas import EvaluationDataset, SingleTurnSample
     from ragas import evaluate as ragas_evaluate
-    from ragas.metrics import answer_relevancy, faithfulness
 
-    ds = Dataset.from_list(
-        [
-            {
-                "question": r["question"],
-                "answer": r["answer"],
-                "contexts": r["contexts"],
-                "ground_truth": r["ground_truth"],
-            }
-            for r in rows
-            if not r["escalated"]
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", DeprecationWarning)
+        from ragas.metrics import (
+            answer_relevancy,
+            context_precision,
+            context_recall,
+            faithfulness,
+        )
+
+    answered = [r for r in rows if not r["escalated"]]
+    print(
+        f"\n=== {system}: scoring {len(answered)} answered "
+        f"({len(rows) - len(answered)} escalated, excluded from RAGAS) ==="
+    )
+    if not answered:
+        return {"system": system, "n": len(rows), "answered": 0, "escalated": len(rows), "answer_rate": 0.0}
+
+    ds = EvaluationDataset(
+        samples=[
+            SingleTurnSample(
+                user_input=r["question"],
+                response=r["answer"],
+                retrieved_contexts=r["contexts"],
+                reference=r["ground_truth"],
+            )
+            for r in answered
         ]
     )
-    result = ragas_evaluate(ds, metrics=[faithfulness, answer_relevancy])
-    print("\n=== RAGAS metrics ===")
-    print(result)
-    result.to_pandas().to_csv(Path(__file__).parent / "results.csv", index=False)
-    print("Saved per-question scores to eval/results.csv")
+    # Free Gemini tier is ~15 req/min — cap concurrency and add generous
+    # retries so the scoring paces itself under the rate limit instead of
+    # bursting into 429s. (Eval-only.)
+    from ragas.run_config import RunConfig
+
+    result = ragas_evaluate(
+        ds,
+        metrics=[faithfulness, answer_relevancy, context_recall, context_precision],
+        llm=judge_llm,
+        embeddings=judge_emb,
+        run_config=RunConfig(max_workers=3, max_retries=12, timeout=240),
+    )
+    df = result.to_pandas()
+    out = EVAL_DIR / f"results_{system}.csv"
+    df.to_csv(out, index=False)
+    print(f"Per-question scores -> {out}")
+
+    metric_cols = ["faithfulness", "answer_relevancy", "context_recall", "context_precision"]
+    means = {m: round(float(df[m].mean()), 4) for m in metric_cols if m in df.columns}
+    return {
+        "system": system,
+        "n": len(rows),
+        "answered": len(answered),
+        "escalated": len(rows) - len(answered),
+        "answer_rate": round(len(answered) / len(rows), 4),
+        **means,
+    }
+
+
+def main() -> None:
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("--system", choices=[*SYSTEMS, "both"], default="both")
+    ap.add_argument("--recollect", action="store_true", help="ignore cached collections")
+    ap.add_argument("--delay", type=float, default=1.0, help="seconds between API calls")
+    args = ap.parse_args()
+
+    targets = SYSTEMS if args.system == "both" else (args.system,)
+
+    collections = {}
+    for system in targets:
+        rows = None if args.recollect else load_collected(system)
+        if rows is None:
+            print(f"\n=== Collecting answers: {system} ===")
+            rows = collect(system, delay=args.delay)
+        else:
+            print(f"Using cached eval/collected_{system}.json ({len(rows)} rows) — "
+                  "pass --recollect to redo")
+        collections[system] = rows
+
+    judge_llm, judge_emb = build_judge()
+    summaries = [score(s, collections[s], judge_llm, judge_emb) for s in targets]
+
+    import pandas as pd
+
+    summary_path = EVAL_DIR / "summary.csv"
+    pd.DataFrame(summaries).to_csv(summary_path, index=False)
+    print("\n=== Side-by-side summary (means) ===")
+    print(pd.DataFrame(summaries).to_string(index=False))
+    print(f"\nSaved -> {summary_path}")
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        sys.exit("Usage: python eval/ragas_eval.py <student_jwt>")
-    evaluate(collect(sys.argv[1]))
+    main()

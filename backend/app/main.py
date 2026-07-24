@@ -5,7 +5,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .config import get_settings
-from .routers import chat, documents, hitl
+from .routers import chat, compare, documents, hitl
 from .services import bm25, vectorstore
 
 logging.basicConfig(level=logging.INFO)
@@ -34,6 +34,7 @@ app.add_middleware(
 )
 
 app.include_router(chat.router)
+app.include_router(compare.router)  # additive: retrieval-comparison demo (/compare page)
 app.include_router(documents.router)
 app.include_router(hitl.router)
 

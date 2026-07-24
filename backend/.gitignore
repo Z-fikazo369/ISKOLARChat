@@ -3,3 +3,5 @@
 __pycache__/
 *.pyc
 eval/results.csv
+eval/.eval.env
+eval/_kb_dump.json

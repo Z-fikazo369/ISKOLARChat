@@ -1,9 +1,14 @@
+import logging
+
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 
 from ..deps.auth import require_admin
 from ..pipeline.ingest import ingest_hitl_answer
+from ..services import bm25, vectorstore
 from ..services.supabase_client import get_supabase
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/hitl", tags=["hitl"])
 
@@ -50,9 +55,24 @@ def reject(request_id: str, admin: dict = Depends(require_admin)) -> dict:
 
 @router.delete("/{request_id}")
 def delete_request(request_id: str, _admin: dict = Depends(require_admin)) -> dict:
+    """Deletes the query row AND any answer that was ingested into the
+    knowledge base, so the system stops 'remembering' a deleted query.
+
+    When an admin answered this query, resolve() pushed a chunk into Qdrant
+    tagged document_id="hitl_<request_id>". Deleting only the chat_requests
+    row would leave that chunk behind and keep surfacing the old answer.
+    """
     sb = get_supabase()
     row = sb.table("chat_requests").select("id").eq("id", request_id).maybe_single().execute()
     if not row or not row.data:
         raise HTTPException(404, "Chat request not found")
+
+    # Forget the ingested answer (no-op if the query was never answered).
+    try:
+        vectorstore.delete_document_chunks(f"hitl_{request_id}")
+        bm25.rebuild_index()
+    except Exception:
+        logger.exception("Knowledge-base cleanup failed for HITL query %s", request_id)
+
     sb.table("chat_requests").delete().eq("id", request_id).execute()
     return {"status": "deleted"}

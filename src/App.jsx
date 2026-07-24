@@ -17,6 +17,7 @@ import AuthCallback from "./pages/auth/AuthCallback";
 import StudentDashboard from "./pages/student/StudentDashboard";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import SuperAdminDashboard from "./pages/superadmin/SuperAdminDashboard";
+import CompareView from "./pages/eval/CompareView";
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user, role, loading } = useAuth();
@@ -65,6 +66,10 @@ export default function App() {
 
           {/* Auth callback — handles OAuth redirect & email confirmation */}
           <Route path="/auth/callback" element={<AuthCallback />} />
+
+          {/* Retrieval comparison (Objective 2) — unlinked transparency view for
+              the thesis panel; read-only, not exposed in any user-facing nav */}
+          <Route path="/compare" element={<CompareView />} />
 
           {/* Student Routes */}
           <Route path="/student/login" element={<StudentLogin />} />

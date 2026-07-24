@@ -56,8 +56,9 @@ export default function AdminLogin() {
     },
     backBtn: {
       position: "absolute",
-      top: "20px",
-      left: "20px",
+      top: "24px",
+      left: "50%",
+      transform: "translateX(-50%)",
       background: "none",
       border: "none",
       color: "var(--primary)",

@@ -35,9 +35,12 @@ export default function StudentDashboard() {
   ]);
   const [currentChatId, setCurrentChatId] = useState(DRAFT_ID);
 
-  // Load saved conversations (with messages) on mount
+  // Load saved conversations (with messages) on mount.
+  // Depends on user.id (not the user object): AuthContext emits a new user
+  // object on every silent token refresh, and re-running this effect would
+  // clobber chat state and prepend a spurious "New Chat" mid-conversation.
   useEffect(() => {
-    if (!user) return;
+    if (!user?.id) return;
     (async () => {
       const { data: convos, error } = await supabase
         .from("conversations")
@@ -60,10 +63,11 @@ export default function StudentDashboard() {
       }));
       setChats([{ id: DRAFT_ID, title: "New Chat", messages: [] }, ...loaded]);
     })();
-  }, [user]);
+  }, [user?.id]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [attachedFile, setAttachedFile] = useState(null);
+  const [hitlToast, setHitlToast] = useState(null); // "admin answered your question" banner
   const [sidebarOpen, setSidebarOpen] = useState(true);
   // AI model preferences (persisted per browser)
   const [modelVariant, setModelVariant] = useState(
@@ -98,6 +102,75 @@ export default function StudentDashboard() {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, loading]);
+
+  // Deliver admin answers to escalated (HITL) questions: poll the student's
+  // own chat_requests (RLS already allows this) and, when one is answered,
+  // surface it in the current chat as a verified-answer message + a toast.
+  // Already-shown answers are tracked in localStorage so each appears once,
+  // without any DB/schema change. Runs on open and every 25s while open.
+  useEffect(() => {
+    if (!user?.id) return;
+    const SEEN_KEY = "iskolar_seen_hitl_answers";
+    const getSeen = () => {
+      try {
+        return new Set(JSON.parse(localStorage.getItem(SEEN_KEY) || "[]"));
+      } catch {
+        return new Set();
+      }
+    };
+    let cancelled = false;
+    const check = async () => {
+      const { data, error } = await supabase
+        .from("chat_requests")
+        .select("id, question, admin_response, updated_at")
+        .eq("student_id", user.id)
+        .eq("status", "answered")
+        .order("updated_at", { ascending: false });
+      if (cancelled || error || !data) return;
+      const seen = getSeen();
+      const fresh = data.filter((r) => r.admin_response && !seen.has(r.id));
+      if (!fresh.length) return;
+      const ordered = [...fresh].reverse(); // oldest first → reads in order
+      setChats((prev) => {
+        const targetId = prev.some((c) => c.id === currentChatId)
+          ? currentChatId
+          : prev[0]?.id;
+        return prev.map((c) =>
+          c.id !== targetId
+            ? c
+            : {
+                ...c,
+                messages: [
+                  ...c.messages,
+                  ...ordered.map((r) => ({
+                    id: `hitl-${r.id}`,
+                    role: "assistant",
+                    content: r.admin_response,
+                    adminAnswer: true,
+                    question: r.question,
+                  })),
+                ],
+              }
+        );
+      });
+      fresh.forEach((r) => seen.add(r.id));
+      localStorage.setItem(SEEN_KEY, JSON.stringify([...seen]));
+      setHitlToast(
+        fresh.length === 1
+          ? "An admin answered your earlier question!"
+          : `An admin answered ${fresh.length} of your questions!`
+      );
+      window.setTimeout(() => {
+        if (!cancelled) setHitlToast(null);
+      }, 9000);
+    };
+    check();
+    const iv = window.setInterval(check, 25000);
+    return () => {
+      cancelled = true;
+      window.clearInterval(iv);
+    };
+  }, [user?.id, currentChatId]);
 
   const handleNewChat = () => {
     // reuse the existing empty draft instead of stacking empty chats
@@ -138,6 +211,11 @@ export default function StudentDashboard() {
     setLoading(true);
 
     const chat = chats.find((c) => c.id === currentChatId);
+    // recent turns sent to the backend so the agent understands follow-ups
+    const history = (chat?.messages ?? [])
+      .filter((m) => !m.error && m.content)
+      .slice(-12)
+      .map((m) => ({ role: m.role, content: m.content }));
     const isFirstMessage = (chat?.messages.length ?? 0) === 0;
     const title = isFirstMessage
       ? (userInput.slice(0, 42) || fileName || "New Chat")
@@ -188,6 +266,7 @@ export default function StudentDashboard() {
           method: "POST",
           body: JSON.stringify({
             question: userInput,
+            history,
             model_variant: modelVariant,
             reasoning_effort: reasoningEffort,
           }),
@@ -594,6 +673,34 @@ export default function StudentDashboard() {
         .md-body code { background: rgba(22,163,74,0.12); padding: 1px 5px; border-radius: 4px; font-size: 13px; }
       `}</style>
 
+      {hitlToast && (
+        <div
+          onClick={() => setHitlToast(null)}
+          title="Dismiss"
+          style={{
+            position: "fixed",
+            top: 18,
+            left: "50%",
+            transform: "translateX(-50%)",
+            zIndex: 1000,
+            background: "#16a34a",
+            color: "#fff",
+            padding: "12px 18px",
+            borderRadius: 10,
+            fontSize: 13.5,
+            fontWeight: 600,
+            boxShadow: "0 6px 24px rgba(0,0,0,0.25)",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            maxWidth: "90vw",
+          }}
+        >
+          <Check size={16} /> {hitlToast}
+        </div>
+      )}
+
       {/* ── Sidebar ── */}
       {sidebarOpen && (
       <aside style={s.sidebar}>
@@ -763,6 +870,15 @@ export default function StudentDashboard() {
                       </div>
                     )}
                     {msg.file && <br />}
+                    {msg.adminAnswer && (
+                      <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "8px", fontSize: "12px", fontWeight: 700, color: "#16a34a" }}>
+                        <Check size={13} />
+                        <span>
+                          Admin-verified answer
+                          {msg.question ? ` to: "${msg.question.length > 64 ? msg.question.slice(0, 64) + "…" : msg.question}"` : ""}
+                        </span>
+                      </div>
+                    )}
                     {msg.role === "assistant" ? (
                       <div className="md-body">
                         <ReactMarkdown>{msg.content}</ReactMarkdown>

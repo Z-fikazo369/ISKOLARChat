@@ -10,6 +10,7 @@ from qdrant_client.models import (
     Filter,
     FilterSelector,
     MatchValue,
+    PayloadSchemaType,
     PointStruct,
     VectorParams,
 )
@@ -30,6 +31,22 @@ def ensure_collection() -> None:
             collection_name=s.qdrant_collection,
             vectors_config=VectorParams(size=s.embed_dim, distance=Distance.COSINE),
         )
+    _ensure_document_id_index()
+
+
+def _ensure_document_id_index() -> None:
+    """delete_document_chunks() filters on the document_id payload key, which
+    Qdrant only allows once that key has a payload index. Creating it is
+    idempotent — a second call just no-ops."""
+    s = get_settings()
+    try:
+        _client().create_payload_index(
+            collection_name=s.qdrant_collection,
+            field_name="document_id",
+            field_schema=PayloadSchemaType.KEYWORD,
+        )
+    except Exception:
+        pass  # already indexed
 
 
 def upsert_chunks(chunks: list[dict], vectors: list[list[float]]) -> None:
@@ -75,6 +92,7 @@ def scroll_all_chunks() -> list[dict]:
 
 def delete_document_chunks(document_id: str) -> None:
     s = get_settings()
+    _ensure_document_id_index()
     _client().delete(
         collection_name=s.qdrant_collection,
         points_selector=FilterSelector(

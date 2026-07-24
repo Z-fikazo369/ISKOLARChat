@@ -26,6 +26,8 @@ _CITATION_RE = re.compile(
 
 class AgentState(TypedDict, total=False):
     question: str
+    history: list[dict]            # prior turns: [{"role": "user"|"assistant", "content": str}]
+    standalone_question: str       # question rewritten to be self-contained given the history
     student_id: str | None
     student_email: str | None
     student_name: str | None
@@ -42,31 +44,80 @@ class AgentState(TypedDict, total=False):
     request_id: str | None
 
 
-# ── Intent triage: greetings/small talk skip retrieval & never escalate ─────
+def _history_text(history: list[dict], limit: int = 8) -> str:
+    """Compact transcript of the last `limit` turns for prompt context."""
+    lines = []
+    for m in (history or [])[-limit:]:
+        speaker = "Student" if m.get("role") == "user" else "Assistant"
+        text = (m.get("content") or "").strip()
+        if len(text) > 600:
+            text = text[:600] + " …"
+        if text:
+            lines.append(f"{speaker}: {text}")
+    return "\n".join(lines)
+
+
+def _history_messages(history: list[dict], limit: int = 8) -> list[dict]:
+    """Prior turns as real chat messages for the answering model."""
+    msgs = []
+    for m in (history or [])[-limit:]:
+        content = (m.get("content") or "").strip()
+        if content:
+            role = "user" if m.get("role") == "user" else "assistant"
+            msgs.append({"role": role, "content": content[:2000]})
+    return msgs
+
+
+# ── Intent triage + follow-up resolution ─────────────────────────────────────
+# One LLM call classifies the message AND rewrites it into a self-contained
+# question using the conversation history, so follow-ups like "yes please" or
+# "how does it compare?" carry the topic into retrieval/escalation.
 def classify(state: AgentState) -> AgentState:
+    question = state["question"]
+    convo = _history_text(state.get("history") or [])
+    user_content = (
+        f"Conversation so far:\n{convo}\n\nLatest student message: {question}"
+        if convo
+        else f"Latest student message: {question}"
+    )
     result = llm.chat_json(
         [
             {
                 "role": "system",
                 "content": (
-                    "Classify a student's chat message for a university assistant.\n"
-                    "- 'question': asks for ANY university/academic information "
-                    "(admission, enrollment, requirements, policies, fees, "
-                    "schedules, offices, courses, etc.), even if mixed with a "
-                    "greeting.\n"
-                    "- 'chitchat': pure greeting, thanks, small talk, or asking "
-                    "about the assistant itself, with no information request.\n"
-                    'Reply ONLY with JSON: {"intent": "question"} or '
-                    '{"intent": "chitchat"}.'
+                    "You analyze the latest message a student sent to a "
+                    "university assistant, given the recent conversation.\n"
+                    "- intent 'question': the message asks for ANY university/"
+                    "academic information (admission, enrollment, requirements, "
+                    "policies, fees, schedules, offices, courses, etc.), even if "
+                    "mixed with a greeting — OR it is a follow-up that accepts or "
+                    "refers to information offered or discussed earlier (e.g. "
+                    "'yes please', 'sure', 'what about the second one?').\n"
+                    "- intent 'chitchat': pure greeting, thanks, or small talk "
+                    "with no information request, and NOT a reply to an offer of "
+                    "information.\n"
+                    "- standalone: rewrite the latest message as ONE complete, "
+                    "self-contained question, resolving pronouns and references "
+                    "('it', 'that one', 'yes please') from the conversation. If "
+                    "the message is already self-contained, or is chitchat, "
+                    "return it unchanged. Keep the student's language.\n"
+                    'Reply ONLY with JSON: {"intent": "question" | "chitchat", '
+                    '"standalone": "..."}.'
                 ),
             },
-            {"role": "user", "content": state["question"]},
+            {"role": "user", "content": user_content},
         ],
         model=get_settings().grader_model,
     )
     intent = result.get("intent") if isinstance(result, dict) else None
-    # when unsure, treat as a real question (safe default)
-    return {"intent": intent if intent in ("question", "chitchat") else "question"}
+    standalone = result.get("standalone") if isinstance(result, dict) else None
+    if not isinstance(standalone, str) or not standalone.strip():
+        standalone = question
+    return {
+        # when unsure, treat as a real question (safe default)
+        "intent": intent if intent in ("question", "chitchat") else "question",
+        "standalone_question": standalone.strip(),
+    }
 
 
 def route_intent(state: AgentState) -> str:
@@ -84,10 +135,12 @@ def chitchat(state: AgentState) -> AgentState:
                     "chatting — reply warmly and briefly (1-3 sentences) in the "
                     "same language they used (English, Filipino, or Taglish), "
                     "and invite them to ask about university topics like "
-                    "admission, enrollment, or school policies. Do not state "
-                    "any specific university facts."
+                    "admission, enrollment, or school policies. Stay consistent "
+                    "with the conversation so far. Do not state any specific "
+                    "university facts."
                 ),
             },
+            *_history_messages(state.get("history") or []),
             {"role": "user", "content": state["question"]},
         ],
         model=state.get("model"),
@@ -107,12 +160,15 @@ def decompose(state: AgentState) -> AgentState:
                     'JSON array of strings, e.g. ["query one", "query two"].'
                 ),
             },
-            {"role": "user", "content": state["question"]},
+            {
+                "role": "user",
+                "content": state.get("standalone_question") or state["question"],
+            },
         ],
         model=get_settings().grader_model,
     )
     queries = [q for q in result if isinstance(q, str)] if isinstance(result, list) else []
-    return {"sub_queries": queries[:3] or [state["question"]]}
+    return {"sub_queries": queries[:3] or [state.get("standalone_question") or state["question"]]}
 
 
 # ── Phase 3: hybrid retrieval + RRF ──────────────────────────────────────────
@@ -143,7 +199,10 @@ def grade(state: AgentState) -> AgentState:
             },
             {
                 "role": "user",
-                "content": f"Question: {state['question']}\n\nChunks:\n{listing}",
+                "content": (
+                    f"Question: {state.get('standalone_question') or state['question']}"
+                    f"\n\nChunks:\n{listing}"
+                ),
             },
         ],
         model=s.grader_model,
@@ -176,6 +235,10 @@ def generate(state: AgentState) -> AgentState:
         + f"]\n{c['text']}"
         for i, c in enumerate(state["relevant"])
     )
+    standalone = state.get("standalone_question") or state["question"]
+    question_block = f"Question: {state['question']}"
+    if standalone != state["question"]:
+        question_block += f"\n(Interpreted in context of the conversation as: {standalone})"
     answer, reasoning = llm.chat(
         [
             {
@@ -195,8 +258,12 @@ def generate(state: AgentState) -> AgentState:
                     "- End with one short, helpful follow-up offer when natural "
                     "(e.g. asking if they want details about a specific item).\n\n"
                     "Content rules (strict):\n"
-                    "- Answer using ONLY the provided context. Never invent "
-                    "information, offices, fees, or dates.\n"
+                    "- The earlier conversation turns are provided so you can "
+                    "answer follow-ups naturally — don't repeat what was already "
+                    "said, and don't re-offer something the student just accepted.\n"
+                    "- Answer using ONLY the provided context (and facts already "
+                    "stated in this conversation). Never invent information, "
+                    "offices, fees, or dates.\n"
                     "- Do NOT mention sources, page numbers, document names, or "
                     "bracketed citations like [Source 1] in your reply — the app "
                     "already shows references below your message. Just answer "
@@ -205,9 +272,10 @@ def generate(state: AgentState) -> AgentState:
                     "part you couldn't find."
                 ),
             },
+            *_history_messages(state.get("history") or []),
             {
                 "role": "user",
-                "content": f"Context:\n{context}\n\nQuestion: {state['question']}",
+                "content": f"Context:\n{context}\n\n{question_block}",
             },
         ],
         model=state.get("model"),
@@ -228,6 +296,8 @@ def generate(state: AgentState) -> AgentState:
 
 # ── Step 3: HITL escalation ──────────────────────────────────────────────────
 def escalate(state: AgentState) -> AgentState:
+    # store the self-contained rewrite — admins shouldn't see bare follow-ups
+    # like "yes I want to know it", and the knowledge loop ingests this text
     row = (
         get_supabase()
         .table("chat_requests")
@@ -236,7 +306,7 @@ def escalate(state: AgentState) -> AgentState:
                 "student_id": state.get("student_id"),
                 "student_email": state.get("student_email"),
                 "student_name": state.get("student_name"),
-                "question": state["question"],
+                "question": state.get("standalone_question") or state["question"],
                 "status": "pending",
             }
         )
@@ -284,6 +354,7 @@ def run_agent(
     student: dict | None = None,
     model: str | None = None,
     effort: str | None = None,
+    history: list[dict] | None = None,
 ) -> AgentState:
     global _graph
     if _graph is None:
@@ -292,6 +363,7 @@ def run_agent(
     return _graph.invoke(
         {
             "question": question,
+            "history": history or [],
             "student_id": student.get("id"),
             "student_email": student.get("email"),
             "student_name": student.get("name"),
