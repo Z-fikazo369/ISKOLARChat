@@ -51,31 +51,34 @@ flowchart TD
 
 ## 🧰 Tech Stack
 
-| Layer | Technology |
-|---|---|
-| Frontend | React 18 + Vite, React Router, Supabase JS |
-| Backend | Python, FastAPI, LangGraph |
-| Auth & DB | Supabase (Postgres + RLS + Storage) |
-| Vector DB | Qdrant Cloud |
-| Embeddings | Cohere Embed v3 (1024-dim) |
-| Keyword search | BM25 (rank-bm25) + RRF fusion |
-| LLM | DeepSeek V4 via OpenRouter (configurable — any OpenAI-compatible endpoint) |
-| Vision | Moondream (ingestion captioning) + Qwen3-VL (document image Q&A) |
-| PDF processing | PyMuPDF (fitz) |
-| Evaluation | RAGAS (faithfulness, answer relevancy) |
+| Layer          | Technology                                                                 |
+| -------------- | -------------------------------------------------------------------------- |
+| Frontend       | React 18 + Vite, React Router, Supabase JS                                 |
+| Backend        | Python, FastAPI, LangGraph                                                 |
+| Auth & DB      | Supabase (Postgres + RLS + Storage)                                        |
+| Vector DB      | Qdrant Cloud                                                               |
+| Embeddings     | Cohere Embed v3 (1024-dim)                                                 |
+| Keyword search | BM25 (rank-bm25) + RRF fusion                                              |
+| LLM            | Gemini 3.5 via Google AI Studio (configurable OpenAI-compatible endpoint)   |
+| Vision         | Moondream (ingestion captioning) + Gemini multimodal document image Q&A     |
+| PDF processing | PyMuPDF (fitz)                                                             |
+| Evaluation     | RAGAS (faithfulness, answer relevancy)                                     |
 
 ## 🚀 Setup
 
 ### 1. Supabase
+
 Create a project, then run the migrations in the SQL Editor, in order:
-`supabase/migrations/0001_consolidated_schema.sql` → `0002_chat_history.sql` → `0003_query_actions.sql`
+`supabase/migrations/0001_consolidated_schema.sql` → `0002_chat_history.sql` → `0003_query_actions.sql` → `0004_admin_application_trigger.sql` → `0005_hitl_conversation_link.sql` → `0006_document_queue_status.sql` → `0007_shared_rate_limits.sql` → `0008_durable_document_ingestion.sql` → `0009_knowledge_index_version.sql` → `0010_atomic_admin_review.sql` → `0011_production_security_hardening.sql`
 
 Create a superadmin: Dashboard → Authentication → Add user (auto-confirm), then:
+
 ```sql
 UPDATE profiles SET role = 'superadmin' WHERE email = 'your-superadmin@email.com';
 ```
 
 ### 2. Frontend
+
 ```bash
 npm install
 # create .env.local with:
@@ -85,15 +88,20 @@ npm run dev
 ```
 
 ### 3. Backend
+
 ```bash
 cd backend
 python -m venv .venv && .venv\Scripts\activate
 pip install -r requirements.txt
-copy .env.example .env   # fill in your keys (Supabase service role, Qdrant, Cohere, OpenRouter)
+# Create .env and add your Supabase, Qdrant, Cohere, and Gemini keys.
 uvicorn app.main:app --reload --port 8000
 ```
 
 See [backend/README.md](backend/README.md) for the full architecture-to-code mapping and the RAGAS evaluation harness.
+
+Before handling university data, complete the [production deployment checklist](docs/production-checklist.md).
+
+The portable Google Colab notebook, backend bundle, and result snapshot are grouped in [colab/](colab/README.md).
 
 ## 🔒 Security
 

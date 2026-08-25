@@ -1,6 +1,16 @@
 import { supabase } from "./supabaseClient";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+let API_URL = import.meta.env.VITE_API_URL;
+if (!API_URL) {
+  if (import.meta.env.DEV) {
+    API_URL = "http://localhost:8000";
+  } else {
+    console.error(
+      "VITE_API_URL is not set — falling back to relative API paths (same-origin reverse proxy). Set VITE_API_URL in the production environment."
+    );
+    API_URL = "";
+  }
+}
 
 export async function apiFetch(path, options = {}) {
   const {

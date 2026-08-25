@@ -9,7 +9,9 @@ from ..config import get_settings
 
 @lru_cache
 def _client() -> cohere.Client:
-    return cohere.Client(api_key=get_settings().cohere_api_key)
+    # Explicit timeout — the SDK default is 300s; retrieval must fail fast
+    # instead of pinning a worker when Cohere is degraded.
+    return cohere.Client(api_key=get_settings().cohere_api_key, timeout=60)
 
 
 def embed_documents(texts: list[str]) -> list[list[float]]:

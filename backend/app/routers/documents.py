@@ -1,9 +1,9 @@
 import logging
 
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 
 from ..deps.auth import require_admin
-from ..pipeline.ingest import BUCKET, ingest_document
+from ..pipeline.ingest import BUCKET
 from ..services import bm25, vectorstore
 from ..services.supabase_client import get_supabase
 
@@ -15,18 +15,41 @@ router = APIRouter(prefix="/api/documents", tags=["documents"])
 @router.post("/{document_id}/ingest")
 def queue_ingest(
     document_id: str,
-    background: BackgroundTasks,
     _admin: dict = Depends(require_admin),
 ) -> dict:
-    """Phase 1 Step 2 — queue the uploaded document for the ingestion pipeline."""
+    """Ensure a document is queued for the durable ingestion worker."""
     sb = get_supabase()
-    row = sb.table("documents").select("id").eq("id", document_id).maybe_single().execute()
+    row = sb.table("documents").select("id, status").eq("id", document_id).maybe_single().execute()
     if not row or not row.data:
         raise HTTPException(404, "Document not found")
-    sb.table("documents").update({"status": "processing", "error": None}).eq(
-        "id", document_id
-    ).execute()
-    background.add_task(ingest_document, document_id)
+    current_status = row.data.get("status")
+    if current_status == "queued":
+        return {"status": "queued"}
+    if current_status != "failed":
+        detail = (
+            "Document is already being processed."
+            if current_status == "processing"
+            else f"Document cannot be queued from status '{current_status}'."
+        )
+        raise HTTPException(409, detail)
+    # A failed document can be retried. Compare-and-set makes simultaneous
+    # retry requests idempotent and resets its bounded-attempt counter.
+    queued = (
+        sb.table("documents")
+        .update(
+            {
+                "status": "queued",
+                "error": None,
+                "processing_started_at": None,
+                "attempt_count": 0,
+            }
+        )
+        .eq("id", document_id)
+        .eq("status", "failed")
+        .execute()
+    )
+    if not queued.data:
+        raise HTTPException(409, "Document was already queued by another request.")
     return {"status": "queued"}
 
 
@@ -61,10 +84,12 @@ def delete_document(document_id: str, _admin: dict = Depends(require_admin)) -> 
         sb.table("documents").delete().eq("id", document_id).execute()
     except Exception as exc:
         logger.exception("DB row delete failed for document %s", document_id)
-        raise HTTPException(500, f"Could not delete document: {exc}") from exc
+        raise HTTPException(
+            503, "The document service is temporarily unavailable. Please try again."
+        ) from exc
 
     try:
-        bm25.rebuild_index()
+        bm25.rebuild_and_publish()
     except Exception:
         logger.exception("BM25 rebuild failed after deleting document %s", document_id)
 

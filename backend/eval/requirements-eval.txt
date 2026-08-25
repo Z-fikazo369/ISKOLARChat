@@ -7,3 +7,6 @@ ragas>=0.4,<1.0
 datasets>=2.19
 pandas>=2.0
 langchain-openai>=0.2
+# Keep the evaluation stack compatible with instructor/langchain-openai.
+openai>=2.26,<3
+jiter>=0.6.1,<0.14

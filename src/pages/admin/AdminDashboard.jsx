@@ -6,9 +6,64 @@ import { apiFetch } from "../../lib/api";
 import {
   FileText, Clock, Upload, Trash2, LogOut,
   User, Send, CheckCircle, AlertCircle, XCircle,
+  ChevronLeft, ChevronRight,
 } from "lucide-react";
 import { useTitle } from "../../hooks/useTitle";
 import ThemeToggle from "../../components/ThemeToggle";
+
+const PAGE_SIZE = 5;
+const MAX_ADMIN_UPLOAD_BYTES = 25 * 1024 * 1024;
+
+const pageRange = (page) => ({
+  from: (page - 1) * PAGE_SIZE,
+  to: page * PAGE_SIZE - 1,
+});
+
+function Pagination({ page, totalItems, onPageChange }) {
+  const totalPages = Math.ceil(totalItems / PAGE_SIZE);
+  if (totalPages <= 1) return null;
+
+  const buttonStyle = (disabled) => ({
+    display: "flex",
+    alignItems: "center",
+    gap: "4px",
+    padding: "7px 10px",
+    border: "1px solid rgba(22,163,74,0.25)",
+    borderRadius: "7px",
+    background: "transparent",
+    color: disabled ? "var(--muted-2)" : "var(--foreground)",
+    cursor: disabled ? "not-allowed" : "pointer",
+    fontFamily: "inherit",
+    fontSize: "12px",
+    fontWeight: "600",
+  });
+
+  return (
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "10px", marginTop: "14px" }}>
+      <button
+        type="button"
+        style={buttonStyle(page === 1)}
+        disabled={page === 1}
+        onClick={() => onPageChange(page - 1)}
+        aria-label="Previous page"
+      >
+        <ChevronLeft size={14} /> Previous
+      </button>
+      <span style={{ color: "var(--muted-foreground)", fontSize: "12px" }}>
+        Page {page} of {totalPages}
+      </span>
+      <button
+        type="button"
+        style={buttonStyle(page === totalPages)}
+        disabled={page === totalPages}
+        onClick={() => onPageChange(page + 1)}
+        aria-label="Next page"
+      >
+        Next <ChevronRight size={14} />
+      </button>
+    </div>
+  );
+}
 
 const formatSize = (bytes) => {
   if (!bytes) return "—";
@@ -36,7 +91,11 @@ export default function AdminDashboard() {
 
   const [tab, setTab] = useState("documents");
   const [documents, setDocuments] = useState([]);
-  const [queries, setQueries] = useState([]);
+  const [documentsCount, setDocumentsCount] = useState(0);
+  const [pending, setPending] = useState([]);
+  const [pendingCount, setPendingCount] = useState(0);
+  const [resolved, setResolved] = useState([]);
+  const [resolvedCount, setResolvedCount] = useState(0);
   const [docsLoading, setDocsLoading] = useState(true);
   const [queriesLoading, setQueriesLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
@@ -44,60 +103,75 @@ export default function AdminDashboard() {
   const [activeQuery, setActiveQuery] = useState(null);
   const [answers, setAnswers] = useState({});
   const [sendingId, setSendingId] = useState(null);
+  const [clearingPending, setClearingPending] = useState(false);
+  const [documentsPage, setDocumentsPage] = useState(1);
+  const [pendingPage, setPendingPage] = useState(1);
+  const [resolvedPage, setResolvedPage] = useState(1);
   const fileInputRef = useRef(null);
 
-  const fetchDocuments = useCallback(async () => {
-    setDocsLoading(true);
-    const { data } = await supabase
+  const fetchDocuments = useCallback(async ({ silent = false } = {}) => {
+    if (!silent) setDocsLoading(true);
+    const { from, to } = pageRange(documentsPage);
+    const { data, count, error } = await supabase
       .from("documents")
-      .select("*")
-      .order("created_at", { ascending: false });
-    if (data) setDocuments(data);
-    setDocsLoading(false);
-  }, []);
+      .select("*", { count: "exact" })
+      .order("created_at", { ascending: false })
+      .range(from, to);
+    if (!error) {
+      setDocuments(data || []);
+      setDocumentsCount(count || 0);
+    }
+    if (!silent) setDocsLoading(false);
+  }, [documentsPage]);
 
-  const fetchQueries = useCallback(async () => {
-    setQueriesLoading(true);
-    const { data } = await supabase
-      .from("chat_requests")
-      .select("*")
-      .order("created_at", { ascending: false });
-    if (data) setQueries(data);
-    setQueriesLoading(false);
-  }, []);
+  const fetchQueries = useCallback(async ({ silent = false } = {}) => {
+    if (!silent) setQueriesLoading(true);
+    const pendingRange = pageRange(pendingPage);
+    const resolvedRange = pageRange(resolvedPage);
+    const [pendingResult, resolvedResult] = await Promise.all([
+      supabase
+        .from("chat_requests")
+        .select("*", { count: "exact" })
+        .eq("status", "pending")
+        .order("created_at", { ascending: false })
+        .range(pendingRange.from, pendingRange.to),
+      supabase
+        .from("chat_requests")
+        .select("*", { count: "exact" })
+        .in("status", ["answered", "rejected"])
+        .order("created_at", { ascending: false })
+        .range(resolvedRange.from, resolvedRange.to),
+    ]);
+    if (!pendingResult.error) {
+      setPending(pendingResult.data || []);
+      setPendingCount(pendingResult.count || 0);
+    }
+    if (!resolvedResult.error) {
+      setResolved(resolvedResult.data || []);
+      setResolvedCount(resolvedResult.count || 0);
+    }
+    if (!silent) setQueriesLoading(false);
+  }, [pendingPage, resolvedPage]);
 
   useEffect(() => {
     fetchDocuments();
     fetchQueries();
   }, [fetchDocuments, fetchQueries]);
 
-  // Auto-refresh every 4s while any document is still processing,
-  // so "Processing" flips to "Ready" without a manual reload.
-  // (silent fetch — fetchDocuments() would flash the loading state)
+  // Auto-refresh every 4s while any document is queued or processing,
+  // so its status flips to "Ready" without a manual reload.
   useEffect(() => {
-    if (!documents.some((d) => d.status === "processing")) return;
-    const timer = setInterval(async () => {
-      const { data } = await supabase
-        .from("documents")
-        .select("*")
-        .order("created_at", { ascending: false });
-      if (data) setDocuments(data);
-    }, 4000);
+    if (!documents.some((d) => d.status === "queued" || d.status === "processing")) return;
+    const timer = setInterval(() => fetchDocuments({ silent: true }), 4000);
     return () => clearInterval(timer);
-  }, [documents]);
+  }, [documents, fetchDocuments]);
 
   // Poll HITL queries every 8s so new escalations appear (and the badge
   // updates) without a manual refresh.
   useEffect(() => {
-    const timer = setInterval(async () => {
-      const { data } = await supabase
-        .from("chat_requests")
-        .select("*")
-        .order("created_at", { ascending: false });
-      if (data) setQueries(data);
-    }, 8000);
+    const timer = setInterval(() => fetchQueries({ silent: true }), 8000);
     return () => clearInterval(timer);
-  }, []);
+  }, [fetchQueries]);
 
   const handleUpload = async (files) => {
     if (!files || files.length === 0) return;
@@ -107,33 +181,45 @@ export default function AdminDashboard() {
         if (!file.name.toLowerCase().endsWith(".pdf")) {
           throw new Error(`"${file.name}" is not a PDF. Only PDF files are supported.`);
         }
+        if (file.size <= 0 || file.size > MAX_ADMIN_UPLOAD_BYTES) {
+          throw new Error(`"${file.name}" must be between 1 byte and 25 MB.`);
+        }
         // sanitize: storage keys break on special characters
         const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-        const filePath = `${Date.now()}_${safeName}`;
-        const { data: storageData, error: storageError } = await supabase.storage
-          .from("documents")
-          .upload(filePath, file);
+        const filePath = `${crypto.randomUUID()}_${safeName}`;
+        let uploadedPath = null;
+        try {
+          const { data: storageData, error: storageError } = await supabase.storage
+            .from("documents")
+            .upload(filePath, file, { contentType: "application/pdf" });
 
-        if (storageError) throw storageError;
+          if (storageError) throw storageError;
+          uploadedPath = storageData.path;
 
-        const { data: doc, error: insertError } = await supabase
-          .from("documents")
-          .insert({
-            name: file.name,
-            size: file.size,
-            file_path: storageData.path,
-            status: "processing",
-            uploaded_by: user.id,
-          })
-          .select()
-          .single();
+          const { error: insertError } = await supabase
+            .from("documents")
+            .insert({
+              name: file.name,
+              size: file.size,
+              file_path: storageData.path,
+              status: "queued",
+              uploaded_by: user.id,
+            });
 
-        if (insertError) throw insertError;
+          if (insertError) throw insertError;
+        } catch (fileError) {
+          // Avoid orphaned private objects when the metadata insert fails.
+          if (uploadedPath) {
+            await supabase.storage.from("documents").remove([uploadedPath]);
+          }
+          throw fileError;
+        }
 
-        // queue the document for the ingestion pipeline (Phase 2)
-        await apiFetch(`/api/documents/${doc.id}/ingest`, { method: "POST" });
+        // Inserting the queued row is the durable enqueue operation. A backend
+        // worker will atomically claim it even if this browser closes now.
       }
-      await fetchDocuments();
+      if (documentsPage === 1) await fetchDocuments();
+      else setDocumentsPage(1);
     } catch (err) {
       alert("Upload failed: " + err.message);
     } finally {
@@ -146,7 +232,7 @@ export default function AdminDashboard() {
     try {
       // backend removes the storage file, Qdrant vectors, and the DB row
       await apiFetch(`/api/documents/${doc.id}`, { method: "DELETE" });
-      setDocuments((prev) => prev.filter((d) => d.id !== doc.id));
+      await fetchDocuments();
     } catch (err) {
       alert("Delete failed: " + err.message);
     }
@@ -164,11 +250,7 @@ export default function AdminDashboard() {
         body: JSON.stringify({ answer }),
       });
 
-      setQueries((prev) =>
-        prev.map((q) =>
-          q.id === query.id ? { ...q, status: "answered", admin_response: answer } : q
-        )
-      );
+      await fetchQueries();
       setAnswers((prev) => ({ ...prev, [query.id]: "" }));
       setActiveQuery(null);
     } catch (err) {
@@ -183,9 +265,7 @@ export default function AdminDashboard() {
     setSendingId(query.id);
     try {
       await apiFetch(`/api/hitl/${query.id}/reject`, { method: "POST" });
-      setQueries((prev) =>
-        prev.map((q) => (q.id === query.id ? { ...q, status: "rejected" } : q))
-      );
+      await fetchQueries();
       setActiveQuery(null);
     } catch (err) {
       alert("Failed to reject: " + err.message);
@@ -198,10 +278,29 @@ export default function AdminDashboard() {
     if (!window.confirm("Delete this query permanently?")) return;
     try {
       await apiFetch(`/api/hitl/${query.id}`, { method: "DELETE" });
-      setQueries((prev) => prev.filter((q) => q.id !== query.id));
+      await fetchQueries();
       if (activeQuery === query.id) setActiveQuery(null);
     } catch (err) {
       alert("Failed to delete: " + err.message);
+    }
+  };
+
+  const handleClearPending = async () => {
+    if (pendingCount === 0 || clearingPending) return;
+    if (!window.confirm(`Delete all ${pendingCount} pending queries permanently? This action cannot be undone.`)) return;
+
+    setClearingPending(true);
+    try {
+      await apiFetch("/api/hitl/pending", { method: "DELETE" });
+      setPending([]);
+      setPendingCount(0);
+      setAnswers({});
+      setActiveQuery(null);
+      setPendingPage(1);
+    } catch (err) {
+      alert("Failed to clear pending queries: " + err.message);
+    } finally {
+      setClearingPending(false);
     }
   };
 
@@ -210,8 +309,17 @@ export default function AdminDashboard() {
     navigate("/");
   };
 
-  const pending = queries.filter((q) => q.status === "pending");
-  const resolved = queries.filter((q) => q.status === "answered" || q.status === "rejected");
+  useEffect(() => {
+    setDocumentsPage((page) => Math.min(page, Math.max(1, Math.ceil(documentsCount / PAGE_SIZE))));
+  }, [documentsCount]);
+
+  useEffect(() => {
+    setPendingPage((page) => Math.min(page, Math.max(1, Math.ceil(pendingCount / PAGE_SIZE))));
+  }, [pendingCount]);
+
+  useEffect(() => {
+    setResolvedPage((page) => Math.min(page, Math.max(1, Math.ceil(resolvedCount / PAGE_SIZE))));
+  }, [resolvedCount]);
 
   // ─── styles ────────────────────────────────────────────────────────────────
   const s = {
@@ -357,6 +465,8 @@ export default function AdminDashboard() {
     const cfg =
       status === "ready"
         ? { color: "#16a34a", bg: "rgba(22,163,74,0.12)", border: "rgba(22,163,74,0.3)", label: "Ready" }
+        : status === "queued"
+        ? { color: "#3b82f6", bg: "rgba(59,130,246,0.1)", border: "rgba(59,130,246,0.3)", label: "Queued" }
         : status === "answered"
         ? { color: "#16a34a", bg: "rgba(22,163,74,0.12)", border: "rgba(22,163,74,0.3)", label: "Answered" }
         : status === "failed"
@@ -467,7 +577,7 @@ export default function AdminDashboard() {
         {/* Tabs */}
         <div style={s.tabs}>
           <TabBtn id="documents" icon={FileText} label="Document Management" />
-          <TabBtn id="queries" icon={Clock} label="Queries" badge={pending.length} />
+          <TabBtn id="queries" icon={Clock} label="Queries" badge={pendingCount} />
         </div>
 
         {/* ── DOCUMENT MANAGEMENT ────────────────────────────────────────── */}
@@ -518,7 +628,7 @@ export default function AdminDashboard() {
                 <p style={s.cardSub}>
                   {docsLoading
                     ? "Loading..."
-                    : `${documents.length} document${documents.length !== 1 ? "s" : ""} in the knowledge base`}
+                    : `${documentsCount} document${documentsCount !== 1 ? "s" : ""} in the knowledge base`}
                 </p>
               </div>
 
@@ -526,7 +636,7 @@ export default function AdminDashboard() {
                 <div style={{ padding: "32px", textAlign: "center", color: "var(--muted-foreground)", fontSize: "13px" }}>
                   Loading documents...
                 </div>
-              ) : documents.length === 0 ? (
+              ) : documentsCount === 0 ? (
                 <div style={{ padding: "40px", textAlign: "center", color: "var(--muted-2)", fontSize: "13px" }}>
                   No documents uploaded yet. Upload files above to build the knowledge base.
                 </div>
@@ -563,6 +673,11 @@ export default function AdminDashboard() {
                   </div>
                 ))
               )}
+              {!docsLoading && documentsCount > 0 && (
+                <div style={{ padding: "0 20px 16px" }}>
+                  <Pagination page={documentsPage} totalItems={documentsCount} onPageChange={setDocumentsPage} />
+                </div>
+              )}
             </div>
           </>
         )}
@@ -582,16 +697,43 @@ export default function AdminDashboard() {
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}>
               {/* Pending */}
               <div>
-                <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "14px" }}>
-                  <AlertCircle size={16} color="#f59e0b" />
-                  <span style={{ fontSize: "14px", fontWeight: "700", color: "#f59e0b" }}>
-                    Pending Queries ({pending.length})
-                  </span>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "8px", marginBottom: "14px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <AlertCircle size={16} color="#f59e0b" />
+                    <span style={{ fontSize: "14px", fontWeight: "700", color: "#f59e0b" }}>
+                      Pending Queries ({pendingCount})
+                    </span>
+                  </div>
+                  {pendingCount > 0 && (
+                    <button
+                      type="button"
+                      onClick={handleClearPending}
+                      disabled={clearingPending}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "5px",
+                        padding: "6px 9px",
+                        border: "1px solid rgba(239,68,68,0.35)",
+                        borderRadius: "7px",
+                        background: "rgba(239,68,68,0.08)",
+                        color: "#f87171",
+                        cursor: clearingPending ? "not-allowed" : "pointer",
+                        fontFamily: "inherit",
+                        fontSize: "11px",
+                        fontWeight: "700",
+                        opacity: clearingPending ? 0.65 : 1,
+                      }}
+                    >
+                      <Trash2 size={13} />
+                      {clearingPending ? "Clearing..." : "Clear all"}
+                    </button>
+                  )}
                 </div>
 
                 {queriesLoading ? (
                   <p style={{ color: "var(--muted-foreground)", fontSize: "13px" }}>Loading...</p>
-                ) : pending.length === 0 ? (
+                ) : pendingCount === 0 ? (
                   <div style={{ padding: "32px", textAlign: "center", color: "var(--muted-2)", fontSize: "13px", background: "rgba(22,163,74,0.02)", border: "1px solid rgba(22,163,74,0.08)", borderRadius: "10px" }}>
                     No pending queries
                   </div>
@@ -681,6 +823,9 @@ export default function AdminDashboard() {
                     );
                   })
                 )}
+                {!queriesLoading && pendingCount > 0 && (
+                  <Pagination page={pendingPage} totalItems={pendingCount} onPageChange={setPendingPage} />
+                )}
               </div>
 
               {/* Resolved (answered + rejected) */}
@@ -688,13 +833,13 @@ export default function AdminDashboard() {
                 <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "14px" }}>
                   <CheckCircle size={16} color="#16a34a" />
                   <span style={{ fontSize: "14px", fontWeight: "700", color: "#16a34a" }}>
-                    Resolved Queries ({resolved.length})
+                    Resolved Queries ({resolvedCount})
                   </span>
                 </div>
 
                 {queriesLoading ? (
                   <p style={{ color: "var(--muted-foreground)", fontSize: "13px" }}>Loading...</p>
-                ) : resolved.length === 0 ? (
+                ) : resolvedCount === 0 ? (
                   <div style={{ padding: "32px", textAlign: "center", color: "var(--muted-2)", fontSize: "13px", background: "rgba(22,163,74,0.02)", border: "1px solid rgba(22,163,74,0.08)", borderRadius: "10px" }}>
                     No resolved queries yet
                   </div>
@@ -733,6 +878,9 @@ export default function AdminDashboard() {
                       </p>
                     </div>
                   ))
+                )}
+                {!queriesLoading && resolvedCount > 0 && (
+                  <Pagination page={resolvedPage} totalItems={resolvedCount} onPageChange={setResolvedPage} />
                 )}
               </div>
             </div>

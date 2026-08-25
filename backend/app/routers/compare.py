@@ -14,18 +14,19 @@ isolated from the live chat flow:
     Comparison runs are therefore read-only against Supabase, exactly like the
     eval harness.
 
-No student/admin/superadmin screen links here. Mounted unauthenticated on
-purpose: it writes nothing and lets the panel open /compare without a login.
+This router is disabled by default because it returns full retrieval traces
+and performs several paid provider calls. When enabled, login is still required.
 """
 
 from concurrent.futures import ThreadPoolExecutor
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 
 from ..agent import graph as agent
 from ..agent.baseline import run_baseline
 from ..config import get_settings
+from ..deps.ratelimit import rate_limit
 
 router = APIRouter(prefix="/api", tags=["compare"])
 
@@ -123,7 +124,9 @@ def _run_agentic(question: str) -> dict:
     }
 
 
-@router.post("/compare")
+# Each request fires several paid LLM/embedding calls, so enabled deployments
+# still authenticate and rate-limit each account.
+@router.post("/compare", dependencies=[Depends(rate_limit("compare", 5))])
 def compare(body: CompareRequest) -> dict:
     """Run both systems on the same question (concurrently) and return their
     retrieval traces + answers for side-by-side display."""
@@ -132,11 +135,16 @@ def compare(body: CompareRequest) -> dict:
 
     # Both systems hit the same external APIs and are independent — run them in
     # parallel so the demo feels snappy.
-    with ThreadPoolExecutor(max_workers=2) as pool:
-        naive_fut = pool.submit(_run_naive, question)
-        agentic_fut = pool.submit(_run_agentic, question)
-        naive = naive_fut.result()
-        agentic = agentic_fut.result()
+    try:
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            naive_fut = pool.submit(_run_naive, question)
+            agentic_fut = pool.submit(_run_agentic, question)
+            naive = naive_fut.result()
+            agentic = agentic_fut.result()
+    except Exception as exc:
+        raise HTTPException(
+            503, "AI comparison capacity is temporarily unavailable. Please retry shortly."
+        ) from exc
 
     return {
         "question": question,

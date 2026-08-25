@@ -25,14 +25,20 @@ export default function AdminLogin() {
 
       if (authError) throw authError;
 
-      const { data: profile } = await supabase
+      const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("role")
         .eq("id", data.user.id)
-        .single();
+        .maybeSingle();
+
+      // A transient query failure is NOT proof the account isn't an admin —
+      // don't sign the user out for it.
+      if (profileError) {
+        throw new Error("Couldn't verify your account — please try again.");
+      }
 
       if (profile?.role !== "admin" && profile?.role !== "superadmin") {
-        await supabase.auth.signOut();
+        await supabase.auth.signOut({ scope: "local" });
         throw new Error("Only approved admin accounts can login.");
       }
 

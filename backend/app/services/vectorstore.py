@@ -21,7 +21,7 @@ from ..config import get_settings
 @lru_cache
 def _client() -> QdrantClient:
     s = get_settings()
-    return QdrantClient(url=s.qdrant_url, api_key=s.qdrant_api_key)
+    return QdrantClient(url=s.qdrant_url, api_key=s.qdrant_api_key, timeout=30)
 
 
 def ensure_collection() -> None:
@@ -49,14 +49,24 @@ def _ensure_document_id_index() -> None:
         pass  # already indexed
 
 
+# Deterministic point ids: the same (document_id, chunk_index) always maps to
+# the same point, so re-ingesting a document is a true upsert (overwrite)
+# instead of piling up duplicate chunks under fresh random ids.
+def _point_id(chunk: dict) -> str:
+    return str(uuid.uuid5(uuid.NAMESPACE_URL, f"iskolarchat:{chunk['document_id']}:{chunk['chunk_index']}"))
+
+
 def upsert_chunks(chunks: list[dict], vectors: list[list[float]]) -> None:
     """chunks: [{text, document_id, source, page, chunk_index}]"""
     s = get_settings()
     points = [
-        PointStruct(id=str(uuid.uuid4()), vector=vec, payload=chunk)
+        PointStruct(id=_point_id(chunk), vector=vec, payload=chunk)
         for chunk, vec in zip(chunks, vectors)
     ]
-    _client().upsert(collection_name=s.qdrant_collection, points=points)
+    # Batched — a large document in a single upsert can exceed Qdrant Cloud's
+    # request payload limit and fail after the embeddings were already paid for.
+    for i in range(0, len(points), 128):
+        _client().upsert(collection_name=s.qdrant_collection, points=points[i : i + 128])
 
 
 def semantic_search(query_vector: list[float], limit: int) -> list[dict]:

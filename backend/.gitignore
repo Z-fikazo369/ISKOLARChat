@@ -5,3 +5,4 @@ __pycache__/
 eval/results.csv
 eval/.eval.env
 eval/_kb_dump.json
+eval/_run.log

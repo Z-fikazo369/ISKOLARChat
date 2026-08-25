@@ -27,6 +27,19 @@ def resolve(request_id: str, body: ResolveRequest, admin: dict = Depends(require
         raise HTTPException(404, "Chat request not found")
 
     answer = body.answer.strip()
+
+    # Ingest FIRST, then mark the row answered — the reverse order would let a
+    # failed ingest leave a row claiming answer_ingested=True while the chunk
+    # never reached the knowledge base (and nothing would flag it for retry).
+    try:
+        ingest_hitl_answer(request_id, row.data["question"], answer)
+    except Exception:
+        logger.exception("Knowledge-base ingest failed for HITL query %s", request_id)
+        raise HTTPException(
+            502,
+            "Couldn't save the answer to the knowledge base — please try again.",
+        )
+
     sb.table("chat_requests").update(
         {
             "status": "answered",
@@ -35,8 +48,6 @@ def resolve(request_id: str, body: ResolveRequest, admin: dict = Depends(require
             "answer_ingested": True,
         }
     ).eq("id", request_id).execute()
-
-    ingest_hitl_answer(request_id, row.data["question"], answer)
     return {"status": "answered", "ingested": True}
 
 
@@ -51,6 +62,18 @@ def reject(request_id: str, admin: dict = Depends(require_admin)) -> dict:
         {"status": "rejected", "responded_by": admin["id"]}
     ).eq("id", request_id).execute()
     return {"status": "rejected"}
+
+
+@router.delete("/pending")
+def clear_pending_requests(_admin: dict = Depends(require_admin)) -> dict:
+    """Delete all unanswered HITL requests in one database operation.
+
+    Pending requests have never been ingested into the knowledge base, so no
+    vector or BM25 cleanup is needed here.
+    """
+    sb = get_supabase()
+    result = sb.table("chat_requests").delete().eq("status", "pending").execute()
+    return {"status": "deleted", "deleted": len(result.data or [])}
 
 
 @router.delete("/{request_id}")
@@ -70,7 +93,7 @@ def delete_request(request_id: str, _admin: dict = Depends(require_admin)) -> di
     # Forget the ingested answer (no-op if the query was never answered).
     try:
         vectorstore.delete_document_chunks(f"hitl_{request_id}")
-        bm25.rebuild_index()
+        bm25.rebuild_and_publish()
     except Exception:
         logger.exception("Knowledge-base cleanup failed for HITL query %s", request_id)
 

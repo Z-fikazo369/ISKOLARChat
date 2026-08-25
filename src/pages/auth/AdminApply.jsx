@@ -44,30 +44,38 @@ export default function AdminApply() {
       const { data, error: signupError } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
+        options: {
+          data: {
+            admin_application: {
+              full_name: formData.fullName,
+              employee_id: formData.employeeId,
+              department: formData.department,
+              position: formData.position,
+              email: formData.email,
+              phone: formData.phone,
+              reason: formData.reason,
+            },
+          },
+        },
       });
 
       if (signupError) throw signupError;
 
-      const { error: insertError } = await supabase
-        .from("admin_applications")
-        .insert([
-          {
-            user_id: data.user.id,
-            full_name: formData.fullName,
-            employee_id: formData.employeeId,
-            department: formData.department,
-            position: formData.position,
-            email: formData.email,
-            phone: formData.phone,
-            reason: formData.reason,
-            status: "pending",
-          },
-        ]);
+      // Supabase obfuscates existing emails by returning a fake user with an
+      // empty identities array — surface that instead of pretending it worked.
+      if (data?.user && (data.user.identities?.length ?? 0) === 0) {
+        throw new Error(
+          "This email is already registered. Please log in instead."
+        );
+      }
 
-      if (insertError) throw insertError;
+      // The admin_applications row is created by the
+      // on_admin_application_user_created DB
+      // trigger from the metadata above (client-side inserts fail when email
+      // confirmation is enabled, because there is no session yet).
 
       // Sign out immediately — account needs super admin approval before login
-      await supabase.auth.signOut();
+      await supabase.auth.signOut({ scope: "local" });
 
       alert(
         "Application submitted! Please wait for super admin approval before logging in."

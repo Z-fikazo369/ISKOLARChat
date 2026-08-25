@@ -13,7 +13,7 @@ import {
 const MODELS = {
   flash: { label: "Flash", desc: "Fastest replies", icon: "⚡" },
   pro: { label: "Pro", desc: "Smartest answers", icon: "🧠" },
-  r1: { label: "R1", desc: "Deep step-by-step reasoning", icon: "🔬" },
+  r1: { label: "Deep Think", desc: "Thorough step-by-step reasoning", icon: "🔬" },
 };
 const EFFORTS = [
   { value: "low", label: "Low" },
@@ -34,6 +34,13 @@ export default function StudentDashboard() {
     { id: DRAFT_ID, title: "New Chat", messages: [] },
   ]);
   const [currentChatId, setCurrentChatId] = useState(DRAFT_ID);
+  const [historyReady, setHistoryReady] = useState(false);
+  const [historyError, setHistoryError] = useState(null);
+
+  // Live view of chats for async callbacks (the HITL poll below needs the
+  // current chat list without re-subscribing on every state change).
+  const chatsRef = useRef(chats);
+  chatsRef.current = chats;
 
   // Load saved conversations (with messages) on mount.
   // Depends on user.id (not the user object): AuthContext emits a new user
@@ -41,13 +48,43 @@ export default function StudentDashboard() {
   // clobber chat state and prepend a spurious "New Chat" mid-conversation.
   useEffect(() => {
     if (!user?.id) return;
+    setHistoryReady(false);
+    let cancelled = false;
     (async () => {
-      const { data: convos, error } = await supabase
-        .from("conversations")
-        .select("id, title, created_at, messages(id, role, content, sources, escalated, created_at)")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false });
-      if (error || !convos) return; // table missing or offline — stay local-only
+      const fetchHistory = (messageFields) =>
+        supabase
+          .from("conversations")
+          .select(`id, title, created_at, messages(${messageFields})`)
+          .eq("user_id", user.id)
+          .order("created_at", { ascending: false });
+
+      // New deployments include hitl_request_id (migration 0005). Retry with
+      // the legacy shape when that migration has not been applied yet; one
+      // missing optional column must never make all saved chats look deleted.
+      let { data: convos, error } = await fetchHistory(
+        "id, role, content, sources, escalated, hitl_request_id, created_at"
+      );
+      if (error) {
+        const legacy = await fetchHistory(
+          "id, role, content, sources, escalated, created_at"
+        );
+        convos = legacy.data;
+        error = legacy.error;
+        if (!error) {
+          console.warn(
+            "Chat history loaded using the legacy schema. Apply Supabase migration 0005."
+          );
+        }
+      }
+      if (cancelled) return;
+      if (error || !convos) {
+        console.error("Failed to load saved chats:", error?.message);
+        setHistoryError(
+          "Your saved chats could not be loaded. Please check your connection and refresh."
+        );
+        setHistoryReady(true);
+        return;
+      }
       const loaded = convos.map((c) => ({
         id: c.id,
         title: c.title,
@@ -59,10 +96,16 @@ export default function StudentDashboard() {
             content: m.content,
             sources: m.sources || [],
             escalated: m.escalated,
+            hitlRequestId: m.hitl_request_id,
           })),
       }));
       setChats([{ id: DRAFT_ID, title: "New Chat", messages: [] }, ...loaded]);
+      setHistoryError(null);
+      setHistoryReady(true);
     })();
+    return () => {
+      cancelled = true;
+    };
   }, [user?.id]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -105,11 +148,11 @@ export default function StudentDashboard() {
 
   // Deliver admin answers to escalated (HITL) questions: poll the student's
   // own chat_requests (RLS already allows this) and, when one is answered,
-  // surface it in the current chat as a verified-answer message + a toast.
-  // Already-shown answers are tracked in localStorage so each appears once,
-  // without any DB/schema change. Runs on open and every 25s while open.
+  // surface it in the originating chat as a verified-answer message + a toast.
+  // Already-shown answers are tracked locally and by a unique DB link so each
+  // appears once even across tabs/devices. Runs on open and every 25s.
   useEffect(() => {
-    if (!user?.id) return;
+    if (!user?.id || !historyReady) return;
     const SEEN_KEY = "iskolar_seen_hitl_answers";
     const getSeen = () => {
       try {
@@ -120,45 +163,113 @@ export default function StudentDashboard() {
     };
     let cancelled = false;
     const check = async () => {
-      const { data, error } = await supabase
-        .from("chat_requests")
-        .select("id, question, admin_response, updated_at")
-        .eq("student_id", user.id)
-        .eq("status", "answered")
-        .order("updated_at", { ascending: false });
+      const fetchAnsweredRequests = (fields) =>
+        supabase
+          .from("chat_requests")
+          .select(fields)
+          .eq("student_id", user.id)
+          .eq("status", "answered")
+          .order("updated_at", { ascending: false });
+      let { data, error } = await fetchAnsweredRequests(
+        "id, conversation_id, question, admin_response, updated_at"
+      );
+      if (error) {
+        const legacy = await fetchAnsweredRequests(
+          "id, question, admin_response, updated_at"
+        );
+        data = legacy.data?.map((row) => ({ ...row, conversation_id: null }));
+        error = legacy.error;
+      }
       if (cancelled || error || !data) return;
       const seen = getSeen();
       const fresh = data.filter((r) => r.admin_response && !seen.has(r.id));
       if (!fresh.length) return;
       const ordered = [...fresh].reverse(); // oldest first → reads in order
-      setChats((prev) => {
-        const targetId = prev.some((c) => c.id === currentChatId)
-          ? currentChatId
-          : prev[0]?.id;
-        return prev.map((c) =>
-          c.id !== targetId
-            ? c
-            : {
+      // Persist each answer to the messages table BEFORE marking it seen —
+      // otherwise a refresh loses the verified answer forever. Failed inserts
+      // are not marked seen, so the next poll retries them. (A draft chat has
+      // no conversations row yet, so persistence is only possible for real
+      // conversations.)
+      const delivered = [];
+      let seenChanged = false;
+      for (const r of ordered) {
+        const targetId = chatsRef.current.some((c) => c.id === r.conversation_id)
+          ? r.conversation_id
+          : chatsRef.current.some((c) => c.id === currentChatId)
+            ? currentChatId
+            : chatsRef.current[0]?.id;
+        if (!targetId) continue;
+
+        const target = chatsRef.current.find((c) => c.id === targetId);
+        if (target?.messages.some((m) => m.hitlRequestId === r.id)) {
+          seen.add(r.id);
+          seenChanged = true;
+          continue;
+        }
+
+        if (targetId && targetId !== DRAFT_ID) {
+          let { error: insertError } = await supabase
+            .from("messages")
+            .insert({
+              conversation_id: targetId,
+              role: "assistant",
+              content: r.admin_response,
+              sources: [],
+              escalated: false,
+              hitl_request_id: r.id,
+            });
+          if (insertError?.code === "42703") {
+            // Migration 0005 is not installed yet. Persist the answer without
+            // the optional deduplication link instead of losing it entirely.
+            const legacyInsert = await supabase.from("messages").insert({
+              conversation_id: targetId,
+              role: "assistant",
+              content: r.admin_response,
+              sources: [],
+              escalated: false,
+            });
+            insertError = legacyInsert.error;
+          }
+          // 23505 means another tab/device already persisted this same answer.
+          // It is still safe to surface locally, but all other failures retry.
+          if (insertError && insertError.code !== "23505") {
+            console.error("Failed to persist admin answer:", insertError.message);
+            continue; // retry on the next poll
+          }
+        }
+        delivered.push({ ...r, targetId });
+        seen.add(r.id);
+        seenChanged = true;
+      }
+      if (seenChanged) {
+        localStorage.setItem(SEEN_KEY, JSON.stringify([...seen]));
+      }
+      if (cancelled || !delivered.length) return;
+      setChats((prev) =>
+        prev.map((c) => {
+          const answers = delivered.filter((r) => r.targetId === c.id);
+          return answers.length
+            ? {
                 ...c,
                 messages: [
                   ...c.messages,
-                  ...ordered.map((r) => ({
+                  ...answers.map((r) => ({
                     id: `hitl-${r.id}`,
                     role: "assistant",
                     content: r.admin_response,
                     adminAnswer: true,
                     question: r.question,
+                    hitlRequestId: r.id,
                   })),
                 ],
               }
-        );
-      });
-      fresh.forEach((r) => seen.add(r.id));
-      localStorage.setItem(SEEN_KEY, JSON.stringify([...seen]));
+            : c;
+        })
+      );
       setHitlToast(
-        fresh.length === 1
+        delivered.length === 1
           ? "An admin answered your earlier question!"
-          : `An admin answered ${fresh.length} of your questions!`
+          : `An admin answered ${delivered.length} of your questions!`
       );
       window.setTimeout(() => {
         if (!cancelled) setHitlToast(null);
@@ -170,7 +281,7 @@ export default function StudentDashboard() {
       cancelled = true;
       window.clearInterval(iv);
     };
-  }, [user?.id, currentChatId]);
+  }, [user?.id, currentChatId, historyReady]);
 
   const handleNewChat = () => {
     // reuse the existing empty draft instead of stacking empty chats
@@ -201,7 +312,7 @@ export default function StudentDashboard() {
   };
 
   const handleSend = async () => {
-    if (!input.trim() && !attachedFile) return;
+    if (!historyReady || (!input.trim() && !attachedFile)) return;
 
     const userInput = input.trim();
     const fileToSend = attachedFile;
@@ -224,17 +335,49 @@ export default function StudentDashboard() {
     // Persist the conversation on first message (draft → real DB row)
     let chatId = currentChatId;
     if (chatId === DRAFT_ID) {
-      const { data: convo } = await supabase
+      const { data: convo, error: convoError } = await supabase
         .from("conversations")
         .insert({ user_id: user.id, title })
         .select()
         .single();
-      if (convo) {
+      if (convoError || !convo) {
+        // stay a draft — this insert is retried on the next message send
+        console.error(
+          "Failed to save conversation:",
+          convoError?.message || "no row returned"
+        );
+        setHistoryError(
+          "This chat could not be saved yet. Please check your connection before logging out."
+        );
+      } else {
         chatId = convo.id;
         setChats((prev) =>
           prev.map((c) => (c.id === DRAFT_ID ? { ...c, id: convo.id } : c))
         );
         setCurrentChatId(convo.id);
+
+        // If an earlier conversation insert failed, backfill the existing
+        // local draft messages as soon as a real conversation row is created.
+        const pendingMessages = (chat?.messages ?? [])
+          .filter((message) => !message.error && message.content)
+          .map((message) => ({
+            conversation_id: convo.id,
+            role: message.role,
+            content: message.content,
+            sources: message.sources || null,
+            escalated: Boolean(message.escalated),
+          }));
+        if (pendingMessages.length) {
+          const { error: backfillError } = await supabase
+            .from("messages")
+            .insert(pendingMessages);
+          if (backfillError) {
+            console.error("Failed to backfill draft messages:", backfillError.message);
+            setHistoryError(
+              "Some earlier messages could not be saved. Please keep this page open and try again."
+            );
+          }
+        }
       }
     }
 
@@ -245,10 +388,15 @@ export default function StudentDashboard() {
       )
     );
     if (chatId !== DRAFT_ID) {
-      supabase
+      const { error: msgError } = await supabase
         .from("messages")
-        .insert({ conversation_id: chatId, role: "user", content: userInput })
-        .then(() => {});
+        .insert({ conversation_id: chatId, role: "user", content: userInput });
+      if (msgError) {
+        console.error("Failed to save message:", msgError.message);
+        setHistoryError(
+          "Your latest message is visible but was not saved. Please retry before logging out."
+        );
+      }
     }
 
     let aiMsg;
@@ -267,6 +415,7 @@ export default function StudentDashboard() {
           body: JSON.stringify({
             question: userInput,
             history,
+            conversation_id: chatId !== DRAFT_ID ? chatId : null,
             model_variant: modelVariant,
             reasoning_effort: reasoningEffort,
           }),
@@ -280,7 +429,7 @@ export default function StudentDashboard() {
         escalated: res.escalated,
       };
       if (chatId !== DRAFT_ID) {
-        supabase
+        const { error: msgError } = await supabase
           .from("messages")
           .insert({
             conversation_id: chatId,
@@ -288,8 +437,13 @@ export default function StudentDashboard() {
             content: res.answer,
             sources: res.sources || [],
             escalated: res.escalated,
-          })
-          .then(() => {});
+          });
+        if (msgError) {
+          console.error("Failed to save message:", msgError.message);
+          setHistoryError(
+            "The AI reply is visible but was not saved. Please retry before logging out."
+          );
+        }
       }
     } catch (err) {
       // transient errors are shown but not saved into history;
@@ -319,7 +473,12 @@ export default function StudentDashboard() {
   };
 
   const handleLogout = async () => {
-    await logout();
+    if (loading) return;
+    const { error } = await logout();
+    if (error) {
+      setHistoryError("Logout failed. Please try again.");
+      return;
+    }
     navigate("/");
   };
 
@@ -701,6 +860,33 @@ export default function StudentDashboard() {
         </div>
       )}
 
+      {historyError && (
+        <div
+          onClick={() => setHistoryError(null)}
+          title="Dismiss"
+          style={{
+            position: "fixed",
+            top: hitlToast ? 72 : 18,
+            left: "50%",
+            transform: "translateX(-50%)",
+            zIndex: 1001,
+            background: "#7f1d1d",
+            color: "#fff",
+            border: "1px solid #ef4444",
+            borderRadius: 10,
+            padding: "11px 16px",
+            boxShadow: "0 6px 24px rgba(0,0,0,0.25)",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            maxWidth: "90vw",
+          }}
+        >
+          <AlertCircle size={16} /> {historyError}
+        </div>
+      )}
+
       {/* ── Sidebar ── */}
       {sidebarOpen && (
       <aside style={s.sidebar}>
@@ -800,6 +986,8 @@ export default function StudentDashboard() {
           <button
             style={s.logoutBtn}
             onClick={handleLogout}
+            disabled={loading}
+            title={loading ? "Please wait for the current reply to finish saving" : "Logout"}
             onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(239,68,68,0.16)")}
             onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(239,68,68,0.08)")}
           >
@@ -836,7 +1024,15 @@ export default function StudentDashboard() {
         </div>
 
         <div style={s.messagesArea}>
-          {messages.length === 0 && !loading ? (
+          {!historyReady ? (
+            <div style={s.welcome}>
+              <div style={s.welcomeIcon}>
+                <MessageSquare size={32} color="#16a34a" />
+              </div>
+              <h2 style={s.welcomeTitle}>Loading your saved chats...</h2>
+              <p style={s.welcomeDesc}>Please wait while your conversation history is restored.</p>
+            </div>
+          ) : messages.length === 0 && !loading ? (
             <div style={s.welcome}>
               <div style={s.welcomeIcon}>
                 <MessageSquare size={32} color="#16a34a" />
@@ -958,7 +1154,7 @@ export default function StudentDashboard() {
                 e.target.style.height = Math.min(e.target.scrollHeight, 140) + "px";
               }}
               onKeyDown={handleKeyDown}
-              disabled={loading}
+              disabled={loading || !historyReady}
               rows={1}
             />
 
@@ -1034,6 +1230,10 @@ export default function StudentDashboard() {
                         onClick={() => {
                           setModelVariant(key);
                           localStorage.setItem("ai_model", key);
+                          if (key === "r1") {
+                            setReasoningEffort("high");
+                            localStorage.setItem("ai_effort", "high");
+                          }
                         }}
                         style={{
                           width: "100%",
@@ -1102,11 +1302,11 @@ export default function StudentDashboard() {
               <button
                 style={{
                   ...s.sendBtn,
-                  opacity: (!input.trim() && !attachedFile) || loading ? 0.4 : 1,
-                  cursor: (!input.trim() && !attachedFile) || loading ? "not-allowed" : "pointer",
+                  opacity: (!input.trim() && !attachedFile) || loading || !historyReady ? 0.4 : 1,
+                  cursor: (!input.trim() && !attachedFile) || loading || !historyReady ? "not-allowed" : "pointer",
                 }}
                 onClick={handleSend}
-                disabled={(!input.trim() && !attachedFile) || loading}
+                disabled={(!input.trim() && !attachedFile) || loading || !historyReady}
               >
                 <Send size={16} color="#fff" />
               </button>

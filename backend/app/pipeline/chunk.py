@@ -43,4 +43,7 @@ def chunk_text(text: str) -> list[str]:
 
     if current:
         chunks.append(" ".join(current))
-    return [c for c in chunks if len(c.split()) >= 20]  # drop tiny fragments
+    # Drop tiny fragments — but never ALL of them: a short page (e.g. a
+    # one-line memo with a deadline) must still produce a searchable chunk.
+    kept = [c for c in chunks if len(c.split()) >= 20]
+    return kept or chunks

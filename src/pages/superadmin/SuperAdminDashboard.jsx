@@ -2,12 +2,16 @@ import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { supabase } from "../../lib/supabaseClient";
+import { apiFetch } from "../../lib/api";
 import {
   Shield, LogOut, AlertCircle, UserCheck, Users,
   Eye, Trash2, Mail, Phone, Clock, CheckCircle, XCircle, Search,
+  ChevronLeft, ChevronRight,
 } from "lucide-react";
 import { useTitle } from "../../hooks/useTitle";
 import ThemeToggle from "../../components/ThemeToggle";
+
+const PAGE_SIZE = 5;
 
 export default function SuperAdminDashboard() {
   const { logout } = useAuth();
@@ -15,41 +19,96 @@ export default function SuperAdminDashboard() {
   useTitle("Super Admin Portal");
 
   const [applications, setApplications] = useState([]);
+  const [totalItems, setTotalItems] = useState(0);
+  const [counts, setCounts] = useState({ pending: 0, approved: 0, total: 0 });
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState(null);
   const [tab, setTab] = useState("pending");
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [actionLoading, setActionLoading] = useState(false);
+  const [clearingPending, setClearingPending] = useState(false);
+  const [page, setPage] = useState(1);
 
   const fetchApplications = useCallback(async () => {
     setLoading(true);
-    const { data, error } = await supabase
+    const from = (page - 1) * PAGE_SIZE;
+    const to = page * PAGE_SIZE - 1;
+    let query = supabase
       .from("admin_applications")
-      .select("*")
+      .select("*", { count: "exact" })
       .order("created_at", { ascending: false });
-    if (!error) setApplications(data || []);
+
+    if (tab === "pending") {
+      query = query.eq("status", "pending");
+    } else {
+      // PostgREST filters have their own punctuation syntax. Removing those
+      // characters keeps user-entered search text from changing the filter.
+      const term = debouncedSearch
+        .trim()
+        .replace(/[%(),"]/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+      if (term) {
+        query = query.or(
+          `full_name.ilike.%${term}%,email.ilike.%${term}%,department.ilike.%${term}%,position.ilike.%${term}%`
+        );
+      }
+    }
+
+    const { data, count, error } = await query.range(from, to);
+    if (!error) {
+      setApplications(data || []);
+      setTotalItems(count || 0);
+    }
     setLoading(false);
+  }, [debouncedSearch, page, tab]);
+
+  const fetchCounts = useCallback(async () => {
+    const [pendingResult, approvedResult, totalResult] = await Promise.all([
+      supabase
+        .from("admin_applications")
+        .select("id", { count: "exact", head: true })
+        .eq("status", "pending"),
+      supabase
+        .from("admin_applications")
+        .select("id", { count: "exact", head: true })
+        .eq("status", "approved"),
+      supabase
+        .from("admin_applications")
+        .select("id", { count: "exact", head: true }),
+    ]);
+    if (!pendingResult.error && !approvedResult.error && !totalResult.error) {
+      setCounts({
+        pending: pendingResult.count || 0,
+        approved: approvedResult.count || 0,
+        total: totalResult.count || 0,
+      });
+    }
   }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(search), 300);
+    return () => clearTimeout(timer);
+  }, [search]);
 
   useEffect(() => {
     fetchApplications();
   }, [fetchApplications]);
 
+  useEffect(() => {
+    fetchCounts();
+  }, [fetchCounts]);
+
   const handleApprove = async (app) => {
     setActionLoading(true);
     try {
-      const { error: updateError } = await supabase
-        .from("admin_applications")
-        .update({ status: "approved" })
-        .eq("id", app.id);
-      if (updateError) throw updateError;
+      await apiFetch(`/api/admin-applications/${app.id}/review`, {
+        method: "POST",
+        body: JSON.stringify({ decision: "approved" }),
+      });
 
-      const { error: profileError } = await supabase
-        .from("profiles")
-        .upsert({ id: app.user_id, email: app.email, role: "admin" });
-      if (profileError) throw profileError;
-
-      await fetchApplications();
+      await Promise.all([fetchApplications(), fetchCounts()]);
       setSelected((prev) => (prev?.id === app.id ? { ...prev, status: "approved" } : prev));
     } catch (err) {
       alert("Error approving application: " + err.message);
@@ -61,13 +120,12 @@ export default function SuperAdminDashboard() {
   const handleReject = async (app) => {
     setActionLoading(true);
     try {
-      const { error } = await supabase
-        .from("admin_applications")
-        .update({ status: "rejected" })
-        .eq("id", app.id);
-      if (error) throw error;
+      await apiFetch(`/api/admin-applications/${app.id}/review`, {
+        method: "POST",
+        body: JSON.stringify({ decision: "rejected" }),
+      });
 
-      await fetchApplications();
+      await Promise.all([fetchApplications(), fetchCounts()]);
       setSelected((prev) => (prev?.id === app.id ? { ...prev, status: "rejected" } : prev));
     } catch (err) {
       alert("Error rejecting application: " + err.message);
@@ -86,7 +144,7 @@ export default function SuperAdminDashboard() {
         .eq("id", app.id);
       if (error) throw error;
 
-      setApplications((prev) => prev.filter((a) => a.id !== app.id));
+      await Promise.all([fetchApplications(), fetchCounts()]);
       if (selected?.id === app.id) setSelected(null);
     } catch (err) {
       alert("Error deleting application: " + err.message);
@@ -95,27 +153,40 @@ export default function SuperAdminDashboard() {
     }
   };
 
+  const handleClearPending = async () => {
+    if (counts.pending === 0 || clearingPending) return;
+    if (!window.confirm(`Delete all ${counts.pending} pending applications? This cannot be undone.`)) return;
+
+    setClearingPending(true);
+    try {
+      const { error } = await supabase
+        .from("admin_applications")
+        .delete()
+        .eq("status", "pending");
+      if (error) throw error;
+
+      setApplications([]);
+      setTotalItems(0);
+      await fetchCounts();
+      if (selected?.status === "pending") setSelected(null);
+      setPage(1);
+    } catch (err) {
+      alert("Error clearing pending applications: " + err.message);
+    } finally {
+      setClearingPending(false);
+    }
+  };
+
   const handleLogout = async () => {
     await logout();
     navigate("/");
   };
 
-  const pending = applications.filter((a) => a.status === "pending");
-  const approved = applications.filter((a) => a.status === "approved");
+  const totalPages = Math.max(1, Math.ceil(totalItems / PAGE_SIZE));
 
-  const filtered =
-    tab === "pending"
-      ? pending
-      : applications.filter((a) => {
-          if (!search.trim()) return true;
-          const q = search.toLowerCase();
-          return (
-            a.full_name?.toLowerCase().includes(q) ||
-            a.email?.toLowerCase().includes(q) ||
-            a.department?.toLowerCase().includes(q) ||
-            a.position?.toLowerCase().includes(q)
-          );
-        });
+  useEffect(() => {
+    setPage((current) => Math.min(current, totalPages));
+  }, [totalPages]);
 
   const formatDate = (d) => {
     if (!d) return "N/A";
@@ -268,6 +339,30 @@ export default function SuperAdminDashboard() {
 
   const statusAccent = (status) =>
     status === "approved" ? "#16a34a" : status === "rejected" ? "#ef4444" : "#f59e0b";
+
+  const Pagination = () => {
+    if (totalPages <= 1) return null;
+    const pageButton = (disabled) => ({
+      display: "flex", alignItems: "center", gap: "4px",
+      padding: "7px 10px", border: "1px solid rgba(22,163,74,0.25)",
+      borderRadius: "7px", background: "transparent",
+      color: disabled ? "var(--muted-2)" : "var(--foreground)",
+      cursor: disabled ? "not-allowed" : "pointer", fontFamily: "inherit",
+      fontSize: "12px", fontWeight: "600",
+    });
+
+    return (
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "10px", padding: "14px 20px" }}>
+        <button type="button" style={pageButton(page === 1)} disabled={page === 1} onClick={() => setPage(page - 1)}>
+          <ChevronLeft size={14} /> Previous
+        </button>
+        <span style={{ color: "var(--muted-foreground)", fontSize: "12px" }}>Page {page} of {totalPages}</span>
+        <button type="button" style={pageButton(page === totalPages)} disabled={page === totalPages} onClick={() => setPage(page + 1)}>
+          Next <ChevronRight size={14} />
+        </button>
+      </div>
+    );
+  };
 
   const s = {
     page: { background: "var(--background)", minHeight: "100vh", color: "var(--foreground)", fontFamily: "inherit" },
@@ -456,9 +551,9 @@ export default function SuperAdminDashboard() {
         {/* Stats */}
         <div style={s.statsRow}>
           {[
-            { label: "Pending Applications", value: pending.length, color: "#f59e0b", Icon: AlertCircle },
-            { label: "Approved Admins", value: approved.length, color: "#16a34a", Icon: UserCheck },
-            { label: "Total Applications", value: applications.length, color: "#16a34a", Icon: Users },
+            { label: "Pending Applications", value: counts.pending, color: "#f59e0b", Icon: AlertCircle },
+            { label: "Approved Admins", value: counts.approved, color: "#16a34a", Icon: UserCheck },
+            { label: "Total Applications", value: counts.total, color: "#16a34a", Icon: Users },
           ].map(({ label, value, color, Icon }) => (
             <div key={label} style={s.statCard}>
               <div>
@@ -477,14 +572,14 @@ export default function SuperAdminDashboard() {
         {/* Tabs */}
         <div style={s.tabs}>
           {[
-            { key: "pending", label: "Pending", badge: pending.length },
+            { key: "pending", label: "Pending", badge: counts.pending },
             { key: "all", label: "All Applications", badge: null },
           ].map(({ key, label, badge }) => {
             const active = tab === key;
             return (
               <button
                 key={key}
-                onClick={() => { setTab(key); setSelected(null); setSearch(""); }}
+                onClick={() => { setTab(key); setSelected(null); setSearch(""); setPage(1); }}
                 style={{
                   padding: "8px 18px",
                   borderRadius: "20px",
@@ -522,15 +617,34 @@ export default function SuperAdminDashboard() {
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px", alignItems: "start" }}>
           {/* Left: list */}
           <div style={s.panel}>
-            <div style={{ padding: "16px 20px", borderBottom: "1px solid rgba(22,163,74,0.1)" }}>
-              <p style={{ margin: 0, fontSize: "14px", fontWeight: "700", color: "var(--foreground)" }}>
-                {tab === "pending" ? "Admin Application Requests" : "All Applications"}
-              </p>
-              <p style={{ margin: "3px 0 0", fontSize: "12px", color: "var(--muted-foreground)" }}>
-                {tab === "pending"
-                  ? "Click an application to review and take action"
-                  : `${filtered.length} application${filtered.length !== 1 ? "s" : ""}`}
-              </p>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px", padding: "16px 20px", borderBottom: "1px solid rgba(22,163,74,0.1)" }}>
+              <div>
+                <p style={{ margin: 0, fontSize: "14px", fontWeight: "700", color: "var(--foreground)" }}>
+                  {tab === "pending" ? "Admin Application Requests" : "All Applications"}
+                </p>
+                <p style={{ margin: "3px 0 0", fontSize: "12px", color: "var(--muted-foreground)" }}>
+                  {tab === "pending"
+                    ? "Click an application to review and take action"
+                    : `${totalItems} application${totalItems !== 1 ? "s" : ""}`}
+                </p>
+              </div>
+              {tab === "pending" && counts.pending > 0 && (
+                <button
+                  type="button"
+                  disabled={clearingPending}
+                  onClick={handleClearPending}
+                  style={{
+                    display: "flex", alignItems: "center", gap: "5px", flexShrink: 0,
+                    padding: "7px 9px", border: "1px solid rgba(239,68,68,0.35)",
+                    borderRadius: "7px", background: "rgba(239,68,68,0.08)",
+                    color: "#f87171", cursor: clearingPending ? "not-allowed" : "pointer",
+                    fontFamily: "inherit", fontSize: "11px", fontWeight: "700",
+                    opacity: clearingPending ? 0.65 : 1,
+                  }}
+                >
+                  <Trash2 size={13} /> {clearingPending ? "Clearing..." : "Clear all"}
+                </button>
+              )}
             </div>
 
             {tab === "all" && (
@@ -556,7 +670,7 @@ export default function SuperAdminDashboard() {
                     }}
                     placeholder="Search by name, email, department..."
                     value={search}
-                    onChange={(e) => setSearch(e.target.value)}
+                    onChange={(e) => { setSearch(e.target.value); setPage(1); }}
                   />
                 </div>
               </div>
@@ -566,7 +680,7 @@ export default function SuperAdminDashboard() {
               <div style={{ padding: "40px", textAlign: "center", color: "var(--muted-foreground)", fontSize: "13px" }}>
                 Loading applications...
               </div>
-            ) : filtered.length === 0 ? (
+            ) : applications.length === 0 ? (
               <div style={s.emptyState}>
                 <div style={s.emptyIcon}>
                   <Users size={22} color="#16a34a" />
@@ -576,7 +690,7 @@ export default function SuperAdminDashboard() {
                 </p>
               </div>
             ) : (
-              filtered.map((app) => {
+              applications.map((app) => {
                 const isActive = selected?.id === app.id;
                 return (
                   <div
@@ -645,6 +759,7 @@ export default function SuperAdminDashboard() {
                 );
               })
             )}
+            {!loading && totalItems > 0 && <Pagination />}
           </div>
 
           {/* Right: detail */}

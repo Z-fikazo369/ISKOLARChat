@@ -54,17 +54,27 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const fetchRole = async (userId) => {
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", userId)
-      .single();
-
-    if (!error && data) {
-      setRole(data.role);
-    } else {
-      setRole(null);
+    // Retry transient query failures (network blips) so an authenticated user
+    // isn't bounced to "/" by a single failed profiles read.
+    let lastError = null;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      if (attempt > 0) await new Promise((r) => setTimeout(r, 600));
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", userId)
+        .maybeSingle();
+      if (!error) {
+        // only an actual empty result (no profile row) means "no role"
+        setRole(data ? data.role : null);
+        setLoading(false);
+        return;
+      }
+      lastError = error;
     }
+    // Query kept erroring while a session exists — keep the previous role
+    // instead of overwriting it with null.
+    console.error("Failed to fetch role:", lastError?.message);
     setLoading(false);
   };
 
@@ -73,7 +83,10 @@ export const AuthProvider = ({ children }) => {
     if (id) await fetchRole(id);
   };
 
-  const logout = () => supabase.auth.signOut();
+  // scope: "local" — only end THIS tab's session; a global sign-out would
+  // revoke the refresh tokens of the user's other per-tab sessions
+  // (see the per-tab isolation setup in src/lib/supabaseClient.js).
+  const logout = () => supabase.auth.signOut({ scope: "local" });
 
   return (
     <AuthContext.Provider value={{ user, role, loading, logout, refreshRole }}>

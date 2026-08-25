@@ -11,22 +11,6 @@
 
 
 -- ============================================================
--- HELPER FUNCTION (prevents circular reference in RLS policies)
--- SET search_path hardens the SECURITY DEFINER function against
--- search_path hijacking.
--- ============================================================
-CREATE OR REPLACE FUNCTION get_my_role()
-RETURNS TEXT
-LANGUAGE SQL
-SECURITY DEFINER
-SET search_path = public
-STABLE
-AS $$
-  SELECT role FROM public.profiles WHERE id = auth.uid()
-$$;
-
-
--- ============================================================
 -- PROFILES
 -- ============================================================
 CREATE TABLE IF NOT EXISTS profiles (
@@ -37,6 +21,19 @@ CREATE TABLE IF NOT EXISTS profiles (
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- This helper must be created after profiles. Creating the SQL function before
+-- its referenced table makes a clean migration fail on a brand-new project.
+-- Migration 0011 later moves the helper out of the exposed public schema.
+CREATE OR REPLACE FUNCTION get_my_role()
+RETURNS TEXT
+LANGUAGE SQL
+SECURITY DEFINER
+SET search_path = ''
+STABLE
+AS $$
+  SELECT role FROM public.profiles WHERE id = auth.uid()
+$$;
 
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 
@@ -117,11 +114,15 @@ CREATE TABLE IF NOT EXISTS admin_applications (
   phone TEXT NOT NULL,
   reason TEXT NOT NULL,
   status TEXT CHECK (status IN ('pending', 'approved', 'rejected')) DEFAULT 'pending',
+  reviewed_by UUID REFERENCES auth.users(id) ON DELETE SET NULL,
+  reviewed_at TIMESTAMPTZ,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 ALTER TABLE admin_applications ADD COLUMN IF NOT EXISTS email TEXT;
+ALTER TABLE admin_applications ADD COLUMN IF NOT EXISTS reviewed_by UUID REFERENCES auth.users(id) ON DELETE SET NULL;
+ALTER TABLE admin_applications ADD COLUMN IF NOT EXISTS reviewed_at TIMESTAMPTZ;
 
 ALTER TABLE admin_applications ENABLE ROW LEVEL SECURITY;
 
@@ -195,9 +196,11 @@ CREATE TABLE IF NOT EXISTS documents (
   name TEXT NOT NULL,
   size BIGINT DEFAULT 0,
   file_path TEXT NOT NULL,
-  status TEXT DEFAULT 'processing' CHECK (status IN ('processing', 'ready', 'failed')),
+  status TEXT DEFAULT 'queued' CHECK (status IN ('queued', 'processing', 'ready', 'failed')),
   error TEXT,
   chunk_count INTEGER DEFAULT 0,
+  processing_started_at TIMESTAMPTZ,
+  attempt_count INTEGER NOT NULL DEFAULT 0,
   uploaded_by UUID REFERENCES auth.users(id) ON DELETE SET NULL,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -205,9 +208,12 @@ CREATE TABLE IF NOT EXISTS documents (
 -- Upgrade path if the old documents table already exists
 ALTER TABLE documents ADD COLUMN IF NOT EXISTS error TEXT;
 ALTER TABLE documents ADD COLUMN IF NOT EXISTS chunk_count INTEGER DEFAULT 0;
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS processing_started_at TIMESTAMPTZ;
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS attempt_count INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE documents ALTER COLUMN status SET DEFAULT 'queued';
 ALTER TABLE documents DROP CONSTRAINT IF EXISTS documents_status_check;
 ALTER TABLE documents ADD CONSTRAINT documents_status_check
-  CHECK (status IN ('processing', 'ready', 'failed'));
+  CHECK (status IN ('queued', 'processing', 'ready', 'failed'));
 
 ALTER TABLE documents ENABLE ROW LEVEL SECURITY;
 

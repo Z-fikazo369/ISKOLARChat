@@ -16,7 +16,7 @@ BUCKET = "documents"
 
 
 def ingest_document(document_id: str) -> None:
-    """Runs as a FastAPI background task; reports status via the documents row."""
+    """Process a document claimed by the durable ingestion worker."""
     sb = get_supabase()
     try:
         row = (
@@ -51,25 +51,57 @@ def ingest_document(document_id: str) -> None:
             raise ValueError("No extractable text found in the PDF.")
 
         vectorstore.ensure_collection()
-        vectorstore.upsert_chunks(chunks, embeddings.embed_documents([c["text"] for c in chunks]))
-        bm25.rebuild_index()
+        vectors = embeddings.embed_documents([c["text"] for c in chunks])
+
+        # The admin may have deleted the document while we were extracting/
+        # embedding — indexing now would leave orphaned chunks with no owning
+        # row, permanently answering questions from a "deleted" document.
+        still_there = (
+            sb.table("documents").select("id").eq("id", document_id).maybe_single().execute()
+        )
+        if not still_there or not still_there.data:
+            logger.info("Document %s was deleted mid-ingest; skipping indexing", document_id)
+            return
+
+        # Drop any chunks from a previous ingest run first, so a re-ingest of a
+        # shorter document doesn't leave stale trailing chunks behind.
+        vectorstore.delete_document_chunks(document_id)
+        vectorstore.upsert_chunks(chunks, vectors)
+        bm25.rebuild_and_publish()
 
         sb.table("documents").update(
-            {"status": "ready", "chunk_count": len(chunks), "error": None}
+            {
+                "status": "ready",
+                "chunk_count": len(chunks),
+                "error": None,
+                "processing_started_at": None,
+            }
         ).eq("id", document_id).execute()
         logger.info("Ingested %s (%d chunks)", row["name"], len(chunks))
 
     except Exception as exc:
         logger.exception("Ingestion failed for document %s", document_id)
-        sb.table("documents").update(
-            {"status": "failed", "error": str(exc)[:500]}
-        ).eq("id", document_id).execute()
+        try:
+            sb.table("documents").update(
+                {
+                    "status": "failed",
+                    "error": str(exc)[:500],
+                    "processing_started_at": None,
+                }
+            ).eq("id", document_id).execute()
+        except Exception:
+            # If Supabase itself is the failing dependency, don't let the
+            # status update raise inside the background task too.
+            logger.exception("Could not mark document %s as failed", document_id)
 
 
 def ingest_hitl_answer(request_id: str, question: str, answer: str) -> None:
     """Phase 1 Step 4 — Knowledge Loop: re-ingest an admin-verified answer."""
     text = f"Question: {question}\nVerified answer: {answer}"
     vectorstore.ensure_collection()
+    # Re-resolving (e.g. fixing a typo in the answer) must replace the old
+    # chunk, not add a second one alongside it.
+    vectorstore.delete_document_chunks(f"hitl_{request_id}")
     vectorstore.upsert_chunks(
         [
             {
@@ -83,4 +115,4 @@ def ingest_hitl_answer(request_id: str, question: str, answer: str) -> None:
         ],
         embeddings.embed_documents([text]),
     )
-    bm25.rebuild_index()
+    bm25.rebuild_and_publish()

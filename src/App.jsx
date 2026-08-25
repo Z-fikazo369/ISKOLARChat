@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -6,49 +7,52 @@ import {
 } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 
-// Pages
-import Home from "./pages/Home";
-import StudentLogin from "./pages/auth/StudentLogin";
-import StudentSignup from "./pages/auth/StudentSignup";
-import AdminLogin from "./pages/auth/AdminLogin";
-import AdminApply from "./pages/auth/AdminApply";
-import SuperAdminLogin from "./pages/auth/SuperAdminLogin";
-import AuthCallback from "./pages/auth/AuthCallback";
-import StudentDashboard from "./pages/student/StudentDashboard";
-import AdminDashboard from "./pages/admin/AdminDashboard";
-import SuperAdminDashboard from "./pages/superadmin/SuperAdminDashboard";
-import CompareView from "./pages/eval/CompareView";
+// Route-level chunks keep the landing/login download small. Heavy dashboards
+// and the thesis comparison view load only when their route is opened.
+const Home = lazy(() => import("./pages/Home"));
+const StudentLogin = lazy(() => import("./pages/auth/StudentLogin"));
+const StudentSignup = lazy(() => import("./pages/auth/StudentSignup"));
+const AdminLogin = lazy(() => import("./pages/auth/AdminLogin"));
+const AdminApply = lazy(() => import("./pages/auth/AdminApply"));
+const SuperAdminLogin = lazy(() => import("./pages/auth/SuperAdminLogin"));
+const AuthCallback = lazy(() => import("./pages/auth/AuthCallback"));
+const StudentDashboard = lazy(() => import("./pages/student/StudentDashboard"));
+const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
+const SuperAdminDashboard = lazy(() => import("./pages/superadmin/SuperAdminDashboard"));
+const CompareView = lazy(() => import("./pages/eval/CompareView"));
+const compareViewEnabled = import.meta.env.VITE_COMPARE_VIEW_ENABLED === "true";
+
+const LoadingScreen = () => (
+  <div
+    style={{
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      height: "100vh",
+      background: "var(--background)",
+      color: "var(--muted-foreground)",
+      gap: "12px",
+    }}
+  >
+    <div
+      style={{
+        width: "24px",
+        height: "24px",
+        border: "2px solid rgba(22, 163, 74, 0.2)",
+        borderTop: "2px solid #16a34a",
+        borderRadius: "50%",
+        animation: "spin 0.8s linear infinite",
+      }}
+    />
+    <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+    Loading...
+  </div>
+);
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user, role, loading } = useAuth();
 
-  if (loading)
-    return (
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100vh",
-          background: "var(--background)",
-          color: "var(--muted-foreground)",
-          gap: "12px",
-        }}
-      >
-        <div
-          style={{
-            width: "24px",
-            height: "24px",
-            border: "2px solid rgba(22, 163, 74, 0.2)",
-            borderTop: "2px solid #16a34a",
-            borderRadius: "50%",
-            animation: "spin 0.8s linear infinite",
-          }}
-        />
-        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-        Loading...
-      </div>
-    );
+  if (loading) return <LoadingScreen />;
 
   if (!user) return <Navigate to="/" replace />;
   if (allowedRoles && !allowedRoles.includes(role))
@@ -61,15 +65,26 @@ export default function App() {
   return (
     <AuthProvider>
       <Router>
-        <Routes>
+        <Suspense fallback={<LoadingScreen />}>
+          <Routes>
           <Route path="/" element={<Home />} />
 
           {/* Auth callback — handles OAuth redirect & email confirmation */}
           <Route path="/auth/callback" element={<AuthCallback />} />
 
-          {/* Retrieval comparison (Objective 2) — unlinked transparency view for
-              the thesis panel; read-only, not exposed in any user-facing nav */}
-          <Route path="/compare" element={<CompareView />} />
+          {compareViewEnabled && (
+            <Route
+              path="/compare"
+              element={
+                // The comparison API requires a valid login and applies its own
+                // strict rate limit. Keep the page authenticated, but do not add
+                // a frontend-only role restriction that disagrees with it.
+                <ProtectedRoute>
+                  <CompareView />
+                </ProtectedRoute>
+              }
+            />
+          )}
 
           {/* Student Routes */}
           <Route path="/student/login" element={<StudentLogin />} />
@@ -107,7 +122,8 @@ export default function App() {
           />
 
           <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
+          </Routes>
+        </Suspense>
       </Router>
     </AuthProvider>
   );
