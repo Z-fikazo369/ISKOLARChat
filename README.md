@@ -69,7 +69,7 @@ flowchart TD
 ### 1. Supabase
 
 Create a project, then run the migrations in the SQL Editor, in order:
-`supabase/migrations/0001_consolidated_schema.sql` → `0002_chat_history.sql` → `0003_query_actions.sql` → `0004_admin_application_trigger.sql` → `0005_hitl_conversation_link.sql` → `0006_document_queue_status.sql` → `0007_shared_rate_limits.sql` → `0008_durable_document_ingestion.sql` → `0009_knowledge_index_version.sql` → `0010_atomic_admin_review.sql` → `0011_production_security_hardening.sql`
+`supabase/0001_consolidated_schema.sql` → `0002_chat_history.sql` → `0003_query_actions.sql` → `0004_admin_application_trigger.sql` → `0005_hitl_conversation_link.sql` → `0006_document_queue_status.sql` → `0007_shared_rate_limits.sql` → `0008_durable_document_ingestion.sql` → `0009_knowledge_index_version.sql` → `0010_atomic_admin_review.sql` → `0011_production_security_hardening.sql`
 
 Create a superadmin: Dashboard → Authentication → Add user (auto-confirm), then:
 

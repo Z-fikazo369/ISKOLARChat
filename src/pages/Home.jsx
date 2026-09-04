@@ -20,6 +20,9 @@ function ChatDemo() {
 
   useEffect(() => {
     const timer = setInterval(() => {
+      // Skip the work while the tab is backgrounded — the animation is
+      // invisible there and the timer only burns CPU/battery.
+      if (document.hidden) return;
       setStep((s) => (s >= SCRIPT.length * 2 + 2 ? 0 : s + 1));
     }, 1400);
     return () => clearInterval(timer);

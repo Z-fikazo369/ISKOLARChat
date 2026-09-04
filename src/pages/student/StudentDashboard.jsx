@@ -38,9 +38,17 @@ export default function StudentDashboard() {
   const [historyError, setHistoryError] = useState(null);
 
   // Live view of chats for async callbacks (the HITL poll below needs the
-  // current chat list without re-subscribing on every state change).
+  // current chat list without re-subscribing on every state change). Updated
+  // in an effect — writing refs during render is unsafe when React discards
+  // a concurrently-rendered tree.
   const chatsRef = useRef(chats);
-  chatsRef.current = chats;
+  const currentChatIdRef = useRef(currentChatId);
+  useEffect(() => {
+    chatsRef.current = chats;
+  }, [chats]);
+  useEffect(() => {
+    currentChatIdRef.current = currentChatId;
+  }, [currentChatId]);
 
   // Load saved conversations (with messages) on mount.
   // Depends on user.id (not the user object): AuthContext emits a new user
@@ -182,8 +190,39 @@ export default function StudentDashboard() {
       }
       if (cancelled || error || !data) return;
       const seen = getSeen();
-      const fresh = data.filter((r) => r.admin_response && !seen.has(r.id));
-      if (!fresh.length) return;
+      // Seed the seen set from already-persisted answers in the DB. A fresh
+      // login (new browser / cleared localStorage) would otherwise treat every
+      // historically-answered request as "fresh" and re-surface old admin
+      // answers. Each persisted assistant message carries the originating
+      // chat_request id via hitl_request_id, so this is the durable,
+      // cross-device source of truth for what has already been delivered.
+      const persistedIds = new Set(
+        chatsRef.current
+          .flatMap((c) => c.messages)
+          .map((m) => m.hitlRequestId)
+          .filter(Boolean)
+      );
+      let seenChanged = false;
+      persistedIds.forEach((id) => {
+        if (!seen.has(id)) {
+          seen.add(id);
+          seenChanged = true;
+        }
+      });
+      // Prune remembered ids the server no longer returns (deleted requests)
+      // so the localStorage set can't grow without bound.
+      const validIds = new Set(data.map((r) => r.id));
+      [...seen].forEach((id) => {
+        if (!validIds.has(id)) seen.delete(id);
+      });
+      const fresh = data.filter(
+        (r) => r.admin_response && !seen.has(r.id) && !persistedIds.has(r.id)
+      );
+      if (!fresh.length) {
+        if (seenChanged)
+          localStorage.setItem(SEEN_KEY, JSON.stringify([...seen]));
+        return;
+      }
       const ordered = [...fresh].reverse(); // oldest first → reads in order
       // Persist each answer to the messages table BEFORE marking it seen —
       // otherwise a refresh loses the verified answer forever. Failed inserts
@@ -191,22 +230,35 @@ export default function StudentDashboard() {
       // no conversations row yet, so persistence is only possible for real
       // conversations.)
       const delivered = [];
-      let seenChanged = false;
       for (const r of ordered) {
+        // Only deliver to the request's originating conversation. If that chat
+        // is missing (deleted, or a legacy row with conversation_id = null from
+        // before migration 0005), the answer is stale/orphaned — mark it seen
+        // and skip instead of injecting it into an unrelated chat. Routing
+        // legacy answers into the "New Chat" draft or the currently-open chat
+        // is what caused old verified answers to surface right after login.
         const targetId = chatsRef.current.some((c) => c.id === r.conversation_id)
           ? r.conversation_id
-          : chatsRef.current.some((c) => c.id === currentChatId)
-            ? currentChatId
-            : chatsRef.current[0]?.id;
-        if (!targetId) continue;
-
-        const target = chatsRef.current.find((c) => c.id === targetId);
-        if (target?.messages.some((m) => m.hitlRequestId === r.id)) {
+          : null;
+        if (!targetId) {
           seen.add(r.id);
           seenChanged = true;
           continue;
         }
 
+        const target = chatsRef.current.find((c) => c.id === targetId);
+        if (target?.messages.some((m) => m.hitlRequestId === r.id)) {
+          // Only mark seen when the displayed copy lives in a REAL
+          // conversation — a draft chat exists only in local state, and
+          // marking it seen would silently drop the answer on refresh.
+          if (targetId !== DRAFT_ID) {
+            seen.add(r.id);
+            seenChanged = true;
+          }
+          continue;
+        }
+
+        let persisted = false;
         if (targetId && targetId !== DRAFT_ID) {
           let { error: insertError } = await supabase
             .from("messages")
@@ -236,10 +288,16 @@ export default function StudentDashboard() {
             console.error("Failed to persist admin answer:", insertError.message);
             continue; // retry on the next poll
           }
+          persisted = true;
         }
         delivered.push({ ...r, targetId });
-        seen.add(r.id);
-        seenChanged = true;
+        // Mark seen ONLY when durably persisted. A draft-only delivery stays
+        // unmarked so the answer resurfaces (and can be persisted) later,
+        // instead of being permanently lost on refresh.
+        if (persisted) {
+          seen.add(r.id);
+          seenChanged = true;
+        }
       }
       if (seenChanged) {
         localStorage.setItem(SEEN_KEY, JSON.stringify([...seen]));
@@ -281,7 +339,9 @@ export default function StudentDashboard() {
       cancelled = true;
       window.clearInterval(iv);
     };
-  }, [user?.id, currentChatId, historyReady]);
+    // currentChatId is read through a ref — re-subscribing the whole poll on
+    // every chat switch fired a redundant query and reset the 25s timer.
+  }, [user?.id, historyReady]);
 
   const handleNewChat = () => {
     // reuse the existing empty draft instead of stacking empty chats
@@ -312,6 +372,10 @@ export default function StudentDashboard() {
   };
 
   const handleSend = async () => {
+    // Re-entrancy guard: the disabled UI is the first line of defense, but
+    // the Enter key or an accessibility tool can still fire mid-request —
+    // a second send would create a duplicate conversation first-message.
+    if (loading) return;
     if (!historyReady || (!input.trim() && !attachedFile)) return;
 
     const userInput = input.trim();

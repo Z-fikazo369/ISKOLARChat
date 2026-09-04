@@ -60,6 +60,13 @@ class Settings:
     # database RPC is temporarily unavailable, the backend falls back locally.
     rate_limit_backend: str = os.getenv("RATE_LIMIT_BACKEND", "supabase").strip().lower()
 
+    # Trust X-Forwarded-For for IP-based rate limiting. Only enable when the
+    # backend runs behind a reverse proxy that sets the header — the header is
+    # trivially spoofable when the API is reachable directly.
+    trust_proxy_headers: bool = os.getenv("TRUST_PROXY_HEADERS", "false").strip().lower() in (
+        "1", "true", "yes", "on"
+    )
+
     # Durable document-ingestion worker. Each backend instance may run one;
     # Supabase atomically assigns a job to only one worker.
     document_worker_enabled: bool = os.getenv("DOCUMENT_WORKER_ENABLED", "true").strip().lower() in (

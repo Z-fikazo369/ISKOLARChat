@@ -12,7 +12,17 @@ from ..config import get_settings
 
 def _split_long(words: list[str], size: int, overlap: int) -> list[str]:
     step = max(size - overlap, 1)
-    return [" ".join(words[i : i + size]) for i in range(0, len(words), step)]
+    pieces: list[str] = []
+    i = 0
+    while True:
+        pieces.append(" ".join(words[i : i + size]))
+        # Stop once this window reaches the end of the text. A fixed
+        # range(0, len(words), step) could emit a final window that was
+        # entirely a duplicate of the previous chunk's overlap tail.
+        if i + size >= len(words):
+            break
+        i += step
+    return pieces
 
 
 def chunk_text(text: str) -> list[str]:

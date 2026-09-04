@@ -24,6 +24,14 @@ _bm25: BM25Okapi | None = None
 _chunks: list[dict] = []
 _known_version: int | None = None
 _last_version_check = 0.0
+# Set whenever a rebuild happens; used for the periodic self-heal below.
+_last_rebuild_ts = time.monotonic()
+
+# Self-heal interval: if another instance crashes between its Qdrant upsert
+# and the shared version bump, versions match but this index is stale, and
+# nothing would ever trigger a rebuild. A periodic unconditional rebuild
+# closes that window at the cost of one Qdrant scroll per interval.
+_SELF_HEAL_SECONDS = 900.0
 
 _token_re = re.compile(r"[a-z0-9]+")
 
@@ -34,7 +42,7 @@ def _tokenize(text: str) -> list[str]:
 
 def rebuild_index(shared_version: int | None = None) -> int:
     """Reload all chunks from Qdrant and rebuild BM25. Returns chunk count."""
-    global _bm25, _chunks, _known_version
+    global _bm25, _chunks, _known_version, _last_rebuild_ts
     chunks = vectorstore.scroll_all_chunks()
     corpus = [_tokenize(c.get("text", "")) for c in chunks]
     with _lock:
@@ -42,6 +50,7 @@ def rebuild_index(shared_version: int | None = None) -> int:
         _bm25 = BM25Okapi(corpus) if corpus else None
         if shared_version is not None:
             _known_version = shared_version
+        _last_rebuild_ts = time.monotonic()
     return len(chunks)
 
 
@@ -105,7 +114,14 @@ def sync_if_needed(force: bool = False) -> bool:
         try:
             shared_version = _read_shared_version()
             with _lock:
-                needs_rebuild = force or _known_version != shared_version
+                needs_rebuild = (
+                    force
+                    or _known_version != shared_version
+                    # Self-heal: another instance's crash between its Qdrant
+                    # upsert and the version bump leaves matching versions
+                    # with different content — rebuild periodically anyway.
+                    or (time.monotonic() - _last_rebuild_ts > _SELF_HEAL_SECONDS)
+                )
             if needs_rebuild:
                 count = rebuild_index(shared_version=shared_version)
                 logger.info(

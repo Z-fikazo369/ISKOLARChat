@@ -30,7 +30,7 @@ pip install -r requirements.txt
 
 Required accounts/keys:
 1. **Supabase** — project URL + `service_role` key (Settings → API). Run
-   every file in `supabase/migrations/` in numeric order in the SQL Editor first.
+   every file in `supabase/` in numeric order in the SQL Editor first.
 2. **Qdrant Cloud** — free cluster at cloud.qdrant.io.
 3. **Cohere** — trial key at dashboard.cohere.com.
 4. **Google AI Studio** — Gemini API key; model modes are configured through

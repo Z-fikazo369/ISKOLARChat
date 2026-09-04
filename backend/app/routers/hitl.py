@@ -20,11 +20,18 @@ class ResolveRequest(BaseModel):
 @router.post("/{request_id}/resolve")
 def resolve(request_id: str, body: ResolveRequest, admin: dict = Depends(require_admin)) -> dict:
     """Phase 1 Steps 3-4 — store the admin answer and re-ingest it as a
-    knowledge chunk so future queries are answered automatically."""
+    knowledge chunk so future queries are answered automatically.
+
+    Re-resolving an ANSWERED request is allowed on purpose (fixing a typo in
+    the answer replaces the old chunk — ingest_hitl_answer is idempotent).
+    A REJECTED request must stay rejected: resurrecting dismissed spam would
+    silently re-ingest it into the knowledge base."""
     sb = get_supabase()
     row = sb.table("chat_requests").select("*").eq("id", request_id).maybe_single().execute()
     if not row or not row.data:
         raise HTTPException(404, "Chat request not found")
+    if row.data.get("status") == "rejected":
+        raise HTTPException(409, "This query was rejected and cannot be answered.")
 
     answer = body.answer.strip()
 
@@ -40,27 +47,59 @@ def resolve(request_id: str, body: ResolveRequest, admin: dict = Depends(require
             "Couldn't save the answer to the knowledge base — please try again.",
         )
 
-    sb.table("chat_requests").update(
-        {
-            "status": "answered",
-            "admin_response": answer,
-            "responded_by": admin["id"],
-            "answer_ingested": True,
-        }
-    ).eq("id", request_id).execute()
+    try:
+        updated = (
+            sb.table("chat_requests")
+            .update(
+                {
+                    "status": "answered",
+                    "admin_response": answer,
+                    "responded_by": admin["id"],
+                    "answer_ingested": True,
+                }
+            )
+            .eq("id", request_id)
+            .in_("status", ["pending", "answered"])  # CAS: a concurrent
+            # reject/delete between our read and this write must win instead.
+            .execute()
+        )
+    except Exception as exc:
+        # The chunk is already in the knowledge base, but the row still says
+        # pending — loud log + retry is safe because the ingest above is
+        # idempotent.
+        logger.exception(
+            "Answer ingested for HITL query %s but the row update failed", request_id
+        )
+        raise HTTPException(
+            503, "The request service is temporarily unavailable. Please retry."
+        ) from exc
+    if not updated.data:
+        raise HTTPException(409, "This query was rejected or deleted in the meantime.")
     return {"status": "answered", "ingested": True}
 
 
 @router.post("/{request_id}/reject")
 def reject(request_id: str, admin: dict = Depends(require_admin)) -> dict:
-    """Dismiss a query (spam/out-of-scope) without answering or ingesting."""
+    """Dismiss a query (spam/out-of-scope) without answering or ingesting.
+
+    Only PENDING requests can be rejected: rejecting an answered one would
+    hide it from the student while its answer chunk keeps living in the
+    knowledge base (delete_request exists for that cleanup)."""
     sb = get_supabase()
-    row = sb.table("chat_requests").select("id").eq("id", request_id).maybe_single().execute()
+    row = sb.table("chat_requests").select("id, status").eq("id", request_id).maybe_single().execute()
     if not row or not row.data:
         raise HTTPException(404, "Chat request not found")
-    sb.table("chat_requests").update(
-        {"status": "rejected", "responded_by": admin["id"]}
-    ).eq("id", request_id).execute()
+    if row.data.get("status") != "pending":
+        raise HTTPException(409, "Only pending queries can be rejected.")
+    try:
+        sb.table("chat_requests").update(
+            {"status": "rejected", "responded_by": admin["id"]}
+        ).eq("id", request_id).eq("status", "pending").execute()
+    except Exception as exc:
+        logger.exception("Reject failed for HITL query %s", request_id)
+        raise HTTPException(
+            503, "The request service is temporarily unavailable. Please retry."
+        ) from exc
     return {"status": "rejected"}
 
 
@@ -97,5 +136,11 @@ def delete_request(request_id: str, _admin: dict = Depends(require_admin)) -> di
     except Exception:
         logger.exception("Knowledge-base cleanup failed for HITL query %s", request_id)
 
-    sb.table("chat_requests").delete().eq("id", request_id).execute()
+    try:
+        sb.table("chat_requests").delete().eq("id", request_id).execute()
+    except Exception as exc:
+        logger.exception("Row delete failed for HITL query %s", request_id)
+        raise HTTPException(
+            503, "The request service is temporarily unavailable. Please retry."
+        ) from exc
     return {"status": "deleted"}

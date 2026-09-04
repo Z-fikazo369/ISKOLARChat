@@ -12,25 +12,41 @@ if (!API_URL) {
   }
 }
 
+// Generous cap — LLM answers are slow, but a fully hung backend must not
+// leave the chat spinner (and its promise) pending forever.
+const DEFAULT_TIMEOUT_MS = 120_000;
+
 export async function apiFetch(path, options = {}) {
   const {
     data: { session },
   } = await supabase.auth.getSession();
 
-  const res = await fetch(`${API_URL}${path}`, {
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...(session ? { Authorization: `Bearer ${session.access_token}` } : {}),
-      ...options.headers,
-    },
-  });
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), DEFAULT_TIMEOUT_MS);
+  try {
+    const res = await fetch(`${API_URL}${path}`, {
+      ...options,
+      signal: controller.signal,
+      headers: {
+        "Content-Type": "application/json",
+        ...(session ? { Authorization: `Bearer ${session.access_token}` } : {}),
+        ...options.headers,
+      },
+    });
 
-  if (!res.ok) {
-    const body = await res.json().catch(() => ({}));
-    throw new Error(body.detail || `Request failed (${res.status})`);
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      throw new Error(body.detail || `Request failed (${res.status})`);
+    }
+    return res.json();
+  } catch (err) {
+    if (err.name === "AbortError") {
+      throw new Error("The request timed out. Please try again.");
+    }
+    throw err;
+  } finally {
+    clearTimeout(timeout);
   }
-  return res.json();
 }
 
 // multipart upload — same auth, but the browser sets the Content-Type
@@ -40,15 +56,27 @@ export async function apiUpload(path, formData) {
     data: { session },
   } = await supabase.auth.getSession();
 
-  const res = await fetch(`${API_URL}${path}`, {
-    method: "POST",
-    headers: session ? { Authorization: `Bearer ${session.access_token}` } : {},
-    body: formData,
-  });
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), DEFAULT_TIMEOUT_MS);
+  try {
+    const res = await fetch(`${API_URL}${path}`, {
+      method: "POST",
+      signal: controller.signal,
+      headers: session ? { Authorization: `Bearer ${session.access_token}` } : {},
+      body: formData,
+    });
 
-  if (!res.ok) {
-    const body = await res.json().catch(() => ({}));
-    throw new Error(body.detail || `Request failed (${res.status})`);
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      throw new Error(body.detail || `Request failed (${res.status})`);
+    }
+    return res.json();
+  } catch (err) {
+    if (err.name === "AbortError") {
+      throw new Error("The upload timed out. Please try again.");
+    }
+    throw err;
+  } finally {
+    clearTimeout(timeout);
   }
-  return res.json();
 }

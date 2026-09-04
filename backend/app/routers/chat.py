@@ -88,7 +88,9 @@ def chat(body: ChatRequest, user: dict = Depends(rate_limit("chat", 15))) -> Cha
 
 @router.post("/chat/file", response_model=ChatResponse)
 def chat_with_file(
-    question: str = Form(""),
+    question: str = Form("", max_length=4000),  # same cap as /api/chat — a
+    # multipart field is not Pydantic-validated, so without this a huge
+    # "question" would balloon the LLM prompt and the cost per request.
     file: UploadFile = File(...),
     user: dict = Depends(rate_limit("file", 6)),
 ) -> ChatResponse:
@@ -188,12 +190,14 @@ def _answer_about_image(filename: str, data: bytes, question: str) -> ChatRespon
         try:
             answer, reasoning = llm.ask_about_image(q, data_url, system=_IMAGE_PERSONA)
         except Exception:
-            raise HTTPException(502, "Couldn't analyze the image. Please try again.")
+            logger.exception("Vision-model image analysis failed")
+            raise HTTPException(503, _UPSTREAM_ERROR)
     elif s.moondream_api_key:
         # Fallback: Moondream VQA (fine for photos, weak on dense documents)
         visual_answer = caption.query_image(data, q)
         if visual_answer is None:
-            raise HTTPException(502, "Couldn't analyze the image. Please try again.")
+            logger.warning("Moondream image analysis returned no answer")
+            raise HTTPException(503, _UPSTREAM_ERROR)
         try:
             answer, reasoning = llm.chat(
                 [

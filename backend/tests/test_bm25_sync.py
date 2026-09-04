@@ -1,5 +1,6 @@
 from types import SimpleNamespace
 from unittest.mock import MagicMock
+import time
 
 import pytest
 
@@ -13,12 +14,15 @@ def reset_bm25_state():
         bm25._chunks = []
         bm25._known_version = None
         bm25._last_version_check = 0.0
+        # "Just rebuilt" — the skip test must not trip the self-heal timer.
+        bm25._last_rebuild_ts = time.monotonic()
     yield
     with bm25._lock:
         bm25._bm25 = None
         bm25._chunks = []
         bm25._known_version = None
         bm25._last_version_check = 0.0
+        bm25._last_rebuild_ts = time.monotonic()
 
 
 def _settings():

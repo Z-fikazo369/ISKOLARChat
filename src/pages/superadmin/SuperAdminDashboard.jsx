@@ -13,6 +13,334 @@ import ThemeToggle from "../../components/ThemeToggle";
 
 const PAGE_SIZE = 5;
 
+// ── Module-level helpers & subcomponents ────────────────────────────────────
+// These used to be defined INSIDE the dashboard component, so every parent
+// re-render (poll, typing in search) recreated their component types —
+// remounting the whole subtree each time. At module scope they stay stable.
+
+const formatDate = (d) => {
+  if (!d) return "N/A";
+  return new Date(d).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+};
+
+const statusAccent = (status) =>
+  status === "approved" ? "#16a34a" : status === "rejected" ? "#ef4444" : "#f59e0b";
+
+const StatusBadge = ({ status }) => {
+  const cfg = {
+    pending: { color: "#f59e0b", bg: "rgba(245,158,11,0.12)", border: "rgba(245,158,11,0.3)", label: "Pending" },
+    approved: { color: "#16a34a", bg: "rgba(22,163,74,0.12)", border: "rgba(22,163,74,0.3)", label: "Approved" },
+    rejected: { color: "#ef4444", bg: "rgba(239,68,68,0.12)", border: "rgba(239,68,68,0.3)", label: "Rejected" },
+  }[status] || { color: "var(--muted-foreground)", bg: "transparent", border: "var(--muted-foreground)", label: status };
+
+  return (
+    <span
+      style={{
+        background: cfg.bg,
+        border: `1px solid ${cfg.border}`,
+        color: cfg.color,
+        padding: "3px 10px",
+        borderRadius: "20px",
+        fontSize: "11px",
+        fontWeight: "700",
+        textTransform: "uppercase",
+        letterSpacing: "0.4px",
+        whiteSpace: "nowrap",
+      }}
+    >
+      {cfg.label}
+    </span>
+  );
+};
+
+const Field = ({ label, value }) => (
+  <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+    <span style={s.detailLabel}>{label}</span>
+    <span style={s.detailValue}>{value || "—"}</span>
+  </div>
+);
+
+const DetailPanel = ({ app, latestApp, actionLoading, onApprove, onReject, onDelete }) => {
+  const latest = latestApp || app;
+
+  if (!latest) {
+    return (
+      <div style={s.panel}>
+        <div style={s.emptyState}>
+          <div style={s.emptyIcon}>
+            <Eye size={22} color="#16a34a" />
+          </div>
+          <p style={{ margin: 0, fontSize: "14px", fontWeight: "600", color: "var(--muted-2)" }}>
+            Select an application to view details
+          </p>
+          <p style={{ margin: "6px 0 0", fontSize: "12px", color: "var(--muted-2)" }}>
+            Click any application on the left
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div style={s.panel}>
+      <div style={{ padding: "16px 20px", borderBottom: "1px solid rgba(22,163,74,0.1)" }}>
+        <p style={{ margin: 0, fontSize: "14px", fontWeight: "700", color: "#16a34a" }}>
+          Application Details
+        </p>
+      </div>
+      <div style={{ padding: "20px" }}>
+        <div style={s.detailGrid}>
+          <Field label="Full Name" value={latest.full_name} />
+          <Field label="Employee ID" value={latest.employee_id} />
+          <Field label="Department" value={latest.department} />
+          <Field label="Position" value={latest.position} />
+
+          <div style={{ gridColumn: "1 / -1" }}>
+            <span style={s.detailLabel}>Email</span>
+            <span style={{ ...s.detailValue, display: "flex", alignItems: "center", gap: "6px", marginTop: "4px" }}>
+              <Mail size={13} color="var(--muted-foreground)" />
+              {latest.email || "—"}
+            </span>
+          </div>
+
+          <div style={{ gridColumn: "1 / -1" }}>
+            <span style={s.detailLabel}>Phone</span>
+            <span style={{ ...s.detailValue, display: "flex", alignItems: "center", gap: "6px", marginTop: "4px" }}>
+              <Phone size={13} color="var(--muted-foreground)" />
+              {latest.phone}
+            </span>
+          </div>
+
+          <div style={{ gridColumn: "1 / -1" }}>
+            <span style={s.detailLabel}>Reason for Admin Access</span>
+            <div style={s.reasonBox}>{latest.reason}</div>
+          </div>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+            <span style={s.detailLabel}>Applied At</span>
+            <span style={{ ...s.detailValue, display: "flex", alignItems: "center", gap: "6px" }}>
+              <Clock size={13} color="var(--muted-foreground)" />
+              {formatDate(latest.created_at)}
+            </span>
+          </div>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+            <span style={s.detailLabel}>Status</span>
+            <StatusBadge status={latest.status} />
+          </div>
+        </div>
+
+        <div style={{ marginTop: "20px", paddingTop: "16px", borderTop: "1px solid var(--border-soft)" }}>
+          {latest.status === "pending" ? (
+            <div style={{ display: "flex", gap: "10px" }}>
+              <button
+                style={{ ...s.approveBtn, opacity: actionLoading ? 0.6 : 1 }}
+                onClick={() => onApprove(latest)}
+                disabled={actionLoading}
+              >
+                <CheckCircle size={15} />
+                {actionLoading ? "Processing..." : "Approve"}
+              </button>
+              <button
+                style={{ ...s.rejectBtn, opacity: actionLoading ? 0.6 : 1 }}
+                onClick={() => onReject(latest)}
+                disabled={actionLoading}
+              >
+                <XCircle size={15} />
+                {actionLoading ? "Processing..." : "Reject"}
+              </button>
+            </div>
+          ) : (
+            <button
+              style={{ ...s.deleteBtn, opacity: actionLoading ? 0.6 : 1 }}
+              onClick={() => onDelete(latest)}
+              disabled={actionLoading}
+            >
+              <Trash2 size={15} />
+              Delete Application
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const Pagination = ({ page, totalPages, onPageChange }) => {
+  if (totalPages <= 1) return null;
+  const pageButton = (disabled) => ({
+    display: "flex", alignItems: "center", gap: "4px",
+    padding: "7px 10px", border: "1px solid rgba(22,163,74,0.25)",
+    borderRadius: "7px", background: "transparent",
+    color: disabled ? "var(--muted-2)" : "var(--foreground)",
+    cursor: disabled ? "not-allowed" : "pointer", fontFamily: "inherit",
+    fontSize: "12px", fontWeight: "600",
+  });
+
+  return (
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "10px", padding: "14px 20px" }}>
+      <button type="button" style={pageButton(page === 1)} disabled={page === 1} onClick={() => onPageChange(page - 1)}>
+        <ChevronLeft size={14} /> Previous
+      </button>
+      <span style={{ color: "var(--muted-foreground)", fontSize: "12px" }}>Page {page} of {totalPages}</span>
+      <button type="button" style={pageButton(page === totalPages)} disabled={page === totalPages} onClick={() => onPageChange(page + 1)}>
+        Next <ChevronRight size={14} />
+      </button>
+    </div>
+  );
+};
+
+// Module-level styles — a plain constant object, safe to share across renders.
+const s = {
+  page: { background: "var(--background)", minHeight: "100vh", color: "var(--foreground)", fontFamily: "inherit" },
+  nav: {
+    background: "var(--nav-bg)",
+    borderBottom: "1px solid rgba(22,163,74,0.15)",
+    padding: "14px 28px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    position: "sticky",
+    top: 0,
+    zIndex: 50,
+    backdropFilter: "blur(10px)",
+  },
+  navIcon: {
+    width: "38px", height: "38px", borderRadius: "50%",
+    background: "rgba(22,163,74,0.15)",
+    border: "1px solid rgba(22,163,74,0.35)",
+    display: "flex", alignItems: "center", justifyContent: "center",
+  },
+  logoutBtn: {
+    background: "rgba(239,68,68,0.08)",
+    border: "1px solid rgba(239,68,68,0.3)",
+    borderRadius: "8px",
+    color: "#f87171",
+    fontSize: "14px",
+    fontWeight: "600",
+    padding: "9px 18px",
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    fontFamily: "inherit",
+  },
+  main: { padding: "28px", maxWidth: "1400px", margin: "0 auto" },
+  statsRow: { display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "16px", marginBottom: "24px" },
+  statCard: {
+    background: "rgba(22,163,74,0.04)",
+    border: "1px solid rgba(22,163,74,0.15)",
+    borderRadius: "12px",
+    padding: "20px 24px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  statIcon: {
+    width: "48px", height: "48px", borderRadius: "50%",
+    background: "rgba(22,163,74,0.12)",
+    border: "1px solid rgba(22,163,74,0.25)",
+    display: "flex", alignItems: "center", justifyContent: "center",
+    flexShrink: 0,
+  },
+  tabs: { display: "flex", gap: "8px", marginBottom: "20px" },
+  panel: {
+    background: "rgba(22,163,74,0.03)",
+    border: "1px solid rgba(22,163,74,0.12)",
+    borderRadius: "12px",
+    overflow: "hidden",
+  },
+  emptyState: { padding: "60px 24px", textAlign: "center", color: "var(--muted-foreground)" },
+  emptyIcon: {
+    width: "52px", height: "52px", borderRadius: "50%",
+    background: "rgba(22,163,74,0.08)",
+    border: "1px solid rgba(22,163,74,0.15)",
+    display: "flex", alignItems: "center", justifyContent: "center",
+    margin: "0 auto 12px",
+  },
+  detailGrid: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" },
+  detailLabel: {
+    display: "block",
+    fontSize: "10px",
+    fontWeight: "700",
+    color: "var(--muted-foreground)",
+    textTransform: "uppercase",
+    letterSpacing: "0.5px",
+  },
+  detailValue: { fontSize: "13px", color: "var(--foreground)", fontWeight: "500" },
+  reasonBox: {
+    background: "var(--input-bg)",
+    border: "1px solid var(--border-soft)",
+    borderRadius: "8px",
+    padding: "12px",
+    fontSize: "13px",
+    color: "var(--text-secondary)",
+    lineHeight: "1.6",
+    marginTop: "4px",
+  },
+  approveBtn: {
+    flex: 1,
+    padding: "11px",
+    background: "#16a34a",
+    color: "#fff",
+    border: "none",
+    borderRadius: "8px",
+    fontSize: "13px",
+    fontWeight: "700",
+    cursor: "pointer",
+    fontFamily: "inherit",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "6px",
+  },
+  rejectBtn: {
+    flex: 1,
+    padding: "11px",
+    background: "transparent",
+    color: "#f87171",
+    border: "1px solid rgba(239,68,68,0.4)",
+    borderRadius: "8px",
+    fontSize: "13px",
+    fontWeight: "700",
+    cursor: "pointer",
+    fontFamily: "inherit",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "6px",
+  },
+  deleteBtn: {
+    width: "100%",
+    padding: "11px",
+    background: "transparent",
+    color: "#f87171",
+    border: "1px solid rgba(239,68,68,0.4)",
+    borderRadius: "8px",
+    fontSize: "13px",
+    fontWeight: "700",
+    cursor: "pointer",
+    fontFamily: "inherit",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "6px",
+  },
+  iconBtn: {
+    background: "transparent",
+    border: "none",
+    padding: "4px",
+    cursor: "pointer",
+    borderRadius: "4px",
+    display: "flex",
+    lineHeight: 1,
+  },
+};
+
 export default function SuperAdminDashboard() {
   const { logout } = useAuth();
   const navigate = useNavigate();
@@ -29,6 +357,9 @@ export default function SuperAdminDashboard() {
   const [actionLoading, setActionLoading] = useState(false);
   const [clearingPending, setClearingPending] = useState(false);
   const [page, setPage] = useState(1);
+  // "Load failed" must look different from "no applications" — a superadmin
+  // seeing an empty pending list may approve/reject based on stale data.
+  const [fetchError, setFetchError] = useState(null);
 
   const fetchApplications = useCallback(async () => {
     setLoading(true);
@@ -60,6 +391,9 @@ export default function SuperAdminDashboard() {
     if (!error) {
       setApplications(data || []);
       setTotalItems(count || 0);
+      setFetchError(null);
+    } else {
+      setFetchError("Applications could not be loaded. The list below may be out of date.");
     }
     setLoading(false);
   }, [debouncedSearch, page, tab]);
@@ -188,328 +522,6 @@ export default function SuperAdminDashboard() {
     setPage((current) => Math.min(current, totalPages));
   }, [totalPages]);
 
-  const formatDate = (d) => {
-    if (!d) return "N/A";
-    return new Date(d).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
-  };
-
-  const StatusBadge = ({ status }) => {
-    const cfg = {
-      pending: { color: "#f59e0b", bg: "rgba(245,158,11,0.12)", border: "rgba(245,158,11,0.3)", label: "Pending" },
-      approved: { color: "#16a34a", bg: "rgba(22,163,74,0.12)", border: "rgba(22,163,74,0.3)", label: "Approved" },
-      rejected: { color: "#ef4444", bg: "rgba(239,68,68,0.12)", border: "rgba(239,68,68,0.3)", label: "Rejected" },
-    }[status] || { color: "var(--muted-foreground)", bg: "transparent", border: "var(--muted-foreground)", label: status };
-
-    return (
-      <span
-        style={{
-          background: cfg.bg,
-          border: `1px solid ${cfg.border}`,
-          color: cfg.color,
-          padding: "3px 10px",
-          borderRadius: "20px",
-          fontSize: "11px",
-          fontWeight: "700",
-          textTransform: "uppercase",
-          letterSpacing: "0.4px",
-          whiteSpace: "nowrap",
-        }}
-      >
-        {cfg.label}
-      </span>
-    );
-  };
-
-  const DetailPanel = ({ app }) => {
-    const latest = applications.find((a) => a.id === app?.id) || app;
-
-    if (!latest) {
-      return (
-        <div style={s.panel}>
-          <div style={s.emptyState}>
-            <div style={s.emptyIcon}>
-              <Eye size={22} color="#16a34a" />
-            </div>
-            <p style={{ margin: 0, fontSize: "14px", fontWeight: "600", color: "var(--muted-2)" }}>
-              Select an application to view details
-            </p>
-            <p style={{ margin: "6px 0 0", fontSize: "12px", color: "var(--muted-2)" }}>
-              Click any application on the left
-            </p>
-          </div>
-        </div>
-      );
-    }
-
-    return (
-      <div style={s.panel}>
-        <div style={{ padding: "16px 20px", borderBottom: "1px solid rgba(22,163,74,0.1)" }}>
-          <p style={{ margin: 0, fontSize: "14px", fontWeight: "700", color: "#16a34a" }}>
-            Application Details
-          </p>
-        </div>
-        <div style={{ padding: "20px" }}>
-          <div style={s.detailGrid}>
-            <Field label="Full Name" value={latest.full_name} />
-            <Field label="Employee ID" value={latest.employee_id} />
-            <Field label="Department" value={latest.department} />
-            <Field label="Position" value={latest.position} />
-
-            <div style={{ gridColumn: "1 / -1" }}>
-              <span style={s.detailLabel}>Email</span>
-              <span style={{ ...s.detailValue, display: "flex", alignItems: "center", gap: "6px", marginTop: "4px" }}>
-                <Mail size={13} color="var(--muted-foreground)" />
-                {latest.email || "—"}
-              </span>
-            </div>
-
-            <div style={{ gridColumn: "1 / -1" }}>
-              <span style={s.detailLabel}>Phone</span>
-              <span style={{ ...s.detailValue, display: "flex", alignItems: "center", gap: "6px", marginTop: "4px" }}>
-                <Phone size={13} color="var(--muted-foreground)" />
-                {latest.phone}
-              </span>
-            </div>
-
-            <div style={{ gridColumn: "1 / -1" }}>
-              <span style={s.detailLabel}>Reason for Admin Access</span>
-              <div style={s.reasonBox}>{latest.reason}</div>
-            </div>
-
-            <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-              <span style={s.detailLabel}>Applied At</span>
-              <span style={{ ...s.detailValue, display: "flex", alignItems: "center", gap: "6px" }}>
-                <Clock size={13} color="var(--muted-foreground)" />
-                {formatDate(latest.created_at)}
-              </span>
-            </div>
-
-            <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-              <span style={s.detailLabel}>Status</span>
-              <StatusBadge status={latest.status} />
-            </div>
-          </div>
-
-          <div style={{ marginTop: "20px", paddingTop: "16px", borderTop: "1px solid var(--border-soft)" }}>
-            {latest.status === "pending" ? (
-              <div style={{ display: "flex", gap: "10px" }}>
-                <button
-                  style={{ ...s.approveBtn, opacity: actionLoading ? 0.6 : 1 }}
-                  onClick={() => handleApprove(latest)}
-                  disabled={actionLoading}
-                >
-                  <CheckCircle size={15} />
-                  {actionLoading ? "Processing..." : "Approve"}
-                </button>
-                <button
-                  style={{ ...s.rejectBtn, opacity: actionLoading ? 0.6 : 1 }}
-                  onClick={() => handleReject(latest)}
-                  disabled={actionLoading}
-                >
-                  <XCircle size={15} />
-                  {actionLoading ? "Processing..." : "Reject"}
-                </button>
-              </div>
-            ) : (
-              <button
-                style={{ ...s.deleteBtn, opacity: actionLoading ? 0.6 : 1 }}
-                onClick={() => handleDelete(latest)}
-                disabled={actionLoading}
-              >
-                <Trash2 size={15} />
-                Delete Application
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  const Field = ({ label, value }) => (
-    <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-      <span style={s.detailLabel}>{label}</span>
-      <span style={s.detailValue}>{value || "—"}</span>
-    </div>
-  );
-
-  const statusAccent = (status) =>
-    status === "approved" ? "#16a34a" : status === "rejected" ? "#ef4444" : "#f59e0b";
-
-  const Pagination = () => {
-    if (totalPages <= 1) return null;
-    const pageButton = (disabled) => ({
-      display: "flex", alignItems: "center", gap: "4px",
-      padding: "7px 10px", border: "1px solid rgba(22,163,74,0.25)",
-      borderRadius: "7px", background: "transparent",
-      color: disabled ? "var(--muted-2)" : "var(--foreground)",
-      cursor: disabled ? "not-allowed" : "pointer", fontFamily: "inherit",
-      fontSize: "12px", fontWeight: "600",
-    });
-
-    return (
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "10px", padding: "14px 20px" }}>
-        <button type="button" style={pageButton(page === 1)} disabled={page === 1} onClick={() => setPage(page - 1)}>
-          <ChevronLeft size={14} /> Previous
-        </button>
-        <span style={{ color: "var(--muted-foreground)", fontSize: "12px" }}>Page {page} of {totalPages}</span>
-        <button type="button" style={pageButton(page === totalPages)} disabled={page === totalPages} onClick={() => setPage(page + 1)}>
-          Next <ChevronRight size={14} />
-        </button>
-      </div>
-    );
-  };
-
-  const s = {
-    page: { background: "var(--background)", minHeight: "100vh", color: "var(--foreground)", fontFamily: "inherit" },
-    nav: {
-      background: "var(--nav-bg)",
-      borderBottom: "1px solid rgba(22,163,74,0.15)",
-      padding: "14px 28px",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "space-between",
-      position: "sticky",
-      top: 0,
-      zIndex: 50,
-      backdropFilter: "blur(10px)",
-    },
-    navIcon: {
-      width: "38px", height: "38px", borderRadius: "50%",
-      background: "rgba(22,163,74,0.15)",
-      border: "1px solid rgba(22,163,74,0.35)",
-      display: "flex", alignItems: "center", justifyContent: "center",
-    },
-    logoutBtn: {
-      background: "rgba(239,68,68,0.08)",
-      border: "1px solid rgba(239,68,68,0.3)",
-      borderRadius: "8px",
-      color: "#f87171",
-      fontSize: "14px",
-      fontWeight: "600",
-      padding: "9px 18px",
-      cursor: "pointer",
-      display: "flex",
-      alignItems: "center",
-      gap: "8px",
-      fontFamily: "inherit",
-    },
-    main: { padding: "28px", maxWidth: "1400px", margin: "0 auto" },
-    statsRow: { display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "16px", marginBottom: "24px" },
-    statCard: {
-      background: "rgba(22,163,74,0.04)",
-      border: "1px solid rgba(22,163,74,0.15)",
-      borderRadius: "12px",
-      padding: "20px 24px",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "space-between",
-    },
-    statIcon: {
-      width: "48px", height: "48px", borderRadius: "50%",
-      background: "rgba(22,163,74,0.12)",
-      border: "1px solid rgba(22,163,74,0.25)",
-      display: "flex", alignItems: "center", justifyContent: "center",
-      flexShrink: 0,
-    },
-    tabs: { display: "flex", gap: "8px", marginBottom: "20px" },
-    panel: {
-      background: "rgba(22,163,74,0.03)",
-      border: "1px solid rgba(22,163,74,0.12)",
-      borderRadius: "12px",
-      overflow: "hidden",
-    },
-    emptyState: { padding: "60px 24px", textAlign: "center", color: "var(--muted-foreground)" },
-    emptyIcon: {
-      width: "52px", height: "52px", borderRadius: "50%",
-      background: "rgba(22,163,74,0.08)",
-      border: "1px solid rgba(22,163,74,0.15)",
-      display: "flex", alignItems: "center", justifyContent: "center",
-      margin: "0 auto 12px",
-    },
-    detailGrid: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" },
-    detailLabel: {
-      display: "block",
-      fontSize: "10px",
-      fontWeight: "700",
-      color: "var(--muted-foreground)",
-      textTransform: "uppercase",
-      letterSpacing: "0.5px",
-    },
-    detailValue: { fontSize: "13px", color: "var(--foreground)", fontWeight: "500" },
-    reasonBox: {
-      background: "var(--input-bg)",
-      border: "1px solid var(--border-soft)",
-      borderRadius: "8px",
-      padding: "12px",
-      fontSize: "13px",
-      color: "var(--text-secondary)",
-      lineHeight: "1.6",
-      marginTop: "4px",
-    },
-    approveBtn: {
-      flex: 1,
-      padding: "11px",
-      background: "#16a34a",
-      color: "#fff",
-      border: "none",
-      borderRadius: "8px",
-      fontSize: "13px",
-      fontWeight: "700",
-      cursor: "pointer",
-      fontFamily: "inherit",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      gap: "6px",
-    },
-    rejectBtn: {
-      flex: 1,
-      padding: "11px",
-      background: "transparent",
-      color: "#f87171",
-      border: "1px solid rgba(239,68,68,0.4)",
-      borderRadius: "8px",
-      fontSize: "13px",
-      fontWeight: "700",
-      cursor: "pointer",
-      fontFamily: "inherit",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      gap: "6px",
-    },
-    deleteBtn: {
-      width: "100%",
-      padding: "11px",
-      background: "transparent",
-      color: "#f87171",
-      border: "1px solid rgba(239,68,68,0.4)",
-      borderRadius: "8px",
-      fontSize: "13px",
-      fontWeight: "700",
-      cursor: "pointer",
-      fontFamily: "inherit",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      gap: "6px",
-    },
-    iconBtn: {
-      background: "transparent",
-      border: "none",
-      padding: "4px",
-      cursor: "pointer",
-      borderRadius: "4px",
-      display: "flex",
-      lineHeight: 1,
-    },
-  };
-
   return (
     <div style={s.page}>
       {/* Navbar */}
@@ -548,6 +560,41 @@ export default function SuperAdminDashboard() {
       </nav>
 
       <div style={s.main}>
+        {fetchError && (
+          <div
+            style={{
+              background: "rgba(245,158,11,0.08)",
+              border: "1px solid rgba(245,158,11,0.35)",
+              color: "#b45309",
+              padding: "10px 14px",
+              borderRadius: "8px",
+              fontSize: "13px",
+              marginBottom: "16px",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              gap: "10px",
+            }}
+          >
+            <span>{fetchError}</span>
+            <button
+              onClick={() => fetchApplications()}
+              style={{
+                background: "none",
+                border: "none",
+                color: "#b45309",
+                fontWeight: "600",
+                cursor: "pointer",
+                fontSize: "13px",
+                textDecoration: "underline",
+                fontFamily: "inherit",
+              }}
+            >
+              Retry
+            </button>
+          </div>
+        )}
+
         {/* Stats */}
         <div style={s.statsRow}>
           {[
@@ -759,11 +806,20 @@ export default function SuperAdminDashboard() {
                 );
               })
             )}
-            {!loading && totalItems > 0 && <Pagination />}
+            {!loading && totalItems > 0 && (
+              <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
+            )}
           </div>
 
           {/* Right: detail */}
-          <DetailPanel app={selected} />
+          <DetailPanel
+            app={selected}
+            latestApp={applications.find((a) => a.id === selected?.id) || selected}
+            actionLoading={actionLoading}
+            onApprove={handleApprove}
+            onReject={handleReject}
+            onDelete={handleDelete}
+          />
         </div>
       </div>
     </div>

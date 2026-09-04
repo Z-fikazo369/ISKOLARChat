@@ -15,7 +15,9 @@ isolated from the live chat flow:
     eval harness.
 
 This router is disabled by default because it returns full retrieval traces
-and performs several paid provider calls. When enabled, login is still required.
+and performs several paid provider calls. When enabled, admin access is still
+required (each run fires two full LLM pipelines — naive + agentic — so
+students must not be able to trigger it on demand).
 """
 
 from concurrent.futures import ThreadPoolExecutor
@@ -26,6 +28,7 @@ from pydantic import BaseModel, Field
 from ..agent import graph as agent
 from ..agent.baseline import run_baseline
 from ..config import get_settings
+from ..deps.auth import require_admin
 from ..deps.ratelimit import rate_limit
 
 router = APIRouter(prefix="/api", tags=["compare"])
@@ -125,9 +128,10 @@ def _run_agentic(question: str) -> dict:
 
 
 # Each request fires several paid LLM/embedding calls, so enabled deployments
-# still authenticate and rate-limit each account.
+# require an admin account (server-side — the React route gate only mirrors
+# this) and rate-limit each request.
 @router.post("/compare", dependencies=[Depends(rate_limit("compare", 5))])
-def compare(body: CompareRequest) -> dict:
+def compare(body: CompareRequest, _admin: dict = Depends(require_admin)) -> dict:
     """Run both systems on the same question (concurrently) and return their
     retrieval traces + answers for side-by-side display."""
     question = body.question.strip()

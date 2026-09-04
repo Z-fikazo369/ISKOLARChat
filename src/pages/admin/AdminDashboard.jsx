@@ -98,6 +98,15 @@ export default function AdminDashboard() {
   const [resolvedCount, setResolvedCount] = useState(0);
   const [docsLoading, setDocsLoading] = useState(true);
   const [queriesLoading, setQueriesLoading] = useState(true);
+  // "Load failed" vs "no data" are very different states — an admin who sees
+  // "No pending applications" may act on stale information when the truth is
+  // that the query failed.
+  const [docsError, setDocsError] = useState(null);
+  const [queriesError, setQueriesError] = useState(null);
+  // In-flight guards: a slow silent poll must not overlap the next one, or
+  // out-of-order responses can overwrite fresher data (last-write-wins).
+  const docsInFlight = useRef(false);
+  const queriesInFlight = useRef(false);
   const [uploading, setUploading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
   const [activeQuery, setActiveQuery] = useState(null);
@@ -110,6 +119,8 @@ export default function AdminDashboard() {
   const fileInputRef = useRef(null);
 
   const fetchDocuments = useCallback(async ({ silent = false } = {}) => {
+    if (docsInFlight.current) return;
+    docsInFlight.current = true;
     if (!silent) setDocsLoading(true);
     const { from, to } = pageRange(documentsPage);
     const { data, count, error } = await supabase
@@ -120,11 +131,18 @@ export default function AdminDashboard() {
     if (!error) {
       setDocuments(data || []);
       setDocumentsCount(count || 0);
+      setDocsError(null);
+    } else {
+      // Keep the previous list, but tell the user it may be stale.
+      setDocsError("Documents could not be refreshed. The list below may be out of date.");
     }
     if (!silent) setDocsLoading(false);
+    docsInFlight.current = false;
   }, [documentsPage]);
 
   const fetchQueries = useCallback(async ({ silent = false } = {}) => {
+    if (queriesInFlight.current) return;
+    queriesInFlight.current = true;
     if (!silent) setQueriesLoading(true);
     const pendingRange = pageRange(pendingPage);
     const resolvedRange = pageRange(resolvedPage);
@@ -150,7 +168,13 @@ export default function AdminDashboard() {
       setResolved(resolvedResult.data || []);
       setResolvedCount(resolvedResult.count || 0);
     }
+    setQueriesError(
+      pendingResult.error || resolvedResult.error
+        ? "Queries could not be refreshed. The lists below may be out of date."
+        : null
+    );
     if (!silent) setQueriesLoading(false);
+    queriesInFlight.current = false;
   }, [pendingPage, resolvedPage]);
 
   useEffect(() => {
@@ -158,13 +182,22 @@ export default function AdminDashboard() {
     fetchQueries();
   }, [fetchDocuments, fetchQueries]);
 
-  // Auto-refresh every 4s while any document is queued or processing,
-  // so its status flips to "Ready" without a manual reload.
+  // Auto-refresh every 4s while any document is queued or processing, so its
+  // status flips to "Ready" without a manual reload. The "active docs" check
+  // reads a ref instead of being an effect dependency — depending on
+  // `documents` tore down and recreated the interval on every poll response.
+  const hasActiveDocsRef = useRef(false);
   useEffect(() => {
-    if (!documents.some((d) => d.status === "queued" || d.status === "processing")) return;
-    const timer = setInterval(() => fetchDocuments({ silent: true }), 4000);
+    hasActiveDocsRef.current = documents.some(
+      (d) => d.status === "queued" || d.status === "processing" || d.status === "deleting"
+    );
+  }, [documents]);
+  useEffect(() => {
+    const timer = setInterval(() => {
+      if (hasActiveDocsRef.current) fetchDocuments({ silent: true });
+    }, 4000);
     return () => clearInterval(timer);
-  }, [documents, fetchDocuments]);
+  }, [fetchDocuments]);
 
   // Poll HITL queries every 8s so new escalations appear (and the badge
   // updates) without a manual refresh.
@@ -473,6 +506,8 @@ export default function AdminDashboard() {
         ? { color: "#ef4444", bg: "rgba(239,68,68,0.1)", border: "rgba(239,68,68,0.3)", label: "Failed" }
         : status === "rejected"
         ? { color: "#ef4444", bg: "rgba(239,68,68,0.1)", border: "rgba(239,68,68,0.3)", label: "Rejected" }
+        : status === "deleting"
+        ? { color: "#f59e0b", bg: "rgba(245,158,11,0.1)", border: "rgba(245,158,11,0.3)", label: "Deleting" }
         : { color: "#f59e0b", bg: "rgba(245,158,11,0.1)", border: "rgba(245,158,11,0.3)", label: status === "processing" ? "Processing" : "Pending" };
     return (
       <span
@@ -574,6 +609,77 @@ export default function AdminDashboard() {
       </nav>
 
       <div style={s.main}>
+        {/* Load failures must be visible — otherwise a failed refresh looks
+            exactly like "no documents / no pending queries". */}
+        {docsError && (
+          <div
+            style={{
+              background: "rgba(245,158,11,0.08)",
+              border: "1px solid rgba(245,158,11,0.35)",
+              color: "#b45309",
+              padding: "10px 14px",
+              borderRadius: "8px",
+              fontSize: "13px",
+              marginBottom: "12px",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              gap: "10px",
+            }}
+          >
+            <span>{docsError}</span>
+            <button
+              onClick={() => fetchDocuments()}
+              style={{
+                background: "none",
+                border: "none",
+                color: "#b45309",
+                fontWeight: "600",
+                cursor: "pointer",
+                fontSize: "13px",
+                textDecoration: "underline",
+                fontFamily: "inherit",
+              }}
+            >
+              Retry
+            </button>
+          </div>
+        )}
+        {queriesError && (
+          <div
+            style={{
+              background: "rgba(245,158,11,0.08)",
+              border: "1px solid rgba(245,158,11,0.35)",
+              color: "#b45309",
+              padding: "10px 14px",
+              borderRadius: "8px",
+              fontSize: "13px",
+              marginBottom: "12px",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              gap: "10px",
+            }}
+          >
+            <span>{queriesError}</span>
+            <button
+              onClick={() => fetchQueries()}
+              style={{
+                background: "none",
+                border: "none",
+                color: "#b45309",
+                fontWeight: "600",
+                cursor: "pointer",
+                fontSize: "13px",
+                textDecoration: "underline",
+                fontFamily: "inherit",
+              }}
+            >
+              Retry
+            </button>
+          </div>
+        )}
+
         {/* Tabs */}
         <div style={s.tabs}>
           <TabBtn id="documents" icon={FileText} label="Document Management" />
@@ -615,7 +721,13 @@ export default function AdminDashboard() {
                     multiple
                     accept=".pdf"
                     style={{ display: "none" }}
-                    onChange={(e) => handleUpload(e.target.files)}
+                    onChange={(e) => {
+                      handleUpload(e.target.files);
+                      // Reset so picking the SAME file again (e.g. retrying a
+                      // failed upload) still fires onChange — the browser
+                      // skips it if the value is unchanged.
+                      e.target.value = "";
+                    }}
                   />
                 </div>
               </div>

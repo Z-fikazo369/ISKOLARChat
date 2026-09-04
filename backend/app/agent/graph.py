@@ -245,15 +245,31 @@ def grade(state: AgentState) -> AgentState:
         model=s.grader_model,
     )
 
-    scores = result if isinstance(result, list) else []
+    scores = result if isinstance(result, list) else None
     relevant = []
+    parsed = 0
     for i, c in enumerate(candidates):
         try:
             score = float(scores[i])
+            parsed += 1
         except (IndexError, TypeError, ValueError):
             score = 0.0
         if score >= s.relevance_threshold:  # G(ci) = 1
             relevant.append({**c, "grade_score": score})
+
+    if not parsed and candidates:
+        # The grader itself failed (malformed JSON after chat_json's retries,
+        # or an upstream outage). Scoring every chunk 0 would escalate an
+        # answerable question to a human admin — the exact cascade the
+        # retries exist to prevent. Fail OPEN instead: keep the top candidates
+        # by retrieval rank (they are already RRF-ordered), which is exactly
+        # what the naive baseline would have used.
+        logger.warning(
+            "Grader returned no usable scores; falling back to top %d "
+            "candidates by retrieval rank",
+            s.final_top_k,
+        )
+        return {"relevant": candidates[: s.final_top_k]}
     return {"relevant": relevant}
 
 

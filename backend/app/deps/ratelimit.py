@@ -21,6 +21,11 @@ logger = logging.getLogger(__name__)
 
 _lock = threading.Lock()
 _hits: dict[tuple, deque] = defaultdict(deque)
+# Each key remembers its OWN scope's window — the eviction sweep must not
+# evaluate a 60s-scope key against the current request's window, or a short
+# window would evict still-active keys from longer scopes (silently raising
+# their effective limits).
+_windows: dict[tuple, int] = {}
 _MAX_KEYS = 4096  # sweep threshold so the dict can't grow without bound
 
 
@@ -36,12 +41,16 @@ def _check_memory(scope: str, key_id: str, max_requests: int, window_seconds: in
     key = (scope, key_id)
     with _lock:
         if len(_hits) > _MAX_KEYS:
-            # Evict keys whose window has fully expired (long-lived process,
-            # many distinct users — the dict would otherwise leak forever).
-            stale = [k for k, q in _hits.items() if not q or now - q[-1] > window_seconds]
+            # Evict keys whose own window has fully expired (long-lived
+            # process, many distinct users — the dict would otherwise leak).
+            stale = [
+                k for k, q in _hits.items() if not q or now - q[-1] > _windows.get(k, 0)
+            ]
             for k in stale:
                 del _hits[k]
+                _windows.pop(k, None)
         q = _hits[key]
+        _windows[key] = window_seconds
         while q and now - q[0] > window_seconds:
             q.popleft()
         if len(q) >= max_requests:
@@ -100,7 +109,17 @@ def rate_limit_ip(scope: str, max_requests: int, window_seconds: int = 60):
     by design (no login) yet still trigger paid LLM/embedding calls."""
 
     def dependency(request: Request) -> None:
-        ip = request.client.host if request.client else "unknown"
+        if get_settings().trust_proxy_headers:
+            # Behind a reverse proxy, request.client.host is the PROXY's
+            # address — every visitor would share one bucket. Only trust the
+            # forwarded chain when explicitly configured, because the header
+            # is client-spoofable otherwise.
+            ip = (
+                request.headers.get("x-forwarded-for", "").split(",")[0].strip()
+                or "unknown"
+            )
+        else:
+            ip = request.client.host if request.client else "unknown"
         _check(scope, ip, max_requests, window_seconds)
 
     return dependency

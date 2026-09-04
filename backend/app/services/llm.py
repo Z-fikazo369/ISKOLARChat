@@ -122,6 +122,20 @@ def ask_about_image(question: str, image_data_url: str, system: str | None = Non
     return content, (getattr(msg, "reasoning", None) or "").strip()
 
 
+def _first_json_span(text: str) -> str | None:
+    """Outermost JSON value embedded in prose: from the first [ or { to the
+    last matching closer of that bracket type."""
+    starts = [i for i in (text.find("["), text.find("{")) if i != -1]
+    if not starts:
+        return None
+    start = min(starts)
+    closer = "]" if text[start] == "[" else "}"
+    end = text.rfind(closer)
+    if end > start:
+        return text[start : end + 1]
+    return None
+
+
 def chat_json(messages: list[dict], model: str | None = None, retries: int = 1) -> dict | list | None:
     """Chat call whose reply is expected to be JSON; tolerates code fences
     and R1 thinking tags. Retries once on a malformed reply (a single grader
@@ -129,12 +143,20 @@ def chat_json(messages: list[dict], model: str | None = None, retries: int = 1) 
     parsing still fails."""
     for _ in range(retries + 1):
         content, _ = chat(messages, model=model, temperature=0.0)
-        content = re.sub(r"^```(?:json)?|```$", "", content.strip(), flags=re.MULTILINE).strip()
-        match = re.search(r"[\[{].*[\]}]", content, re.DOTALL)
-        if not match:
-            continue
-        try:
-            return json.loads(match.group(0))
-        except json.JSONDecodeError:
-            continue
+        text = content.strip()
+        # Strip ONE fence pair anchored to the WHOLE reply. Per-line stripping
+        # (re.MULTILINE) corrupted valid JSON whose string values contained
+        # ``` lines — e.g. document chunks being graded.
+        fenced = re.match(r"^```(?:json)?\s*(.*?)\s*```$", text, flags=re.DOTALL)
+        if fenced:
+            text = fenced.group(1)
+        # Direct parse first; fall back to the embedded span for prose-wrapped
+        # replies.
+        for candidate in (text, _first_json_span(text)):
+            if candidate is None:
+                continue
+            try:
+                return json.loads(candidate)
+            except json.JSONDecodeError:
+                continue
     return None

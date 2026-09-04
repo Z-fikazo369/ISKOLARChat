@@ -5,10 +5,13 @@ fails), captioning is skipped gracefully so ingestion never blocks on it.
 """
 
 import base64
+import logging
 
 import requests
 
 from ..config import get_settings
+
+logger = logging.getLogger(__name__)
 
 _API_URL = "https://api.moondream.ai/v1/caption"
 _QUERY_URL = "https://api.moondream.ai/v1/query"
@@ -34,7 +37,10 @@ def caption_image(image_bytes: bytes) -> str | None:
         )
         resp.raise_for_status()
         return resp.json().get("caption")
-    except Exception:
+    except Exception as exc:
+        # Still skip gracefully, but leave a trace — "captions never appear"
+        # was previously undiagnosable with a bare except.
+        logger.warning("Moondream captioning failed: %s", exc)
         return None
 
 
@@ -52,5 +58,6 @@ def query_image(image_bytes: bytes, question: str) -> str | None:
         )
         resp.raise_for_status()
         return resp.json().get("answer")
-    except Exception:
+    except Exception as exc:
+        logger.warning("Moondream VQA failed: %s", exc)
         return None

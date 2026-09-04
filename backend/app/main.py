@@ -16,6 +16,14 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
+def _warm_dependencies() -> None:
+    """Synchronous dependency warm-up — run off the event loop (below)."""
+    # Lightweight read verifies Supabase/PostgREST without changing data.
+    get_supabase().table("profiles").select("id").limit(1).execute()
+    vectorstore.ensure_collection()
+    bm25.sync_if_needed(force=True)
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     settings = get_settings()
@@ -29,10 +37,10 @@ async def lifespan(app: FastAPI):
     if invalid:
         logger.error("Invalid security configuration: %s", ", ".join(invalid))
     try:
-        # Lightweight read verifies Supabase/PostgREST without changing data.
-        get_supabase().table("profiles").select("id").limit(1).execute()
-        vectorstore.ensure_collection()
-        bm25.sync_if_needed(force=True)
+        # These are blocking network calls (plus a full BM25 scroll-rebuild) —
+        # running them directly on the event loop would freeze every request
+        # for the whole duration, so push them to a worker thread.
+        await asyncio.to_thread(_warm_dependencies)
         app.state.dependencies_ready = True
         logger.info("BM25 index ready")
     except Exception:

@@ -12,13 +12,25 @@ export const AuthProvider = ({ children }) => {
   const userIdRef = useRef(null);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      const u = session?.user ?? null;
-      userIdRef.current = u?.id ?? null;
-      setUser(u);
-      if (u) fetchRole(u.id);
-      else setLoading(false);
-    });
+    // A rejected getSession() promise would leave `loading` true forever,
+    // freezing the whole app behind the LoadingScreen — fail to "signed out"
+    // instead so the user can actually use the app.
+    supabase.auth
+      .getSession()
+      .then(({ data: { session } }) => {
+        const u = session?.user ?? null;
+        userIdRef.current = u?.id ?? null;
+        setUser(u);
+        if (u) fetchRole(u.id);
+        else setLoading(false);
+      })
+      .catch((err) => {
+        console.error("getSession failed:", err?.message);
+        userIdRef.current = null;
+        setUser(null);
+        setRole(null);
+        setLoading(false);
+      });
 
     const {
       data: { subscription },
@@ -43,14 +55,29 @@ export const AuthProvider = ({ children }) => {
         // gate and let ProtectedRoute wait for it instead of bouncing to home
         // (the original "first login redirects to home" bug).
         setLoading(true);
-        fetchRole(newUser.id);
+        // Run async Supabase queries in a timeout, NOT directly inside the
+        // callback — calling them synchronously here can deadlock supabase-js's
+        // internal auth lock and freeze token refresh (documented pitfall).
+        setTimeout(() => fetchRole(newUser.id), 0);
       } else {
         setRole(null);
         setLoading(false);
       }
     });
 
-    return () => subscription.unsubscribe();
+    // Refresh the role when the tab regains focus: a demoted admin keeps a
+    // stale admin UI otherwise (data is still RLS-protected, but the UI
+    // shouldn't lie). Cheap single-row read; skipped when signed out.
+    const refetchRoleOnFocus = () => {
+      const id = userIdRef.current;
+      if (id && document.visibilityState === "visible") fetchRole(id);
+    };
+    window.addEventListener("focus", refetchRoleOnFocus);
+
+    return () => {
+      subscription.unsubscribe();
+      window.removeEventListener("focus", refetchRoleOnFocus);
+    };
   }, []);
 
   const fetchRole = async (userId) => {

@@ -6,6 +6,7 @@ import {
   Navigate,
 } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 
 // Route-level chunks keep the landing/login download small. Heavy dashboards
 // and the thesis comparison view load only when their route is opened.
@@ -64,8 +65,9 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 export default function App() {
   return (
     <AuthProvider>
-      <Router>
-        <Suspense fallback={<LoadingScreen />}>
+      <ErrorBoundary>
+        <Router>
+          <Suspense fallback={<LoadingScreen />}>
           <Routes>
           <Route path="/" element={<Home />} />
 
@@ -76,10 +78,11 @@ export default function App() {
             <Route
               path="/compare"
               element={
-                // The comparison API requires a valid login and applies its own
-                // strict rate limit. Keep the page authenticated, but do not add
-                // a frontend-only role restriction that disagrees with it.
-                <ProtectedRoute>
+                // The comparison API requires an ADMIN account — enforced
+                // server-side in app/routers/compare.py. The route gate only
+                // mirrors that so students are bounced here instead of
+                // hitting a 403 after the page loads.
+                <ProtectedRoute allowedRoles={["admin", "superadmin"]}>
                   <CompareView />
                 </ProtectedRoute>
               }
@@ -125,6 +128,7 @@ export default function App() {
           </Routes>
         </Suspense>
       </Router>
+      </ErrorBoundary>
     </AuthProvider>
   );
 }

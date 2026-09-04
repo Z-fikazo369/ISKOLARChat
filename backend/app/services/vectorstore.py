@@ -1,5 +1,6 @@
 """Phase 2 Step 5 — Vector Indexing (Qdrant Cloud)."""
 
+import logging
 import uuid
 from functools import lru_cache
 
@@ -16,6 +17,8 @@ from qdrant_client.models import (
 )
 
 from ..config import get_settings
+
+logger = logging.getLogger(__name__)
 
 
 @lru_cache
@@ -45,8 +48,10 @@ def _ensure_document_id_index() -> None:
             field_name="document_id",
             field_schema=PayloadSchemaType.KEYWORD,
         )
-    except Exception:
-        pass  # already indexed
+    except Exception as exc:
+        # Usually "already indexed" — but log it so an auth/quota/network
+        # failure is diagnosable instead of silently missing.
+        logger.debug("Payload index creation skipped: %s", exc)
 
 
 # Deterministic point ids: the same (document_id, chunk_index) always maps to
@@ -59,9 +64,12 @@ def _point_id(chunk: dict) -> str:
 def upsert_chunks(chunks: list[dict], vectors: list[list[float]]) -> None:
     """chunks: [{text, document_id, source, page, chunk_index}]"""
     s = get_settings()
+    # strict=True: if the embedding provider ever returned fewer vectors than
+    # texts, silently truncating here would drop chunks while the documents
+    # table still reports the full chunk_count — make it a loud error instead.
     points = [
         PointStruct(id=_point_id(chunk), vector=vec, payload=chunk)
-        for chunk, vec in zip(chunks, vectors)
+        for chunk, vec in zip(chunks, vectors, strict=True)
     ]
     # Batched — a large document in a single upsert can exceed Qdrant Cloud's
     # request payload limit and fail after the embeddings were already paid for.

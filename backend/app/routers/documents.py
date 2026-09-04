@@ -67,6 +67,20 @@ def delete_document(document_id: str, _admin: dict = Depends(require_admin)) -> 
     if not row or not row.data:
         raise HTTPException(404, "Document not found")
 
+    # Flip to 'deleting' BEFORE removing anything. The ingestion worker
+    # re-checks the status right before AND right after indexing, so a
+    # document deleted mid-ingest never leaves orphaned chunks behind: the
+    # worker compensates by deleting what it just upserted. The claim RPC
+    # also ignores 'deleting' rows, so no new attempt can start. Idempotent —
+    # a retry after a partial failure simply flips it again.
+    try:
+        sb.table("documents").update({"status": "deleting"}).eq("id", document_id).execute()
+    except Exception as exc:
+        logger.exception("Could not mark document %s as deleting", document_id)
+        raise HTTPException(
+            503, "The document service is temporarily unavailable. Please try again."
+        ) from exc
+
     file_path = row.data.get("file_path")
     if file_path:
         try:

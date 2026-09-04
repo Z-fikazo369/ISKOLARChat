@@ -68,11 +68,24 @@ export default function StudentSignup() {
 
       if (signupError) throw signupError;
 
+      // Signing up with an email that already exists returns an empty
+      // identities list (not an error) when confirmation emails are enabled.
+      if (data.user && data.user.identities?.length === 0) {
+        setError("An account with this email already exists. Try logging in.");
+        return;
+      }
+
       // Profile creation is handled by the on_auth_user_created DB trigger
       // (client-side inserts fail when email confirmation is enabled,
       // because there is no session yet).
 
-      alert("Account created! You can now log in.");
+      if (!data.session) {
+        // This Supabase project requires email confirmation — say so instead
+        // of implying they can log in right away.
+        alert("Account created! Check your email to confirm your account, then log in.");
+      } else {
+        alert("Account created! You can now log in.");
+      }
       navigate("/student/login");
     } catch (err) {
       setError(err.message);

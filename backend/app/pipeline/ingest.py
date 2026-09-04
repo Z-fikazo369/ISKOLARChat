@@ -56,10 +56,12 @@ def ingest_document(document_id: str) -> None:
         # The admin may have deleted the document while we were extracting/
         # embedding — indexing now would leave orphaned chunks with no owning
         # row, permanently answering questions from a "deleted" document.
-        still_there = (
-            sb.table("documents").select("id").eq("id", document_id).maybe_single().execute()
+        # 'deleting' is the tombstone the delete endpoint sets before removing
+        # anything, so only proceed while this row is still ours.
+        state = (
+            sb.table("documents").select("id, status").eq("id", document_id).maybe_single().execute()
         )
-        if not still_there or not still_there.data:
+        if not state or not state.data or state.data.get("status") != "processing":
             logger.info("Document %s was deleted mid-ingest; skipping indexing", document_id)
             return
 
@@ -67,6 +69,24 @@ def ingest_document(document_id: str) -> None:
         # shorter document doesn't leave stale trailing chunks behind.
         vectorstore.delete_document_chunks(document_id)
         vectorstore.upsert_chunks(chunks, vectors)
+
+        # The delete endpoint removes Qdrant chunks AFTER flipping status to
+        # 'deleting', so re-checking that we still own the row AFTER the
+        # upsert closes the race in both orderings: if the delete began before
+        # this check it has removed (or will remove) our fresh chunks itself;
+        # if it begins after, its own chunk-delete removes them. Either way
+        # chunks never outlive the row that owns them.
+        still_processing = (
+            sb.table("documents").select("id, status").eq("id", document_id).maybe_single().execute()
+        )
+        if not still_processing or not still_processing.data or still_processing.data.get("status") != "processing":
+            logger.info(
+                "Document %s was deleted during indexing; removing just-upserted chunks",
+                document_id,
+            )
+            vectorstore.delete_document_chunks(document_id)
+            return
+
         bm25.rebuild_and_publish()
 
         sb.table("documents").update(

@@ -724,7 +724,22 @@ export default function CompareView() {
         method: "POST",
         body: JSON.stringify({ question: text }),
       });
-      setResult(data);
+      // Normalize before storing: an odd/partial response shape must show a
+      // clean error, not a white screen from naive.chunks.length below.
+      if (!data?.naive || !data?.agentic) {
+        throw new Error("The comparison service returned an incomplete response.");
+      }
+      setResult({
+        ...data,
+        naive: { ...data.naive, answer: data.naive.answer ?? "", chunks: data.naive.chunks ?? [] },
+        agentic: {
+          ...data.agentic,
+          answer: data.agentic.answer ?? "",
+          sub_queries: data.agentic.sub_queries ?? [],
+          candidates: data.agentic.candidates ?? [],
+          relevant: data.agentic.relevant ?? [],
+        },
+      });
     } catch (e) {
       setError(e.message || "Comparison failed.");
       setResult(null);
