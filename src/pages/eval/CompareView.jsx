@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
-import { ArrowLeft, Send, Loader2, ChevronDown, BarChart3, Users, ShieldAlert, Target, CheckCircle2, Columns2 } from "lucide-react";
+import { ArrowLeft, Send, Loader2, ChevronDown, ChevronRight, BarChart3, Users, ShieldAlert, Target, CheckCircle2, Columns2, AlertTriangle, XCircle, CheckCircle, Info, ArrowRight, MessageSquare, Search, Filter, Zap, UserCheck } from "lucide-react";
 import { apiFetch } from "../../lib/api";
 import { useTitle } from "../../hooks/useTitle";
 
@@ -117,6 +117,86 @@ const SAMPLES = [
   "What is the dress code and the policy on student absences?",
 ];
 
+// Grade score color: maps 0-1 grade to a color for visual feedback.
+function gradeColor(score) {
+  if (score >= 0.8) return "#16a34a";
+  if (score >= 0.5) return "#65a30d";
+  if (score >= 0.4) return "#f59e0b";
+  if (score > 0) return "#f97316";
+  return "#ef4444";
+}
+
+// Grade label corresponding to the rubric used by the LLM grader.
+function gradeLabel(score) {
+  if (score >= 0.8) return "Direct answer";
+  if (score >= 0.4) return "Supporting context";
+  if (score > 0) return "Loosely related";
+  return "Unrelated";
+}
+
+// Horizontal bar showing grade score visually (0-1 scale).
+function GradeBar({ score, threshold }) {
+  const color = gradeColor(score);
+  const passed = threshold != null ? score >= threshold : null;
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 4 }}>
+      <div
+        style={{
+          flex: 1,
+          height: 6,
+          borderRadius: 3,
+          background: "var(--muted)",
+          position: "relative",
+          maxWidth: 120,
+          overflow: "hidden",
+        }}
+      >
+        <div
+          style={{
+            width: `${Math.max(score * 100, 2)}%`,
+            height: "100%",
+            borderRadius: 3,
+            background: color,
+            transition: "width 0.3s ease",
+          }}
+        />
+        {threshold != null && (
+          <div
+            style={{
+              position: "absolute",
+              left: `${threshold * 100}%`,
+              top: -2,
+              bottom: -2,
+              width: 2,
+              background: "var(--foreground)",
+              opacity: 0.4,
+            }}
+            title={`Threshold: ${threshold}`}
+          />
+        )}
+      </div>
+      <span
+        style={{
+          fontSize: 11,
+          fontWeight: 600,
+          fontVariantNumeric: "tabular-nums",
+          color,
+          minWidth: 32,
+        }}
+      >
+        {score.toFixed(2)}
+      </span>
+      {passed != null && (
+        passed ? (
+          <CheckCircle size={13} style={{ color: "#16a34a", flexShrink: 0 }} />
+        ) : (
+          <XCircle size={13} style={{ color: "#ef4444", flexShrink: 0 }} />
+        )
+      )}
+    </div>
+  );
+}
+
 // One muted, right-aligned score per chunk (whichever is most relevant).
 function chunkScore(c) {
   if (c.grade_score != null) return ["relevance", c.grade_score];
@@ -125,14 +205,24 @@ function chunkScore(c) {
   return null;
 }
 
-function Chunk({ c }) {
+function Chunk({ c, threshold, showGradeDetail }) {
   const [open, setOpen] = useState(false);
   const text = c.text || "";
   const long = text.length > 220;
-  const shown = open || !long ? text : text.slice(0, 220) + "…";
+  const shown = open || !long ? text : text.slice(0, 220) + "\u2026";
   const score = chunkScore(c);
+  const hasGrade = c.grade_score != null;
+  const passed = hasGrade && threshold != null ? c.grade_score >= threshold : null;
   return (
-    <div style={{ padding: "10px 0", borderTop: "1px solid var(--border)" }}>
+    <div
+      style={{
+        padding: "10px 0",
+        borderTop: "1px solid var(--border)",
+        ...(passed === false && showGradeDetail
+          ? { opacity: 0.6 }
+          : {}),
+      }}
+    >
       <div
         style={{
           display: "flex",
@@ -147,12 +237,50 @@ function Chunk({ c }) {
           {c.rank}. {c.document_name || "document"}
           {c.page ? `, p.${c.page}` : ""}
         </span>
-        {score && (
-          <span style={{ fontVariantNumeric: "tabular-nums", flexShrink: 0 }}>
-            {score[0]} {Number(score[1]).toFixed(2)}
-          </span>
-        )}
+        <span style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
+          {score && (
+            <span style={{ fontVariantNumeric: "tabular-nums" }}>
+              {score[0]} {Number(score[1]).toFixed(2)}
+            </span>
+          )}
+          {passed === true && showGradeDetail && (
+            <span
+              style={{
+                fontSize: 10,
+                fontWeight: 600,
+                color: "#16a34a",
+                background: "rgba(22,163,74,.1)",
+                borderRadius: 999,
+                padding: "1px 7px",
+              }}
+            >
+              PASS
+            </span>
+          )}
+          {passed === false && showGradeDetail && (
+            <span
+              style={{
+                fontSize: 10,
+                fontWeight: 600,
+                color: "#ef4444",
+                background: "rgba(239,68,68,.1)",
+                borderRadius: 999,
+                padding: "1px 7px",
+              }}
+            >
+              FAIL
+            </span>
+          )}
+        </span>
       </div>
+      {hasGrade && showGradeDetail && (
+        <div style={{ marginBottom: 6 }}>
+          <GradeBar score={c.grade_score} threshold={threshold} />
+          <span style={{ fontSize: 10.5, color: "var(--muted-foreground)", marginTop: 2, display: "block" }}>
+            {gradeLabel(c.grade_score)}
+          </span>
+        </div>
+      )}
       <p
         style={{
           margin: 0,
@@ -703,6 +831,292 @@ function ViewMenu({ view, setView }) {
 
 // ── Page ────────────────────────────────────────────────────────────────────
 
+// Pipeline flow step indicator — shows the agentic pipeline stages with
+// active/completed/failed states for maximum transparency.
+function PipelineFlow({ agentic, grading }) {
+  const steps = [
+    { id: "classify", label: "Classify", icon: MessageSquare, status: "done" },
+    { id: "decompose", label: "Decompose", icon: Zap, status: "done" },
+    { id: "retrieve", label: "Retrieve", icon: Search, status: "done" },
+    {
+      id: "grade",
+      label: "Grade",
+      icon: Filter,
+      status: "done",
+      detail: grading
+        ? `${agentic.relevant?.length || 0}/${(agentic.graded_candidates || agentic.candidates)?.length || 0} passed`
+        : null,
+    },
+    {
+      id: "route",
+      label: agentic.escalated ? "Escalate" : "Generate",
+      icon: agentic.escalated ? UserCheck : CheckCircle2,
+      status: agentic.escalated ? "escalated" : "done",
+    },
+  ];
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 0, flexWrap: "wrap", margin: "12px 0 4px" }}>
+      {steps.map((step, i) => {
+        const Icon = step.icon;
+        const isEscalated = step.status === "escalated";
+        const color = isEscalated ? ESCALATE_COLOR : "var(--primary)";
+        const bg = isEscalated ? "rgba(245,158,11,.10)" : "rgba(var(--primary-rgb, 59,130,246),.08)";
+        return (
+          <div key={step.id} style={{ display: "flex", alignItems: "center" }}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 5,
+                padding: "5px 10px",
+                borderRadius: 8,
+                background: bg,
+                border: `1px solid ${isEscalated ? "rgba(245,158,11,.3)" : "transparent"}`,
+              }}
+            >
+              <Icon size={13} style={{ color, flexShrink: 0 }} />
+              <span style={{ fontSize: 11, fontWeight: 600, color, whiteSpace: "nowrap" }}>
+                {step.label}
+              </span>
+              {step.detail && (
+                <span style={{ fontSize: 10, color: "var(--muted-foreground)", whiteSpace: "nowrap" }}>
+                  ({step.detail})
+                </span>
+              )}
+            </div>
+            {i < steps.length - 1 && (
+              <ChevronRight size={13} style={{ color: "var(--muted-foreground)", margin: "0 2px", flexShrink: 0 }} />
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// Enhanced HITL escalation banner with detailed breakdown.
+function HitlEscalationBanner({ agentic, grading }) {
+  const [showDetails, setShowDetails] = useState(true);
+  const threshold = grading?.threshold ?? 0.5;
+  const graderModel = grading?.grader_model || "unknown";
+  const gradedList = agentic.graded_candidates || [];
+  const nCandidates = gradedList.length || agentic.candidates?.length || 0;
+  const nPassed = agentic.relevant?.length || 0;
+  const nFailed = nCandidates - nPassed;
+  const allZero = gradedList.length > 0 && gradedList.every((c) => (c.grade_score ?? 0) === 0);
+
+  return (
+    <div
+      style={{
+        background: "rgba(245, 158, 11, 0.06)",
+        border: "1px solid rgba(245, 158, 11, 0.35)",
+        borderRadius: 12,
+        marginTop: 14,
+        marginBottom: 8,
+        overflow: "hidden",
+      }}
+    >
+      {/* Header */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 10,
+          padding: "14px 16px",
+          borderBottom: showDetails ? "1px solid rgba(245,158,11,.15)" : "none",
+        }}
+      >
+        <div
+          style={{
+            width: 36,
+            height: 36,
+            borderRadius: "50%",
+            background: "rgba(245,158,11,.12)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            flexShrink: 0,
+          }}
+        >
+          <AlertTriangle size={18} style={{ color: ESCALATE_COLOR }} />
+        </div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <p style={{ margin: 0, fontSize: 14, fontWeight: 700, color: ESCALATE_COLOR }}>
+            Human-in-the-Loop Escalation Triggered
+          </p>
+          <p style={{ margin: "2px 0 0", fontSize: 12, color: "var(--muted-foreground)" }}>
+            {allZero
+              ? "All retrieved chunks scored 0.0 — the knowledge base does not cover this topic."
+              : `No chunk met the relevance threshold (${threshold}) — question forwarded to human admin.`}
+          </p>
+        </div>
+        <button
+          onClick={() => setShowDetails((v) => !v)}
+          style={{
+            background: "none",
+            border: "none",
+            cursor: "pointer",
+            padding: 4,
+            color: "var(--muted-foreground)",
+            flexShrink: 0,
+          }}
+        >
+          <ChevronDown size={16} style={{ transform: showDetails ? "rotate(180deg)" : "none", transition: "transform .15s" }} />
+        </button>
+      </div>
+
+      {showDetails && (
+        <div style={{ padding: "12px 16px 16px" }}>
+          {/* What happens in production */}
+          <div
+            style={{
+              display: "flex",
+              gap: 12,
+              marginBottom: 14,
+              padding: "10px 12px",
+              background: "rgba(245,158,11,.05)",
+              borderRadius: 8,
+              border: "1px dashed rgba(245,158,11,.2)",
+            }}
+          >
+            <Info size={14} style={{ color: ESCALATE_COLOR, flexShrink: 0, marginTop: 2 }} />
+            <div style={{ fontSize: 12, lineHeight: 1.6, color: "var(--muted-foreground)" }}>
+              <b style={{ color: "var(--foreground)" }}>In the live system:</b> The student
+              would see a &ldquo;forwarded to admin staff&rdquo; message. An admin reviews and
+              answers the question in the HITL queue, and the verified answer is automatically
+              ingested into the knowledge base so future students get it instantly.
+            </div>
+          </div>
+
+          {/* Grading summary stats */}
+          <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 10 }}>
+            <div
+              style={{
+                flex: "1 1 120px",
+                padding: "8px 12px",
+                borderRadius: 8,
+                border: "1px solid var(--border)",
+                background: "var(--card)",
+                textAlign: "center",
+              }}
+            >
+              <div style={{ fontSize: 18, fontWeight: 700, color: "var(--foreground)" }}>{nCandidates}</div>
+              <div style={{ fontSize: 10.5, color: "var(--muted-foreground)" }}>Candidates retrieved</div>
+            </div>
+            <div
+              style={{
+                flex: "1 1 120px",
+                padding: "8px 12px",
+                borderRadius: 8,
+                border: "1px solid var(--border)",
+                background: "var(--card)",
+                textAlign: "center",
+              }}
+            >
+              <div style={{ fontSize: 18, fontWeight: 700, color: "#ef4444" }}>{nFailed}</div>
+              <div style={{ fontSize: 10.5, color: "var(--muted-foreground)" }}>Below threshold</div>
+            </div>
+            <div
+              style={{
+                flex: "1 1 120px",
+                padding: "8px 12px",
+                borderRadius: 8,
+                border: "1px solid var(--border)",
+                background: "var(--card)",
+                textAlign: "center",
+              }}
+            >
+              <div style={{ fontSize: 18, fontWeight: 700, color: "#16a34a" }}>{nPassed}</div>
+              <div style={{ fontSize: 10.5, color: "var(--muted-foreground)" }}>Passed grading</div>
+            </div>
+          </div>
+
+          <p style={{ margin: 0, fontSize: 11, color: "var(--muted-foreground)" }}>
+            Grader: <code style={{ fontSize: 10.5, background: "var(--muted)", padding: "1px 5px", borderRadius: 4 }}>{graderModel}</code>
+            {" "} | Threshold: <b>{threshold}</b>
+            {" "} | Min relevant chunks: <b>{grading?.min_relevant_chunks ?? 1}</b>
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Grading rubric card for the agentic column — shows how the LLM grades chunks.
+function GradingRubric({ grading }) {
+  const [open, setOpen] = useState(false);
+  const threshold = grading?.threshold ?? 0.5;
+  const rubric = [
+    { range: "0.8 \u2013 1.0", label: "Direct answer", color: "#16a34a", desc: "Chunk directly answers or contains the specific information asked for." },
+    { range: "0.4 \u2013 0.7", label: "Supporting context", color: "#f59e0b", desc: "Same topic, useful supporting context, but doesn't directly answer." },
+    { range: "0.1 \u2013 0.3", label: "Loosely related", color: "#f97316", desc: "Related keywords but about a different aspect of the topic." },
+    { range: "0.0", label: "Unrelated", color: "#ef4444", desc: "Completely unrelated to the question." },
+  ];
+  return (
+    <div style={{ marginTop: 12, marginBottom: 4 }}>
+      <button
+        onClick={() => setOpen((v) => !v)}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 5,
+          fontSize: 11.5,
+          fontWeight: 600,
+          color: "var(--muted-foreground)",
+          background: "none",
+          border: "none",
+          cursor: "pointer",
+          padding: 0,
+        }}
+      >
+        <Info size={13} style={{ flexShrink: 0 }} />
+        {open ? "Hide" : "Show"} grading rubric
+        <ChevronDown size={12} style={{ transform: open ? "rotate(180deg)" : "none", transition: "transform .15s" }} />
+      </button>
+      {open && (
+        <div
+          style={{
+            marginTop: 8,
+            padding: "10px 12px",
+            borderRadius: 8,
+            border: "1px solid var(--border)",
+            background: "var(--muted)",
+            fontSize: 11.5,
+          }}
+        >
+          <p style={{ margin: "0 0 8px", fontWeight: 600, color: "var(--foreground)" }}>
+            LLM Relevance Grading Rubric (threshold: {threshold})
+          </p>
+          {rubric.map((r) => (
+            <div key={r.range} style={{ display: "flex", gap: 8, alignItems: "baseline", marginBottom: 4 }}>
+              <span style={{ fontWeight: 600, color: r.color, minWidth: 70, fontVariantNumeric: "tabular-nums" }}>
+                {r.range}
+              </span>
+              <span>
+                <b style={{ color: "var(--foreground)" }}>{r.label}</b>
+                <span style={{ color: "var(--muted-foreground)" }}> — {r.desc}</span>
+              </span>
+            </div>
+          ))}
+          <div
+            style={{
+              marginTop: 8,
+              paddingTop: 8,
+              borderTop: "1px solid var(--border)",
+              fontSize: 11,
+              color: "var(--muted-foreground)",
+            }}
+          >
+            Chunks scoring <b>&ge; {threshold}</b> are accepted as relevant context.
+            Below this threshold, chunks are filtered out. If no chunk passes, the
+            system escalates to a human admin (HITL).
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function CompareView() {
   useTitle("RAG Comparison");
   const [view, setView] = useState("live");
@@ -711,6 +1125,7 @@ export default function CompareView() {
   const [error, setError] = useState("");
   const [result, setResult] = useState(null);
   const [showCandidates, setShowCandidates] = useState(false);
+  const [showGradedCandidates, setShowGradedCandidates] = useState(false);
 
   const run = async (q) => {
     const text = (q ?? question).trim();
@@ -719,6 +1134,7 @@ export default function CompareView() {
     setLoading(true);
     setError("");
     setShowCandidates(false);
+    setShowGradedCandidates(false);
     try {
       const data = await apiFetch("/api/compare", {
         method: "POST",
@@ -729,6 +1145,7 @@ export default function CompareView() {
       if (!data?.naive || !data?.agentic) {
         throw new Error("The comparison service returned an incomplete response.");
       }
+      const escalated = data.agentic.escalated;
       setResult({
         ...data,
         naive: { ...data.naive, answer: data.naive.answer ?? "", chunks: data.naive.chunks ?? [] },
@@ -737,9 +1154,16 @@ export default function CompareView() {
           answer: data.agentic.answer ?? "",
           sub_queries: data.agentic.sub_queries ?? [],
           candidates: data.agentic.candidates ?? [],
+          graded_candidates: data.agentic.graded_candidates ?? [],
           relevant: data.agentic.relevant ?? [],
+          grading: data.agentic.grading ?? null,
         },
       });
+      // Auto-expand the graded candidates view when escalated so the user
+      // can immediately see why every chunk failed.
+      if (escalated) {
+        setShowGradedCandidates(true);
+      }
     } catch (e) {
       setError(e.message || "Comparison failed.");
       setResult(null);
@@ -751,7 +1175,11 @@ export default function CompareView() {
   const s = result?.settings;
   const naive = result?.naive;
   const agentic = result?.agentic;
+  // Grading metadata returned by the agentic pipeline (threshold, model, etc.)
+  const gradingMeta = agentic?.grading ?? null;
+  const threshold = gradingMeta?.threshold ?? s?.relevance_threshold ?? 0.5;
   const nSub = agentic?.sub_queries?.length || 0;
+  const gradedCandidates = agentic?.graded_candidates || [];
 
   const muted = "var(--muted-foreground)";
 
@@ -804,7 +1232,7 @@ export default function CompareView() {
                   value={question}
                   onChange={(e) => setQuestion(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && run()}
-                  placeholder="Ask an ISU student-services question…"
+                  placeholder="Ask an ISU student-services question\u2026"
                   style={{
                     flex: 1,
                     padding: "11px 14px",
@@ -862,7 +1290,7 @@ export default function CompareView() {
                       cursor: loading ? "not-allowed" : "pointer",
                     }}
                   >
-                    {q.length > 46 ? q.slice(0, 46) + "…" : q}
+                    {q.length > 46 ? q.slice(0, 46) + "\u2026" : q}
                   </button>
                 ))}
               </div>
@@ -870,24 +1298,37 @@ export default function CompareView() {
 
             {loading && (
               <p style={{ marginTop: 20, fontSize: 13.5, color: muted }}>
-                Running both systems… (a few seconds)
+                Running both systems\u2026 (a few seconds)
               </p>
             )}
             {error && <p style={{ marginTop: 20, fontSize: 13.5, color: "#ef4444" }}>{error}</p>}
 
             {result && (
               <>
-                {/* One-line plain summary of what differed */}
-                <Card style={{ marginTop: 16, padding: "14px 18px" }}>
+                {/* Summary card */}
+                <Card
+                  style={{
+                    marginTop: 16,
+                    padding: "14px 18px",
+                    ...(agentic.escalated
+                      ? { borderColor: "rgba(245, 158, 11, 0.4)", background: "rgba(245, 158, 11, 0.04)" }
+                      : {}),
+                  }}
+                >
                   <p style={{ margin: 0, fontSize: 13, lineHeight: 1.6, color: "var(--foreground)" }}>
                     Naive kept <b>{naive.chunks.length}</b> chunks (semantic top-K, no filtering).
                     Agentic split the question into <b>{nSub || 1}</b> sub-quer{(nSub || 1) > 1 ? "ies" : "y"},
-                    fused with RRF, then kept <b>{agentic.relevant.length}</b> after relevance grading
-                    {agentic.escalated ? " → escalated to a human (no answer)" : ""}.
+                    fused with RRF, then kept <b>{agentic.relevant.length}</b> of{" "}
+                    <b>{gradedCandidates.length || agentic.candidates.length}</b> after relevance grading
+                    {agentic.escalated ? (
+                      <span style={{ color: ESCALATE_COLOR, fontWeight: 700 }}>
+                        {" "}&mdash; HITL escalation triggered (no answer generated)
+                      </span>
+                    ) : ""}.
                   </p>
                   {s && (
                     <p style={{ margin: "6px 0 0", fontSize: 11.5, color: muted }}>
-                      top-K {s.final_top_k} · RRF k {s.rrf_k} · relevance ≥ {s.relevance_threshold} · {s.embed_model} · {s.llm_model}
+                      top-K {s.final_top_k} · RRF k {s.rrf_k} · relevance &ge; {s.relevance_threshold} · {s.embed_model} · {s.llm_model}
                     </p>
                   )}
                 </Card>
@@ -901,8 +1342,8 @@ export default function CompareView() {
                     alignItems: "flex-start",
                   }}
                 >
-                  {/* Naive */}
-                  <Column title="Naive RAG" subtitle="Semantic top-K → answer" accent={NAIVE_COLOR}>
+                  {/* ── Naive Column ── */}
+                  <Column title="Naive RAG" subtitle="Semantic top-K \u2192 answer (no filtering)" accent={NAIVE_COLOR}>
                     <Label>Answer</Label>
                     <Answer text={naive.answer} />
                     <Label>Retrieved context · {naive.chunks.length}</Label>
@@ -912,14 +1353,28 @@ export default function CompareView() {
                     {naive.chunks.map((c) => (
                       <Chunk key={c.rank} c={c} />
                     ))}
+                    {naive.chunks.length > 0 && (
+                      <p style={{ fontSize: 11, color: muted, marginTop: 8 }}>
+                        Naive RAG uses all retrieved chunks regardless of quality &mdash;
+                        no relevance grading, no escalation capability.
+                      </p>
+                    )}
                   </Column>
 
-                  {/* Agentic */}
+                  {/* ── Agentic Column ── */}
                   <Column
                     title="Agentic RAG"
-                    subtitle="Decompose → hybrid + RRF → grade → answer"
+                    subtitle="Decompose \u2192 hybrid + RRF \u2192 grade \u2192 answer or escalate"
                     accent="var(--primary)"
                   >
+                    {/* Pipeline flow visualization */}
+                    <PipelineFlow agentic={agentic} grading={gradingMeta} />
+
+                    {/* HITL Escalation Banner (enhanced) */}
+                    {agentic.escalated && (
+                      <HitlEscalationBanner agentic={agentic} grading={gradingMeta} />
+                    )}
+
                     <Label>Answer</Label>
                     <Answer text={agentic.answer} muted={agentic.escalated} />
 
@@ -945,22 +1400,81 @@ export default function CompareView() {
                       </>
                     )}
 
-                    <Label>Relevant context · {agentic.relevant.length}</Label>
+                    {/* Relevant context with grade detail */}
+                    <Label>
+                      Relevant context · {agentic.relevant.length}
+                      {agentic.relevant.length > 0 && (
+                        <span style={{ fontWeight: 400, textTransform: "none", letterSpacing: 0 }}>
+                          {" "} (grade &ge; {threshold})
+                        </span>
+                      )}
+                    </Label>
                     {agentic.relevant.length === 0 && (
                       <p style={{ fontSize: 12.5, color: muted }}>
-                        Nothing passed the relevance grader → escalated.
+                        Nothing passed the relevance grader &mdash; escalated to human admin.
                       </p>
                     )}
                     {agentic.relevant.map((c) => (
-                      <Chunk key={c.rank} c={c} />
+                      <Chunk key={c.rank} c={c} threshold={threshold} showGradeDetail />
                     ))}
 
+                    {/* Grading Rubric toggle */}
+                    <GradingRubric grading={gradingMeta} />
+
+                    {/* Graded candidates — all candidates with their grades visible */}
+                    {gradedCandidates.length > 0 && (
+                      <>
+                        <button
+                          onClick={() => setShowGradedCandidates((v) => !v)}
+                          style={{
+                            marginTop: 12,
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 5,
+                            fontSize: 12,
+                            fontWeight: 600,
+                            color: agentic.escalated ? ESCALATE_COLOR : muted,
+                            background: "none",
+                            border: "none",
+                            cursor: "pointer",
+                            padding: 0,
+                          }}
+                        >
+                          <ChevronDown
+                            size={14}
+                            style={{
+                              transform: showGradedCandidates ? "rotate(180deg)" : "none",
+                              transition: "transform .15s",
+                            }}
+                          />
+                          {showGradedCandidates ? "Hide" : "Show"} all graded candidates ({gradedCandidates.length})
+                          {agentic.escalated && !showGradedCandidates && (
+                            <span style={{ fontSize: 10.5, color: muted, fontWeight: 400 }}>
+                              {" "}&mdash; see why each chunk failed
+                            </span>
+                          )}
+                        </button>
+                        {showGradedCandidates && (
+                          <div style={{ marginTop: 4 }}>
+                            <p style={{ margin: "0 0 6px", fontSize: 11, color: muted }}>
+                              Every retrieved candidate with its LLM-assigned relevance grade.
+                              Chunks &ge; {threshold} pass; below = filtered out.
+                            </p>
+                            {gradedCandidates.map((c) => (
+                              <Chunk key={c.rank} c={c} threshold={threshold} showGradeDetail />
+                            ))}
+                          </div>
+                        )}
+                      </>
+                    )}
+
+                    {/* Raw fused candidates (before grading) */}
                     {agentic.candidates?.length > 0 && (
                       <>
                         <button
                           onClick={() => setShowCandidates((v) => !v)}
                           style={{
-                            marginTop: 16,
+                            marginTop: 12,
                             display: "flex",
                             alignItems: "center",
                             gap: 5,
@@ -979,7 +1493,7 @@ export default function CompareView() {
                               transition: "transform .15s",
                             }}
                           />
-                          {showCandidates ? "Hide" : "Show"} fused candidates before grading (
+                          {showCandidates ? "Hide" : "Show"} raw RRF candidates before grading (
                           {agentic.candidates.length})
                         </button>
                         {showCandidates &&

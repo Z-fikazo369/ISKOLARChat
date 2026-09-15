@@ -5,14 +5,17 @@ DeepSeek R1 emits chain-of-thought either in a `reasoning` field or inside
 """
 
 import json
+import logging
 import re
 import threading
 from contextlib import contextmanager
 from functools import lru_cache
 
-from openai import OpenAI
+from openai import APIConnectionError, APIStatusError, OpenAI
 
 from ..config import get_settings
+
+logger = logging.getLogger(__name__)
 
 _THINK_RE = re.compile(r"<think>.*?</think>", re.DOTALL)
 
@@ -68,6 +71,47 @@ def _extra_body(effort: str | None = None) -> dict:
     return extra
 
 
+def _model_chain(model: str | None) -> list[str]:
+    """Requested model first, then deployment-configured fallbacks (deduped).
+    A gateway can disable or break a model overnight; these keep chat alive."""
+    s = get_settings()
+    chain = [model or s.llm_model]
+    chain += [m for m in s.llm_fallback_models if m not in chain]
+    return chain
+
+
+def _create_completion(
+    model: str | None, messages: list[dict], temperature: float, extra: dict
+):
+    """One completion call, walking the fallback chain on provider errors.
+    Provider-side failures (400 model gone/quota, 5xx outage, connection
+    reset) move to the next model; the last exception is re-raised so callers
+    keep their existing error handling. Local LLMCapacityError is not retried —
+    it means this instance is saturated, and retrying would make it worse."""
+    last_exc: Exception | None = None
+    requested = model or get_settings().llm_model
+    for m in _model_chain(model):
+        try:
+            resp = _client().chat.completions.create(
+                model=m,
+                messages=messages,
+                temperature=temperature,
+                extra_body=extra,
+            )
+            if m != requested:
+                logger.warning("llm_fallback_used model=%s", m)
+            return resp
+        except (APIStatusError, APIConnectionError) as exc:
+            status = getattr(exc, "status_code", None) or type(exc).__name__
+            logger.warning(
+                "llm_model_failed model=%s status=%s — trying next fallback",
+                m,
+                status,
+            )
+            last_exc = exc
+    raise last_exc
+
+
 def chat(
     messages: list[dict],
     model: str | None = None,
@@ -76,15 +120,9 @@ def chat(
 ) -> tuple[str, str]:
     """Returns (answer, reasoning). `effort` ('low'/'medium'/'high') controls
     how much the model thinks before answering when the provider supports it."""
-    s = get_settings()
     extra = _extra_body(effort)
     with _provider_slot():
-        resp = _client().chat.completions.create(
-            model=model or s.llm_model,
-            messages=messages,
-            temperature=temperature,
-            extra_body=extra,
-        )
+        resp = _create_completion(model, messages, temperature, extra)
     msg = resp.choices[0].message
     content = msg.content or ""
     reasoning = getattr(msg, "reasoning", None) or ""
@@ -111,12 +149,7 @@ def ask_about_image(question: str, image_data_url: str, system: str | None = Non
         }
     )
     with _provider_slot():
-        resp = _client().chat.completions.create(
-            model=s.vision_model,
-            messages=messages,
-            temperature=0.2,
-            extra_body=_extra_body(),
-        )
+        resp = _create_completion(s.vision_model, messages, 0.2, _extra_body())
     msg = resp.choices[0].message
     content = _THINK_RE.sub("", msg.content or "").strip()
     return content, (getattr(msg, "reasoning", None) or "").strip()

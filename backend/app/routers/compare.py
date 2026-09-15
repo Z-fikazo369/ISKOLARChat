@@ -98,11 +98,13 @@ def _run_agentic(question: str) -> dict:
             "escalated": False,
         }
 
+    s = get_settings()
     state.update(agent.decompose(state))   # 1-3 sub-queries
     state.update(agent.retrieve(state))    # candidates: hybrid + RRF (rrf_score)
     state.update(agent.grade(state))       # relevant: graded >= threshold (grade_score)
 
-    if agent.route(state) == "escalate":
+    route_decision = agent.route(state)
+    if route_decision == "escalate":
         # In production this writes a chat_requests row; here we only REPORT it.
         answer = (
             "_(In the live system this question would be escalated to a human "
@@ -116,14 +118,26 @@ def _run_agentic(question: str) -> dict:
         answer = state.get("answer", "")
         escalated = False
 
+    # graded_candidates carries every candidate with its LLM grade_score
+    # attached (including those that failed the threshold), so the comparison
+    # dashboard can show exactly why each chunk passed or failed.
+    graded_candidates = state.get("graded_candidates") or []
+
     return {
         "intent": state.get("intent", "question"),
         "standalone_question": state.get("standalone_question", question),
         "sub_queries": state.get("sub_queries", []),
         "candidates": _chunk_view(state.get("candidates") or []),
+        "graded_candidates": _chunk_view(graded_candidates),
         "relevant": _chunk_view(state.get("relevant") or []),
         "answer": answer,
         "escalated": escalated,
+        "route_decision": route_decision,
+        "grading": {
+            "threshold": s.relevance_threshold,
+            "grader_model": s.grader_model,
+            "min_relevant_chunks": s.min_relevant_chunks,
+        },
     }
 
 

@@ -35,6 +35,17 @@ class Settings:
     llm_max_concurrent_requests: int = int(os.getenv("LLM_MAX_CONCURRENT_REQUESTS", "6"))
     llm_queue_timeout_seconds: float = float(os.getenv("LLM_QUEUE_TIMEOUT_SECONDS", "30"))
     llm_request_timeout_seconds: float = float(os.getenv("LLM_REQUEST_TIMEOUT_SECONDS", "120"))
+    # When the requested model fails at the provider (disabled, quota, outage),
+    # these are tried in order. Settable per deployment; keep only models the
+    # endpoint actually serves.
+    llm_fallback_models: list = [
+        m.strip()
+        for m in os.getenv(
+            "LLM_FALLBACK_MODELS",
+            "glm-5.3-flash,deepseek-v4-flash,claude-haiku-4-5",
+        ).split(",")
+        if m.strip()
+    ]
     # cheaper/faster model for relevance grading & decomposition (defaults to llm_model)
     grader_model: str = os.getenv("GRADER_MODEL", "") or os.getenv("LLM_MODEL", "deepseek/deepseek-v4-pro")
 

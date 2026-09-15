@@ -166,7 +166,8 @@ def chitchat(state: AgentState) -> AgentState:
                     "You are ISKOLARChat, the friendly AI assistant of Isabela "
                     "State University students. The student is just greeting or "
                     "chatting — reply warmly and briefly (1-3 sentences) in the "
-                    "same language they used (English, Filipino, or Taglish), "
+                    "same language they used (English if they used English; "
+                    "Filipino/Taglish only if they did), "
                     "and invite them to ask about university topics like "
                     "admission, enrollment, or school policies. Stay consistent "
                     "with the conversation so far. Do not state any specific "
@@ -183,6 +184,7 @@ def chitchat(state: AgentState) -> AgentState:
 
 # ── Step 0: query decomposition ──────────────────────────────────────────────
 def decompose(state: AgentState) -> AgentState:
+    original = state.get("standalone_question") or state["question"]
     result = llm.chat_json(
         [
             {
@@ -195,16 +197,21 @@ def decompose(state: AgentState) -> AgentState:
             },
             {
                 "role": "user",
-                "content": state.get("standalone_question") or state["question"],
+                "content": original,
             },
         ],
         model=get_settings().grader_model,
     )
     queries = [q for q in result if isinstance(q, str)] if isinstance(result, list) else []
     max_queries = min(5, max(1, get_settings().max_sub_queries))
+    # Always include the original question as the first sub-query so
+    # retrieval never relies solely on LLM-paraphrased variants that may
+    # drift away from the terms actually present in the knowledge base.
+    seen = {original.strip().casefold()}
+    deduped = [q for q in queries if q.strip().casefold() not in seen and not seen.add(q.strip().casefold())]
+    combined = [original] + deduped
     return {
-        "sub_queries": queries[:max_queries]
-        or [state.get("standalone_question") or state["question"]]
+        "sub_queries": combined[:max_queries] or [original]
     }
 
 
@@ -221,7 +228,7 @@ def grade(state: AgentState) -> AgentState:
         return {"relevant": []}
 
     listing = "\n\n".join(
-        f"[{i}] {c['text'][:600]}" for i, c in enumerate(candidates)
+        f"[{i}] {c['text'][:1200]}" for i, c in enumerate(candidates)
     )
     result = llm.chat_json(
         [
@@ -229,9 +236,26 @@ def grade(state: AgentState) -> AgentState:
                 "role": "system",
                 "content": (
                     "You grade retrieved context chunks for relevance to a user "
-                    "question. For each chunk, output a relevance score between "
-                    "0 and 1 (1 = directly answers the question). Reply ONLY "
-                    'with a JSON array of numbers, one per chunk, e.g. [0.9, 0.1].'
+                    "question.\n\n"
+                    "Scoring guide:\n"
+                    "- 0.8-1.0: chunk directly answers or contains the specific "
+                    "information the question asks for (e.g. lists, procedures, "
+                    "requirements, definitions, names, amounts requested).\n"
+                    "- 0.4-0.7: chunk is on the same topic and provides useful "
+                    "supporting context that partially addresses the question, "
+                    "even if incomplete.\n"
+                    "- 0.1-0.3: chunk mentions related keywords but is about a "
+                    "different aspect of the topic. It does NOT help answer the "
+                    "question even partially.\n"
+                    "- 0.0: chunk is completely unrelated to the question.\n\n"
+                    "CRITICAL: Be strict. A chunk that merely MENTIONS a keyword "
+                    "from the question (e.g. mentions 'program chair' in a "
+                    "procedure step) but does NOT contain the actual information "
+                    "being asked for (e.g. the NAME of the program chair) must "
+                    "score 0.1-0.3, NOT 0.4+. Only score 0.4+ if the chunk "
+                    "genuinely helps answer what is being asked.\n"
+                    "Reply ONLY with a JSON array of numbers, one per chunk, "
+                    'e.g. [0.9, 0.1].'
                 ),
             },
             {
@@ -245,32 +269,100 @@ def grade(state: AgentState) -> AgentState:
         model=s.grader_model,
     )
 
+    # Grade every chunk once; keep (score, chunk) so the fallback below can
+    # rank by relevance instead of throwing away the grader's signal.
     scores = result if isinstance(result, list) else None
-    relevant = []
+    scored: list[tuple[float, dict]] = []
+    relevant: list[dict] = []
     parsed = 0
+    trace_id = state.get("trace_id", "unknown")
     for i, c in enumerate(candidates):
         try:
             score = float(scores[i])
             parsed += 1
         except (IndexError, TypeError, ValueError):
             score = 0.0
+        scored.append((score, c))
+        logger.debug(
+            "grader_score trace_id=%s chunk=%d score=%.2f doc=%s page=%s snippet=%.80s",
+            trace_id, i, score,
+            c.get("document_name", "?"), c.get("page", "?"),
+            c.get("text", "")[:80].replace("\n", " "),
+        )
         if score >= s.relevance_threshold:  # G(ci) = 1
             relevant.append({**c, "grade_score": score})
+    logger.info(
+        "grader_summary trace_id=%s candidates=%d parsed=%d relevant=%d threshold=%.2f",
+        trace_id, len(candidates), parsed, len(relevant), s.relevance_threshold,
+    )
 
-    if not parsed and candidates:
+    # Build fully-annotated candidate list for transparency (compare view).
+    # Every candidate gets its grade_score regardless of pass/fail so the
+    # comparison dashboard can show exactly what the grader decided.
+    graded_candidates = [
+        {**c, "grade_score": sc} for sc, c in scored
+    ]
+
+    if relevant:
+        return {"relevant": relevant, "graded_candidates": graded_candidates}
+
+    if not candidates:
+        return {"relevant": [], "graded_candidates": []}
+
+    if parsed == 0:
         # The grader itself failed (malformed JSON after chat_json's retries,
-        # or an upstream outage). Scoring every chunk 0 would escalate an
-        # answerable question to a human admin — the exact cascade the
-        # retries exist to prevent. Fail OPEN instead: keep the top candidates
-        # by retrieval rank (they are already RRF-ordered), which is exactly
+        # or an upstream outage). We have no relevance signal at all, so keep
+        # the top candidates by retrieval rank (already RRF-ordered) — exactly
         # what the naive baseline would have used.
         logger.warning(
             "Grader returned no usable scores; falling back to top %d "
             "candidates by retrieval rank",
             s.final_top_k,
         )
-        return {"relevant": candidates[: s.final_top_k]}
-    return {"relevant": relevant}
+        return {"relevant": candidates[: s.final_top_k], "graded_candidates": graded_candidates}
+
+    # No chunk met the strict "directly answers" threshold (common for broad
+    # queries like "enrollment of isu"), but the grader DID produce scores.
+    #
+    # Only fall back when the best-graded chunk is at least in the
+    # "supporting context" range (>= 0.4 per the rubric). Chunks scored
+    # 0.1-0.3 are "related keywords but different aspect" — they share
+    # terminology but don't address the question, so keeping them leads to
+    # confidently-worded answers that don't actually answer the question
+    # (e.g., the manual mentions "program chair" in procedures but never
+    # names who holds the position).  By requiring >= 0.4 we escalate those
+    # cases to a human admin instead of generating from irrelevant context.
+    FALLBACK_FLOOR = 0.4
+    positives = [(sc, c) for sc, c in scored if sc >= FALLBACK_FLOOR]
+    if positives:
+        positives.sort(key=lambda x: x[0], reverse=True)
+        logger.info(
+            "No chunk met relevance threshold %.2f; falling back to %d "
+            "supporting-context candidates (top grade %.2f, floor %.2f)",
+            s.relevance_threshold,
+            len(positives),
+            positives[0][0],
+            FALLBACK_FLOOR,
+        )
+        return {
+            "relevant": [
+                {**c, "grade_score": sc} for sc, c in positives[: s.final_top_k]
+            ],
+            "graded_candidates": graded_candidates,
+        }
+
+    # No chunk scored >= FALLBACK_FLOOR — the knowledge base either doesn't
+    # cover this topic at all (all 0.0) or the retrieved chunks only share
+    # keywords without actually addressing the question (0.1-0.3). Escalate
+    # to a human admin rather than answer from irrelevant context.
+    top_score = max((sc for sc, _ in scored), default=0.0)
+    logger.info(
+        "No candidate scored >= %.2f (top grade %.2f, %d candidates) — escalating",
+        FALLBACK_FLOOR,
+        top_score,
+        len(candidates),
+    )
+    return {"relevant": [], "graded_candidates": graded_candidates}
 
 
 # ── Step 2: routing decision ─────────────────────────────────────────────────
@@ -302,8 +394,12 @@ def generate(state: AgentState) -> AgentState:
                     "(parang ate/kuya sa campus), warm and approachable, never stiff "
                     "or robotic.\n\n"
                     "Style rules:\n"
-                    "- Reply in the same language the student used (English, "
-                    "Filipino, or Taglish).\n"
+                    "- Reply in the language of the student's latest message. "
+                    "The Context block below may be in a different language "
+                    "(e.g. a Filipino/Taglish admin-verified answer) — ignore "
+                    "that and answer in the language the student just used. "
+                    "Translate the context's content if needed; only use "
+                    "Filipino/Taglish if the student did.\n"
                     "- Start with a short, natural one-line response to the "
                     "question — no formal preambles like 'According to the manual'.\n"
                     "- Use short paragraphs and markdown bullet lists; bold the "
@@ -332,7 +428,15 @@ def generate(state: AgentState) -> AgentState:
             *_history_messages(state.get("history") or []),
             {
                 "role": "user",
-                "content": f"Context:\n{context}\n\n{question_block}",
+                "content": (
+                    f"Context:\n{context}\n\n{question_block}\n\n"
+                    "IMPORTANT: Write your ENTIRE answer in the SAME language as "
+                    "the Question above. The Context may be in a different "
+                    "language (e.g. Filipino/Taglish admin-verified answers) — "
+                    "translate its content into the Question's language. Do NOT "
+                    "mirror the Context's language; match the Question's language "
+                    "exactly. If the Question is in English, answer in English."
+                ),
             },
         ],
         model=state.get("model"),

@@ -117,7 +117,13 @@ def ingest_document(document_id: str) -> None:
 
 def ingest_hitl_answer(request_id: str, question: str, answer: str) -> None:
     """Phase 1 Step 4 — Knowledge Loop: re-ingest an admin-verified answer."""
-    text = f"Question: {question}\nVerified answer: {answer}"
+    # Store only the answer as the chunk text — it's the knowledge we surface.
+    # The original question lives on in the chat_requests row (source of truth)
+    # and is deliberately NOT baked into the chunk, so a Taglish/Filipino
+    # question can't leak into the context block the answering model reads and
+    # bias its language. The answer's own language is handled by the generate
+    # prompt, which translates context into the student's language when needed.
+    text = answer
     vectorstore.ensure_collection()
     # Re-resolving (e.g. fixing a typo in the answer) must replace the old
     # chunk, not add a second one alongside it.
