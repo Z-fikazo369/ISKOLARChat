@@ -1,4 +1,4 @@
-# 🎓 ISKOLARChat
+#  ISKOLARChat
 
 **An Agentic RAG-powered academic assistant for Isabela State University** — students ask questions in English, Filipino, or Taglish and get answers grounded on official university documents, with references. When the AI can't answer reliably, a human admin steps in, and the verified answer feeds back into the knowledge base.
 
@@ -6,19 +6,19 @@
 
 ---
 
-## ✨ Features
+##  Features
 
-- 💬 **Agentic RAG chat** — intent triage → query decomposition → hybrid retrieval → relevance grading → grounded generation
-- 🔍 **Hybrid retrieval** — semantic search (Cohere Embed v3 + Qdrant) fused with keyword search (BM25) via **Reciprocal Rank Fusion**
-- 🧑‍⚖️ **Relevance grading G(cᵢ)** — every retrieved chunk is graded against the query before generation, minimizing hallucination
-- 🙋 **Human-in-the-Loop (HITL)** — unanswerable queries escalate to an admin dashboard; verified answers are **re-ingested into the knowledge base** (knowledge loop)
-- 📄 **Multimodal ingestion** — PyMuPDF text extraction, tables → markdown, embedded images captioned by **Moondream**
-- 🖼️ **Student file & image Q&A** — attach a PDF/DOCX/TXT or a photographed document; images are read by a vision LLM (document OCR)
-- 🎛️ **Model picker** — Claude-style selector for model variant (Flash/Pro/R1) and thinking effort (Low/Medium/Max)
-- 🗂️ **Persistent chat history**, 🌗 light/dark mode, ⚡ live-updating admin dashboards
-- 🔐 Supabase Auth + Row-Level Security, role-based access (student / admin / superadmin), per-user rate limiting
+-  **Agentic RAG chat** — intent triage → query decomposition → hybrid retrieval → relevance grading → grounded generation
+-  **Hybrid retrieval** — semantic search (Cohere Embed v3 + Qdrant) fused with keyword search (BM25) via **Reciprocal Rank Fusion**
+-  **Relevance grading G(cᵢ)** — every retrieved chunk is graded against the query before generation, minimizing hallucination
+-  **Human-in-the-Loop (HITL)** — unanswerable queries escalate to an admin dashboard; verified answers are **re-ingested into the knowledge base** (knowledge loop)
+-  **Multimodal ingestion** — PyMuPDF text extraction, tables → markdown, embedded images captioned by **Moondream**
+-  **Student file & image Q&A** — attach a PDF/DOCX/TXT or a photographed document; images are read by a vision LLM (document OCR)
+-  **Model picker** — Claude-style selector for model variant (Flash/Pro/R1) and thinking effort (Low/Medium/Max)
+-  **Persistent chat history**, 🌗 light/dark mode, ⚡ live-updating admin dashboards
+-  Supabase Auth + Row-Level Security, role-based access (student / admin / superadmin), per-user rate limiting
 
-## 🏗️ Architecture
+##  Architecture
 
 ```mermaid
 flowchart TD
@@ -49,7 +49,7 @@ flowchart TD
     end
 ```
 
-## 🧰 Tech Stack
+##  Tech Stack
 
 | Layer          | Technology                                                                 |
 | -------------- | -------------------------------------------------------------------------- |
@@ -64,7 +64,7 @@ flowchart TD
 | PDF processing | PyMuPDF (fitz)                                                             |
 | Evaluation     | RAGAS (faithfulness, answer relevancy)                                     |
 
-## 🚀 Setup
+##  Setup
 
 ### 1. Supabase
 
@@ -103,7 +103,7 @@ Before handling university data, complete the [production deployment checklist](
 
 The portable Google Colab notebook, backend bundle, and result snapshot are grouped in [colab/](colab/README.md).
 
-## 🔒 Security
+##  Security
 
 - Supabase **Row-Level Security** on every table; self-service role escalation blocked at the database level
 - All API endpoints verify the Supabase JWT; admin endpoints require an admin/superadmin profile role
@@ -111,6 +111,6 @@ The portable Google Colab notebook, backend bundle, and result snapshot are grou
 - Model variants **whitelisted server-side** — clients can't request arbitrary models
 - Secrets live only in gitignored `.env` files; the service-role key never reaches the browser
 
-## 📜 License & Context
+##  License & Context
 
 Academic thesis project for Isabela State University. The comparison baseline ("EduChat", standard RAG) and RAGAS evaluation results are documented in the accompanying thesis.
